@@ -206,55 +206,73 @@ function show_page_control($type, $page, $pages, $pageprev, $pagenext)
 echo '</div>';
 }
 
+/**
+ * Turn all URLs in clickable links.
+ *
+ * @param string $value
+ * @param array  $protocols  http/https, ftp, mail, twitter
+ * @param array  $attributes
+ * @return string
+ */
+function linkify($value, $protocols = array('http', 'https'), array $attributes = array())
+{
+    // Link attributes
+    $attr = '';
+    foreach ($attributes as $key => $val) {
+        $attr .= ' ' . $key . '="' . htmlentities($val) . '"';
+    }
+
+    $links = array();
+
+    // Extract existing links and tags
+    $value = preg_replace_callback('~(<a .*?>.*?</a>|<.*?>)~i', function ($match) use (&$links) { return '<' . array_push($links, $match[1]) . '>'; }, $value);
+
+    // Extract text links for each protocol
+    foreach ((array)$protocols as $protocol) {
+	switch ($protocol) {
+	    case 'http':
+	    case 'https':   $value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { if ($match[1]) $protocol = $match[1]; $link = $match[2] ?: $match[3]; return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$link</a>") . '>'; }, $value); break;
+	    case 'mail':    $value = preg_replace_callback('~([^\s<]+?@[^\s<]+?\.[^\s<]+)(?<![\.,:])~', function ($match) use (&$links, $attr) { return '<' . array_push($links, "<a $attr href=\"mailto:{$match[1]}\">{$match[1]}</a>") . '>'; }, $value); break;
+	    case 'twitter': $value = preg_replace_callback('~(?<!\w)[@#](\w++)~', function ($match) use (&$links, $attr) { return '<' . array_push($links, "<a $attr href=\"https://twitter.com/" . ($match[0][0] == '@' ? '' : 'search/%23') . $match[1]  . "\">{$match[0]}</a>") . '>'; }, $value); break;
+	    default:        $value = preg_replace_callback('~' . preg_quote($protocol, '~') . '://([^\s<]+?)(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { return '<' . array_push($links, "<a $attr href=\"$protocol://{$match[1]}\">{$match[1]}</a>") . '>'; }, $value); break;
+	}
+    }
+
+    // Insert all link
+    return preg_replace_callback('/<(\d+)>/', function ($match) use (&$links) { return $links[$match[1] - 1]; }, $value);
+}
+
 $database = new PDO("sqlite:" . DBASEFILE);
 
 if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
-    $ret = $database->query("PRAGMA table_info(ForumPosts);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumPosts " .
-		"(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR);";
-	$database->exec($query);
-    }
+    $query = "CREATE TABLE IF NOT EXISTS ForumPosts " .
+	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR);";
+    $database->exec($query);
 
-    $ret = $database->query("PRAGMA table_info(ForumTopics);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumTopics " .
-		"(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR);";
-	$database->exec($query);
-    }
+    $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
+	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR);";
+    $database->exec($query);
 
-    $ret = $database->query("PRAGMA table_info(ForumGroups);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumGroups " .
-		"(id INTEGER PRIMARY KEY, grp VARCHAR, note VARCHAR);";
-	$database->exec($query);
-    }
+    $query = "CREATE TABLE IF NOT EXISTS ForumGroups " .
+	     "(id INTEGER PRIMARY KEY, grp VARCHAR, note VARCHAR);";
+    $database->exec($query);
 
-    $ret = $database->query("PRAGMA table_info(ForumUserLike);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumUserLike " .
-		"(id INTEGER PRIMARY KEY, id_user INTEGER, id_like INTEGER, type INTEGER);";
-	$database->exec($query);
-    }
+    $query = "CREATE TABLE IF NOT EXISTS ForumUserLike " .
+	     "(id INTEGER PRIMARY KEY, id_user INTEGER, id_like INTEGER, type INTEGER);";
+    $database->exec($query);
 
-    $ret = $database->query("PRAGMA table_info(ForumUsers);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumUsers " .
-		"(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER);";
-	$database->exec($query);
+    $query = "CREATE TABLE IF NOT EXISTS ForumUsers " .
+	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER);";
+    $database->exec($query);
 
-	$query = "REPLACE INTO ForumUsers (id, login) VALUES (0, 'Анонимно');";
-	$database->exec($query);
-    }
+    $query = "REPLACE INTO ForumUsers (id, login) VALUES (0, 'Анонимно');";
+    $database->exec($query);
 
-    $ret = $database->query("PRAGMA table_info(ForumPager);");
-    if (!$ret->columnCount()) {
-	$query = "CREATE TABLE ForumPager " .
-		"(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR);";
-	$database->exec($query);
-    }
+    $query = "CREATE TABLE IF NOT EXISTS ForumPager " .
+	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR);";
+    $database->exec($query);
 
     {
 	$show_groups = 0;
@@ -867,7 +885,11 @@ if (!$database) {
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
-		$post = $str = ereg_replace("[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]","<a href=\"\\0\" target=\"_blank\">\\0</a>", $row['post']); 
+//		$post = $str = preg_replace('@(http(s)?://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@',
+//					    '<a href="http$2://$3">$0</a>', $row['post']); 
+
+		$post = $str = linkify($row['post'], array("http", "https"), array("target" => "_blank"));
+
 
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
@@ -922,7 +944,7 @@ echo $post.'</div>
 </div>
 <div class="line1"></div>
 <div class="block2">
-	<div class="copy">Клонировано <a title="Made in Tomsk" href="http://code.google.com/p/antimozg/" target="_blank">Фанатом ФТР и mozga</a><br/></div>
+	<div class="copy">Клонировано <a title="Made in Tomsk" href="https://github.com/antimozga/ftr" target="_blank">AntiMozga</a><br/></div>
 </div>';
 
 	show_footer();
