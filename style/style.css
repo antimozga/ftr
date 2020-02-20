@@ -674,6 +674,12 @@ label.l_inp_text_name span {
 	height: 90px;
 }
 
+.error {
+	font-size: 11px;
+	color: #d63100;
+	font-weight: bold;
+}
+
 .error1 {
 	font-size: 11px;
 	color: #d63100;

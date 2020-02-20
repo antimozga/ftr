@@ -885,10 +885,23 @@ if (!$database) {
 
 		$view_query = $base_query." AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 	    } else {
+		$view_query = "SELECT COUNT(topic) as posts FROM ForumTopics;";
+		foreach ($database->query($view_query) as $row) {
+		    $posts = $row['posts'];
+		}
+		$numentry = ($page - 1) * $TOP_LIST;
+		if ($numentry + $TOP_LIST < $posts) {
+		    $pnext = "?p=".($page + 1);
+		}
+		if ($page > 1) {
+		    $pprev = "?p=".($page - 1);
+		}
+		show_page_control('down', $page, ceil($posts / $TOP_LIST), $pprev, $pnext);
+
 		if ($show_hot == 0) {
-		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT ".$TOP_LIST.";";
+		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$TOP_LIST;";
 		} else {
-		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY posts DESC LIMIT ".$TOP_LIST.";";
+		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY posts DESC LIMIT $numentry,$TOP_LIST;";
 		}
 		if ($show_mylist != 0) {
 		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user,".
@@ -902,6 +915,10 @@ if (!$database) {
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		}
 	    }
+
+//	    $count_query = "SELECT COUNT(ForumTopics.topic) as posts ".substr($view_query, strpos($view_query, "FROM"));
+//echo '- [ '.$count_query.' ] -';
+
 	    echo '<table class="themes">';
 
 	    foreach ($database->query($view_query) as $row) {
@@ -933,9 +950,9 @@ if (!$database) {
 
 	    }
 	    echo '</table>';
-	    if ($id_grp != 0) {
+//	    if ($id_grp != 0) {
 		show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
-	    }
+//	    }
 	} else {
 	    $posts = 0;
 	    $pnext = "";

@@ -63,7 +63,7 @@ function show_user_info($name, $email, $fio, $gender, $description, $last_login,
 echo '</div>
 <div class="pasport2">
 <div class="pasport_text_full">
-'.$description.'
+'.convert_text($description).'
 </div>
 <div class="line3"></div>
 <div class="pasport_close"><a href="javascript:self.close();">Закрыть</a></div>
