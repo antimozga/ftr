@@ -1,20 +1,82 @@
 # ftr
 Открытый форум повторяющий простоту и функциональность форумов forum.tomsk.ru и mozg.tomsk.ru.
 
-# Installation
+# Установка Ubuntu 18.04
 
+Установите следующие пакеты
+
+```
 apt install lighttpd php-cgi php-sqlite3 php-mbstring
+```
 
+Дополнительно может установиться веб сервер Apache, сносим:
 
+```
+  apt purge apache2
+  
+  apt autoremove
+```
 
-lighttpd-enable-mod fastcgi-php fastcgi
+Настраиваем моды для вебсервера
 
-systemctl restart lighttpd
+```
+  lighttpd-enable-mod fastcgi-php fastcgi
 
+  systemctl restart lighttpd
+```
 
+Создаем директорию для базы данных
 
-mkdir /var/lib/antimozg
+```
+  mkdir /var/lib/antimozg
 
-chown www-data:www-data /var/lib/antimozg
+  chown www-data:www-data /var/lib/antimozg
+```
 
-apt install imagemagick netpbm libjpeg-progs
+Копируем исходники форума в директорию `/var/www/html`
+
+Расположение базы данных можно изменить в файле конфигурации `config.php`
+
+Переходим на страницу форума http://адрес-сервера/. Если все сделали правильно, в браузере отобразится главная страница форума. Теперь надо зарегистрировать нового пользователя. После регистрации, редактируем в файл `config.php`:
+
+```
+nano config.php
+```
+
+Исправляем строку с администратором форума:
+
+```
+$FORUM_ADMIN = "antimozga"; // ник пользователя администратора
+```
+
+Сохраняем файл и заходим на форум под зарегистрированным пользователем. В верхнем меню будет доступен Редактор групп тем. В нем создаем нужные нам на форуме группы тем. Первая созданная тема на форуме будет правилами форума. Изменить можно в `config.php`.
+
+Для заливки картинок устанавливаем следующие пакеты
+
+```
+  apt install imagemagick netpbm libjpeg-progs
+```
+
+Разрешаем запись в директорию
+
+```
+  chmod www-data:www-data /var/www/html/uploads
+```
+
+# Мусорная группа
+
+Некоторые темы не обязательно удалять, можно переместить их в мусорную группу, где они будут жить до полного удаления
+
+# Настройка
+
+Создайте группу в которой будут жить перемещенные группы. Запомните id (номер) созданной группы и в `config.php` исправьте на этот номер:
+
+```
+$FORUM_TRASH_GID = "30"
+```
+
+По умолчанию отключен показ тем из мусорной группы. Чтобы включить, справьте значение false на true в файле `config.php`:
+
+```
+$SHOW_TRASH_TOPICS = true;
+```
