@@ -1,8 +1,10 @@
 <?php
 function show_footer() {
-    echo
-'</body>
+?>
+
+</body>
 </html>
-';
+
+<?php
 }
 ?>

@@ -20,4 +20,8 @@ $SHOW_TRASH_TOPICS = false;	// true/false - разрешить/запретит�
 
 $FORUM_TRASH_GID = "25";	// id мусорной темы
 
+$RECAPTCHA_SITE_KEY = "SITEKEYMOVEITTOconfig_user.php";
+
+$RECAPTCHA_SERV_KEY = "SERVKEYMOVEITTOconfig_user.php";
+
 ?>

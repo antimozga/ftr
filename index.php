@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('config_user.php');
 
 setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 30, '/');
 session_start();
@@ -89,14 +90,16 @@ function show_menu($database) {
 <div><a href="./?m=1">Избранное</a></div>';
     }
     echo '<div class="sep"><div></div></div>
-<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
+    <div><a href="./?search">Поиск</a></div>
 </div></div>';
+
+//<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
+
 }
 
 function show_nav_path($topic, $ctrlink="") {
     global $FORUM_NAME;
     echo '<div class="navigation">
-    <div class="complaint"></div>
     <div class="box_path">:: <a href="./">'.$FORUM_NAME.'</a> &nbsp;/&nbsp; '.$topic;
     if ($ctrlink != "") {
 	echo $ctrlink;
@@ -105,10 +108,25 @@ function show_nav_path($topic, $ctrlink="") {
 }
 
 function show_postbox($type) {
+    global $RECAPTCHA_SITE_KEY;
+    $error = "";
     $name = "";
+    $subj = "";
+    $post = "";
+
     if (isset($_SESSION['user_temp_name'])) {
 	$name = $_SESSION['user_temp_name'];
     }
+
+    if (isset($_SESSION['user_temp_subj'])) {
+	$subj = $_SESSION['user_temp_subj'];
+    }
+
+    if (isset($_SESSION['user_temp_post'])) {
+	$post = $_SESSION['user_temp_post'];
+	$error = "<div class=\"error1\">* Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже...</div>";
+    }
+
     if ($type == 'topic') {
 	$h = 'Заголовок темы';
 	$b = 'Добавить тему';
@@ -117,6 +135,15 @@ function show_postbox($type) {
 	$b = 'Добавить сообщение';
     }
 echo '
+<script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
+<script>
+    grecaptcha.ready(function () {
+	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
+	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
+	    recaptchaResponse.value = token;
+	});
+    });
+</script>
 <div class="line1"></div>
 <div>
 	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data">
@@ -128,10 +155,10 @@ echo '
 		</div>
 		<div class="form_box_title">
 		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
-		    <input class="inp_text_name" id="heading" maxlength="64" name="message[caption]" type="text">
+		    <input class="inp_text_name" id="heading" maxlength="64" name="message[caption]" value="'.$subj.'" type="text">
 		</div>
 		<div class="form_box_mess">
-			<textarea class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;"></textarea>
+			<textarea class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
 		</div>
 		<div class="form_box_btn">
 			<input class="btn_form" value="'.$b.'" type="submit">
@@ -150,7 +177,9 @@ echo '
 		    </td></tr>
 		    </table>
 	</div>
+	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
 	</form>
+'.$error.'
 </div>
 <script language="javascript" type="text/javascript">
 <!--var 
@@ -284,6 +313,7 @@ if (!$database) {
 	$topic = "ТОП ".$TOP_LIST." ГОРЯЧИХ ТЕМ";
 	$search_opt = "";
 	$reg_mode = 0;
+	$show_search = 0;
 	$show_users = 0;
 	$show_pager = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
@@ -298,6 +328,9 @@ if (!$database) {
 	if (isset($_SESSION['myuser_id'])) {
 	    $id_user = $_SESSION['myuser_id'];
 	}
+
+	unset($_SESSION['user_temp_subj']);
+	unset($_SESSION['user_temp_post']);
 
 	if (isdefined("event")) {
 	    $cmd = $_REQUEST["event"];
@@ -447,6 +480,20 @@ if (!$database) {
 	    start_page($topic);
 	    show_menu($database);
 	    show_nav_path("Пейджер");
+	} else if (isdefined("search")) {
+	    $s = convert_string($_REQUEST["search"]);
+
+	    if ($s == "") {
+		$show_search = 1;
+
+		$topic = "ПОИСК";
+	    } else {
+		$search_opt = " AND ForumTopics.topic LIKE '%".$s."%'";
+	    }
+
+	    start_page($topic);
+	    show_menu($database);
+	    show_nav_path("Поиск");
 	} else {
 	    if (isdefined("s")) {
 		$show_hot = 1;
@@ -461,70 +508,93 @@ if (!$database) {
 	    show_nav_path($topic);
 	}
 
-	if (isdefined("search")) {
-	    $s = convert_string($_REQUEST["search"]);
-	    $search_opt = " AND ForumTopics.topic LIKE '%".$s."%'";
-	}
-
 	if (isdefined("event")) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumcreatesubj") {
 		$nick = convert_string($_REQUEST["message"]["author"]);
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
-		if ($nick == "") {
-		    unset($_SESSION['user_temp_name']);
-		} else {
-		    $_SESSION['user_temp_name'] = $nick;
-		}
-		$tim = time();
-		if ($nick == "" && $id_user != 0) {
-		    $user_query = "SELECT login FROM ForumUsers WHERE id = '$id_user';";
-		    foreach ($database->query($user_query) as $row) {
-			$nick = $row['login'];
-		    }
-		}
-		if ($nick == "") {
-		    $nick = "Анонимно";
-		}
-		if ($id_topic != 0) {
-		    if ($post != "") {
-			$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
-			    "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post');";
-			$database->exec($query);
-		    }
-		} else {
-		    if ($post != "" && $subj != "") {
-			$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic)" .
-			    "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp, coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user), coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj');";
-			$database->exec($query);
-			$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
-			    "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post');";
-			$database->exec($query);
-		    }
-		}
-		$post_id = db_get_val("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';", 'id');
 
-		$image = $_FILES['image']['name'];
-		$image_tmp = $_FILES['image']['tmp_name'];
-		$image_ext = strtolower(substr(strrchr($image, '.'), 1));
-		if ($image_ext == "jpg" || $image_ext == "jpeg" || $image_ext == "gif" || $image_ext == "png") {
-		    $img_file = "img".$post_id.".jpg";
-		    list($img_width, $img_height, $img_type, $img_attr)= getimagesize($image_tmp);
-		    if (is_uploaded_file($image_tmp)) {
-			if (($img_width > 800) || ($img_height > 600)) {
-			    system("convert -resize 800x600 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
+		if (isset($_POST['recaptcha_response'])) {
+		    // Build POST request:
+		    $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+		    //    $recaptcha_secret = 'YOUR_RECAPTCHA_SECRET_KEY';
+		    $recaptcha_response = $_POST['recaptcha_response'];
+
+		    // Make and decode POST request:
+		    $recaptcha = file_get_contents($recaptcha_url . '?secret=' . $RECAPTCHA_SERV_KEY . '&response=' . $recaptcha_response);
+		    $recaptcha = json_decode($recaptcha);
+
+		    // Take action based on the score returned:
+		    if ($recaptcha->score >= 0.5) {
+			if ($nick == "") {
+			    unset($_SESSION['user_temp_name']);
 			} else {
-			    system("convert -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
+			    $_SESSION['user_temp_name'] = $nick;
 			}
-			system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+
+			$tim = time();
+
+			if ($nick == "" && $id_user != 0) {
+			    $user_query = "SELECT login FROM ForumUsers WHERE id = '$id_user';";
+			    foreach ($database->query($user_query) as $row) {
+				$nick = $row['login'];
+			    }
+			}
+
+			if ($nick == "") {
+			    $nick = "Анонимно";
+			}
+			if ($id_topic != 0) {
+			    if ($post != "") {
+				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
+					 "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post');";
+				$database->exec($query);
+			    }
+			} else {
+			    if ($post != "" && $subj != "") {
+				$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic)" .
+					 "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp, coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user), coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj');";
+				$database->exec($query);
+				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
+					 "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post');";
+				$database->exec($query);
+			    }
+			}
+
+			$post_id = db_get_val("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';", 'id');
+
+			$image = $_FILES['image']['name'];
+			$image_tmp = $_FILES['image']['tmp_name'];
+			$image_ext = strtolower(substr(strrchr($image, '.'), 1));
+
+			if ($image_ext == "jpg" || $image_ext == "jpeg" || $image_ext == "gif" || $image_ext == "png") {
+			    $img_file = "img".$post_id.".jpg";
+			    list($img_width, $img_height, $img_type, $img_attr)= getimagesize($image_tmp);
+			    if (is_uploaded_file($image_tmp)) {
+				if (($img_width > 800) || ($img_height > 600)) {
+				    system("convert -resize 800x600 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
+				} else {
+				    system("convert -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
+				}
+				system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+			    }
+			}
+
+			if ($image_tmp != "") {
+			    unlink($image_tmp);
+			}
+
+			unset($_SESSION['user_temp_subj']);
+			unset($_SESSION['user_temp_post']);
+		    } else {
+			// Not verified - show form error
+			$_SESSION['user_temp_name'] = $nick;
+			$_SESSION['user_temp_subj'] = $subj;
+			$_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
+			//echo "YOU ARE FUCKIN' ROBOT! " . $recaptcha->score;
 		    }
 		}
-		if ($image_tmp != "") {
-		    unlink($image_tmp);
-		}
-
-
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);
 		$user_password		= convert_string($_REQUEST["user"]["user_password"]);
@@ -611,6 +681,13 @@ if (!$database) {
 		echo '<tr><td></td><td>'.make_href("showuser.php?id=", $row['id_from_user'], $row['login']).'</td><td>'.$pn.'</span>&nbsp;|&nbsp;'.$row['total'].'</td><td>'.make_href("pager.php?new=", $row['id_from_user'], "Читать").'</td></tr>';
 	    }
 	    echo '</table>';
+	} else if ($show_search == 1) {
+	    echo '
+<div class="block1">
+	<form action="">
+		<input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/>
+	</form>
+</div>';
 	} else if ($show_users == 1) {
 	    function lower_ru($str) {
 		return mb_strtolower($str, 'utf-8');
@@ -880,16 +957,11 @@ if (!$database) {
 
 	    foreach ($database->query($view_query) as $row) {
 		echo '<div class="text_box_1">
-<div class="complaint"></div>
 <div class="box_user">';
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
-//		$post = $str = preg_replace('@(http(s)?://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@',
-//					    '<a href="http$2://$3">$0</a>', $row['post']); 
-
 		$post = $str = linkify($row['post'], array("http", "https"), array("target" => "_blank"));
-
 
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
@@ -937,14 +1009,10 @@ echo $post.'</div>
 	echo '
 <div class="line1"></div>
 <div class="block2">
-	<div class="copy">Размещение рекламы на сайте ... Нет у нас рекламы!</div>
+	<div class="copy">Клонировано <a title="Made in Tomsk" href="https://github.com/antimozga/ftr" target="_blank">AntiMozga</a></div>
 	Тем: '.$topics.'
 	&nbsp;|&nbsp; Сообщений: '.$posts.'
 	&nbsp;|&nbsp; Пользователей: '.$users.'
-</div>
-<div class="line1"></div>
-<div class="block2">
-	<div class="copy">Клонировано <a title="Made in Tomsk" href="https://github.com/antimozga/ftr" target="_blank">AntiMozga</a><br/></div>
 </div>';
 
 	show_footer();
