@@ -9,6 +9,7 @@ session_start();
 include('funcs.php');
 include('header.php');
 include('footer.php');
+include('gismeteo.php');
 
 function db_get_val($str, $val)
 {
@@ -95,6 +96,16 @@ function show_menu($database) {
 
 //<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
 
+}
+
+function show_banner()
+{
+
+    echo '<div class="block1">';
+
+    show_gismeteo();
+
+    echo '</div>';
 }
 
 function show_nav_path($topic, $ctrlink="") {
@@ -376,7 +387,9 @@ if (!$database) {
 		$topic = "ГРУППЫ ТЕМ";
 		$show_groups = 1;
 	    }
+
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path("<a href=\"?g=".$id_grp."\">".$topic."</a>");
 	} else if (isdefined("t")) {
@@ -403,8 +416,6 @@ if (!$database) {
 		$group = $row['grp'];
 		$id_group = $row['id_grp'];
 	    }
-	    start_page($topic);
-	    show_menu($database);
 	    $ctrlink = "";
 	    if ($id_user != 0) {
 		if (db_get_val("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;", 'id_user') == $id_user) {
@@ -413,6 +424,10 @@ if (!$database) {
 		    $ctrlink = '<a style="float: right" href="?t='.$id_topic.'&like=1">+</a>';
 		}
 	    }
+
+	    start_page($topic);
+	    show_banner();
+	    show_menu($database);
 	    show_nav_path("<a href=\"?g=".$id_group."\">".$group."</a> &nbsp;/&nbsp; <a href=\"?t=".$id_topic."\">".$topic."</a>", $ctrlink);
 	} else if (isdefined("reg")) {
 	    $reg_mode = $_REQUEST["reg"];
@@ -424,7 +439,9 @@ if (!$database) {
 	    } else {
 	        $topic = "НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ";
 	    }
+
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path($topic);
 	} else if (isdefined("users")) {
@@ -434,6 +451,7 @@ if (!$database) {
 	    $topic = "ПОЛЬЗОВАТЕЛИ";
 
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Список пользователей");
 	} else if (isdefined("pager")) {
@@ -442,6 +460,7 @@ if (!$database) {
 	    $topic = "ПЕЙДЖЕР";
 
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Пейджер");
 	} else if (isdefined("search")) {
@@ -456,6 +475,7 @@ if (!$database) {
 	    }
 
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Поиск");
 	} else {
@@ -467,7 +487,9 @@ if (!$database) {
 		$show_mylist = 1;
 		$topic = "МОИ ИЗБРАННЫЕ ТЕМЫ";
 	    }
+
 	    start_page($topic);
+	    show_banner();
 	    show_menu($database);
 	    show_nav_path($topic);
 	}
