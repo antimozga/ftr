@@ -88,6 +88,8 @@ if (!$database) {
 	    $last_login = $row['last_login'];
 	}
 
+	$email = 'скрыт от спамеров';
+
 	start_page("ПОЛЬЗОВАТЕЛЬ ".$name);
 
 	if ($name != "") {
