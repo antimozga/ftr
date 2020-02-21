@@ -62,11 +62,15 @@ function getSelectionText()
 function reply(creator, msg_id)
 {
 	var output = getSelectionText();
+/*
 	if (output == "") {
 		selectElementText(document.getElementById(msg_id));
 		output = getSelectionText();
 	}
-	document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+ */
+	if (output != "") {
+	    document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+	}
 
 	document.getElementById('heading').value=creator;
 	document.getElementById(selField).focus();
