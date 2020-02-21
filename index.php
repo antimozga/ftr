@@ -963,7 +963,7 @@ if (!$database) {
 	    }
 echo $post.'</div>
 <!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\');" class="answer">Ответить</a>
+<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer">Ответить</a>
 </div>';
 		$msg_count++;
 	    }

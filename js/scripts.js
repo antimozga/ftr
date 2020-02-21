@@ -41,8 +41,33 @@ function doInsert(ibTag, ibClsTag, isSingle)
 	return isClose;
 }
 
-function reply(creator)
+function selectElementText(el)
 {
+	var range = document.createRange();
+	range.selectNodeContents(el);
+	var selection = window.getSelection();
+	selection.removeAllRanges();
+	selection.addRange(range);
+}
+
+function getSelectionText()
+{
+    var selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    }
+    return selectedText;
+}
+
+function reply(creator, msg_id)
+{
+	var output = getSelectionText();
+	if (output == "") {
+		selectElementText(document.getElementById(msg_id));
+		output = getSelectionText();
+	}
+	document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+
 	document.getElementById('heading').value=creator;
 	document.getElementById(selField).focus();
 }
