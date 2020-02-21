@@ -268,7 +268,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
-	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR);";
+	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumGroups " .
@@ -863,7 +863,7 @@ if (!$database) {
 	    $posts = 0;
 	    $pnext = "";
 	    $pprev = "";
-	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
+	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view, ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
 	    if (!$show_trash_topics && $id_grp == 0) {
 	        $base_query = $base_query."AND ForumTopics.id_grp != ".$FORUM_TRASH_GID." ";
 	    }
@@ -902,7 +902,7 @@ if (!$database) {
 		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY posts DESC LIMIT $numentry,$TOP_LIST;";
 		}
 		if ($show_mylist != 0) {
-		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user,".
+		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
 				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
 				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
 				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
@@ -926,7 +926,7 @@ if (!$database) {
 
 		print("<tr>" .
 		  "<td class='tdw1'>{$timestamp}</td>" .
-		  "<td class='tdw3'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['posts']} - {$row['last_nick']}]");
+		  "<td class='tdw3'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
 		if (is_forum_admin()) {
 		    $rmargs = "";
 		    if ($id_grp != 0) {
@@ -967,6 +967,9 @@ if (!$database) {
 		$pprev = "?t=".$id_topic."&p=".($page - 1);
 	    }
 	    show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+
+	    $view_query = "UPDATE ForumTopics SET view = view + 1 WHERE id = $id_topic;";
+	    $database->exec($view_query);
 
 	    $view_query = "SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id, ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user, ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic FROM ForumPosts, ForumTopics, ForumUsers WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic AND ForumUsers.id = ForumPosts.id_user ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
