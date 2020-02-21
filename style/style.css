@@ -1,4 +1,4 @@
-table, td, form {
+table, td, form, iframe {
 	margin: 0px;
 	padding: 0px;
 	border: 0px solid;
@@ -473,7 +473,7 @@ img.postimage {
 .text_box_2 div.text_box_2_mess {
 	color: #FAFAF0;
 	font-size: 16px;
-	line-height: 110%;	
+	line-height: 110%;
 	font-family: "Times New Roman", Times, serif;
 }
 

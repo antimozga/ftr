@@ -235,42 +235,6 @@ function show_page_control($type, $page, $pages, $pageprev, $pagenext)
 echo '</div>';
 }
 
-/**
- * Turn all URLs in clickable links.
- *
- * @param string $value
- * @param array  $protocols  http/https, ftp, mail, twitter
- * @param array  $attributes
- * @return string
- */
-function linkify($value, $protocols = array('http', 'https'), array $attributes = array())
-{
-    // Link attributes
-    $attr = '';
-    foreach ($attributes as $key => $val) {
-        $attr .= ' ' . $key . '="' . htmlentities($val) . '"';
-    }
-
-    $links = array();
-
-    // Extract existing links and tags
-    $value = preg_replace_callback('~(<a .*?>.*?</a>|<.*?>)~i', function ($match) use (&$links) { return '<' . array_push($links, $match[1]) . '>'; }, $value);
-
-    // Extract text links for each protocol
-    foreach ((array)$protocols as $protocol) {
-	switch ($protocol) {
-	    case 'http':
-	    case 'https':   $value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { if ($match[1]) $protocol = $match[1]; $link = $match[2] ?: $match[3]; return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$link</a>") . '>'; }, $value); break;
-	    case 'mail':    $value = preg_replace_callback('~([^\s<]+?@[^\s<]+?\.[^\s<]+)(?<![\.,:])~', function ($match) use (&$links, $attr) { return '<' . array_push($links, "<a $attr href=\"mailto:{$match[1]}\">{$match[1]}</a>") . '>'; }, $value); break;
-	    case 'twitter': $value = preg_replace_callback('~(?<!\w)[@#](\w++)~', function ($match) use (&$links, $attr) { return '<' . array_push($links, "<a $attr href=\"https://twitter.com/" . ($match[0][0] == '@' ? '' : 'search/%23') . $match[1]  . "\">{$match[0]}</a>") . '>'; }, $value); break;
-	    default:        $value = preg_replace_callback('~' . preg_quote($protocol, '~') . '://([^\s<]+?)(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { return '<' . array_push($links, "<a $attr href=\"$protocol://{$match[1]}\">{$match[1]}</a>") . '>'; }, $value); break;
-	}
-    }
-
-    // Insert all link
-    return preg_replace_callback('/<(\d+)>/', function ($match) use (&$links) { return $links[$match[1] - 1]; }, $value);
-}
-
 $database = new PDO("sqlite:" . DBASEFILE);
 
 if (!$database) {
@@ -972,13 +936,15 @@ if (!$database) {
 
 	    $view_query = "SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id, ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user, ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic FROM ForumPosts, ForumTopics, ForumUsers WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic AND ForumUsers.id = ForumPosts.id_user ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
+	    $msg_count = 0;
+
 	    foreach ($database->query($view_query) as $row) {
 		echo '<div class="text_box_1">
 <div class="box_user">';
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
-		$post = $str = linkify($row['post'], array("http", "https"), array("target" => "_blank"));
+		$post = linkify(convert_youtube($row['post']), array("http", "https"), array("target" => "_blank"));
 
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
@@ -988,7 +954,7 @@ if (!$database) {
 		echo '</div>
 </div>
 <div class="text_box_2">
-<div id="message_" class="text_box_2_mess">';
+<div id="message_'.$msg_count.'" class="text_box_2_mess">';
 	    $post_img = "img".$row['id_post'].".jpg";
 	    if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
 		echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this,{wrapperClassName: \'borderless floating-caption\', dimmingOpacity: 0.75, align: \'center\'})">';
@@ -999,6 +965,7 @@ echo $post.'</div>
 <!-- <a href="#ftop" class="up">Вверх</a> -->
 <a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\');" class="answer">Ответить</a>
 </div>';
+		$msg_count++;
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 	}
