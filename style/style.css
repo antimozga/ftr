@@ -512,8 +512,9 @@ label.cloned {
 	font-weight: bold;
 }
 
-.box_cite {
-	display: block; 
+cite, .box_cite {
+	display: block;
+	font-style: normal;
 	font-size: 12px;
 	color: #CFCFCF;
 	border-left: 1px solid #777777;

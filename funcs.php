@@ -26,8 +26,8 @@ function is_forum_admin() {
 
 function convert_text($str)
 {
-    $search  = array('&',     '"',      '\'',     '<',    '>',    '[i]', '[/i]', '[b]', '[/b]', '[re]',                   '[/re]' );
-    $replace = array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;', '<i>', '</i>', '<b>', '</b>', '<div class="box_cite">', '</div>');
+    $search  = array('&',     '"',      '\'',     '<',    '>',    '[i]', '[/i]', '[b]', '[/b]', '[re]',   '[/re]'  );
+    $replace = array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;', '<i>', '</i>', '<b>', '</b>', '<cite>', '</cite>');
     $newstr  = str_replace($search, $replace, $str);
 
     $order   = array("\r\n", "\n", "\r");
