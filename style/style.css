@@ -472,9 +472,9 @@ img.postimage {
 
 .text_box_2 div.text_box_2_mess {
 	color: #FAFAF0;
-	font-size: 16px;
+	font-size: 13px;
 	line-height: 110%;
-	font-family: "Times New Roman", Times, serif;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 
 .text_box_2 {
@@ -637,7 +637,7 @@ label.l_inp_text_name span {
 	width: 375px;
 	height: 19px;
 	padding: 2px 0px 0px 3px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;  
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	color: #000;
 	font-weight: normal;
