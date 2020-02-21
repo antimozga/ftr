@@ -135,6 +135,11 @@ img.postimage {
 /*	padding-left: 1em; */
 }
 
+label.cloned {
+	color: red;
+	text-decoration: underline;
+}
+
 .block_menu, .block_menu_m {
 	width: 760px;
 	margin-left: auto;

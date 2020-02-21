@@ -97,13 +97,33 @@ function clon_detector($str) {
     $c = 0;
     $l = 0;
     $o = 0;
+    $s = 0;
+    $sp = 0;
+
+    if ((ord($arr1[0]) == 32) ||
+	(ord($arr1[sizeof($arr1) - 1]) == 32)) {
+	return true;
+    }
 
     foreach ($arr1 as $letter) {
 	$v = ord($letter);
+
+	if ($sp == 1) {
+	    //skip any char, but correct to skip 0x80-0xbf
+	    $sp = 0;
+	    continue;
+	}
+
+	if ($v == 0xc2 || $v == 0xc3) {
+	    $sp = 1;
+	    $s = $s + 1;
+	}
+
 	if ($v >= 0xd0 && $v <= 0xd3 && $u == 0) {
 	    $u = 1;
 	    continue;
 	}
+
 	if ($v >= 0x80 && $v <= 0xbf && $u == 1) {
 	    $c = $c + 1;
 	} else {
@@ -115,9 +135,11 @@ function clon_detector($str) {
 	}
 	$u = 0;
     }
-    if ($l && $c) {
+
+    if (($l && $c) || $s) {
 	return true;
     }
+
     return false;
 }
 
@@ -126,7 +148,7 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
     if (($post_nick == $user_login) && ($post_nick_id == $user_id) && ($user_id != 0)) {
 	$clon = "";
 	if (clon_detector($post_nick)) {
-	    $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь кириллицы и латиницы.">?</label>';
+	    $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
 	}
 	return '<a onclick="window.open(\'\',\'u\',\'scrollbars,width=620,height=350\');" target="u" href="showuser.php?id='.$user_id.'">'.$post_nick.'</a>'.$clon;
     }
