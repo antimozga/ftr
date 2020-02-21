@@ -148,16 +148,21 @@ function show_postbox($type) {
 echo '
 <script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
 <script>
+function formSubmit () {
     grecaptcha.ready(function () {
 	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
 	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
 	    recaptchaResponse.value = token;
+	    document.getElementById(\'formMessage\').submit();
 	});
     });
+
+    return false;
+}
 </script>
 <div class="line1"></div>
 <div>
-	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data">
+	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data" onsubmit="return formSubmit()">
 	<input type="hidden" name="event" value="forumcreatesubj">
 	<div class="form_box">
 		<div class="form_box_name">
