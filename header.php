@@ -12,6 +12,7 @@ function show_header($title) {
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="Cache-control" content="no-cache" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 <link href="style/style.css" type="text/css" rel="stylesheet" />
 <title><?php echo $FORUM_TITLE; ?> - <?php echo $title; ?></title>
 <script type="text/javascript" src="js/scripts.js"></script>
