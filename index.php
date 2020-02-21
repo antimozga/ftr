@@ -166,7 +166,7 @@ echo '
 		</div>
 		<div class="form_box_title">
 		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
-		    <input class="inp_text_name" id="heading" maxlength="64" name="message[caption]" value="'.$subj.'" type="text">
+		    <input class="inp_text_name" id="heading" maxlength="80" name="message[caption]" value="'.$subj.'" type="text">
 		</div>
 		<div class="form_box_mess">
 			<textarea class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
@@ -176,7 +176,7 @@ echo '
 		</div>
 		<div class="format">
 			<div id="web"></div>
-			<span><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Bold</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Italic</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Cite</a></span>
+			<span id="mess_emo"><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Bold</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Italic</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Cite</a>&nbsp;-&nbsp;</span>
 		</div>
 		<input type="hidden" name="MAX_FILE_SIZE" value="500000">
 		    <table class="form_box_image_btn">
@@ -196,6 +196,13 @@ echo '
 <!--var 
 fombj = document.getElementById("formMessage");
 //-->
+</script>
+
+<script src="js/emojiPicker.js"></script>
+<script>
+    (() => {
+      new EmojiPicker(document.getElementById(\'mess_text\'), document.getElementById(\'mess_emo\'))
+    })()
 </script>
 <div class="line1"></div>
 ';
