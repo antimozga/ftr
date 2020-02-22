@@ -13,7 +13,12 @@ function show_header($title) {
 <meta http-equiv="Cache-control" content="no-cache" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-<link href="style/style.css" type="text/css" rel="stylesheet" />
+<!-- <link href="style/style.css" type="text/css" rel="stylesheet" /> -->
+<style>
+<?php
+include_once ("style/style.css");
+?>
+</style>
 <title><?php echo $FORUM_TITLE; ?> - <?php echo $title; ?></title>
 <script type="text/javascript" src="js/scripts.js"></script>
 <script type="text/javascript" src="js/highslide.js"></script>

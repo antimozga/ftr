@@ -426,6 +426,12 @@ label.cloned {
 	left: -20px;
 }
 
+.weather {
+	position: relative;
+	float: right;
+	right: -20px;
+}
+
 .copy {
 	float: right;
 	padding-left: 20px;
@@ -490,8 +496,8 @@ label.cloned {
 
 .text_box_2 div.text_box_2_mess {
 	color: #FAFAF0;
-	font-size: 13px;
-	line-height: 110%;
+	font-size: 12px;
+/*	line-height: 110%; */
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 

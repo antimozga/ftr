@@ -3,11 +3,9 @@ function show_gismeteo()
 {
 ?>
 
-<!-- <div class="pogoda"> -->
-
 <!-- Gismeteo informer START -->
 <link rel="stylesheet" type="text/css" href="https://ost1.gismeteo.ru/assets/flat-ui/legacy/css/informer.min.css">
-<div id="gsInformerID-I3GNcYMd55QQGR" class="gsInformer" style="width:212px;height:115px">
+<div id="gsInformerID-LmDepdviaYr672" class="gsInformer" style="width:240px;height:100px">
     <div class="gsIContent">
         <div id="cityLink">
             <a href="https://www.gismeteo.ru/weather-tomsk-4652/" target="_blank" title="Погода в Томске">
@@ -35,11 +33,10 @@ function show_gismeteo()
         </div>
     </div>
 </div>
-<script async src="https://www.gismeteo.ru/api/informer/getinformer/?hash=I3GNcYMd55QQGR"></script>
+<script async src="https://www.gismeteo.ru/api/informer/getinformer/?hash=LmDepdviaYr672"></script>
 <!-- Gismeteo informer END -->
-
-<!-- </div> -->
 
 <?php
 }
 ?>
+
