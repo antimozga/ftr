@@ -38,7 +38,7 @@ apt install lighttpd php-cgi php-sqlite3 php-mbstring
 
 Расположение базы данных можно изменить в файле конфигурации `/var/www/html/config.php`
 
-Сохраняем файл. Создаем файл настройки для Google Recaptcha V3:
+Создаем файл настройки для Google Recaptcha V3:
 
 ```
 nano /var/www/html/config_user.php
