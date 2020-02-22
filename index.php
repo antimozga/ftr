@@ -3,7 +3,7 @@
 require_once('config.php');
 require_once('config_user.php');
 
-setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 30, '/');
+setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24, '/');
 session_start();
 
 include('funcs.php');
