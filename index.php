@@ -182,7 +182,7 @@ function formSubmit () {
 		</div>
 		<div class="format">
 			<div id="web"></div>
-			<span id="mess_emo"><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Bold</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Italic</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Cite</a>&nbsp;-&nbsp;</span>
+			<span id="mess_emo"><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Жирный</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Курсив</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Цитата</a>&nbsp;-&nbsp;</span>
 		</div>
 		<input type="hidden" name="MAX_FILE_SIZE" value="500000">
 		    <table class="form_box_image_btn">
