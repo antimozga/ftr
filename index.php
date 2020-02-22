@@ -102,8 +102,9 @@ function show_banner()
 {
 
     echo '<div class="block1">';
+    echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
 
-    show_gismeteo();
+//    show_gismeteo();
 
     echo '</div>';
 }

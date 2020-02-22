@@ -411,12 +411,19 @@ label.cloned {
 .block1 {
 	border: 0px;
 	width: 740px;
+	height: 120px;
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
 
 .block2 a, .block2 a:hover, .block2 a:visited {
 	font-weight: bold;
+}
+
+.logo {
+	position: relative;
+	float: left;
+	left: -20px;
 }
 
 .copy {
