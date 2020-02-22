@@ -105,3 +105,50 @@ $FORUM_TRASH_GID = "30"
 ```
 $SHOW_TRASH_TOPICS = true;
 ```
+
+## Настройка сертификата LetEncrypt
+
+Установите пакет certbot:
+
+```
+apt install certbot
+```
+
+Запустите certbot и выполните инструкции:
+
+```
+certbot certonly --agree-tos --manual -d "*.vtomske.net" -d vtomske.net
+```
+
+Настройте права доступа:
+
+```
+chown :www-data /etc/letsencrypt
+chown :www-data /etc/letsencrypt/live
+chmod g+x /etc/letsencrypt
+chmod g+x /etc/letsencrypt/live
+
+cat /etc/letsencrypt/live/vtomske.net/privkey.pem /etc/letsencrypt/live/vtomske.net/cert.pem >/etc/letsencrypt/live/vtomske.net/merged.pem
+```
+
+Добавьте следующие строки в конец файла конфигурации `/etc/lighttpd/lighttpd.conf`
+
+```
+$SERVER["socket"] == ":443" {
+    ssl.engine              = "enable"
+    ssl.ca-file             = "/etc/letsencrypt/live/vtomske.net/chain.pem"
+    ssl.pemfile             = "/etc/letsencrypt/live/vtomske.net/merged.pem"
+}
+
+$HTTP["scheme"] == "http" {
+    $HTTP["host"] =~ ".*" {
+        url.redirect = (".*" => "https://%0$0")
+    }
+}
+```
+
+Перезапустите вебсервер:
+
+```
+systemctl restart lighttpd
+```
