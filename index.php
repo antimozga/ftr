@@ -177,7 +177,7 @@ function formSubmit () {
 		    <input class="inp_text_name" id="heading" maxlength="80" name="message[caption]" value="'.$subj.'" type="text">
 		</div>
 		<div class="form_box_mess">
-			<textarea maxlength="2048" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
+			<textarea maxlength="4096" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
 		</div>
 		<div class="form_box_btn">
 			<input class="btn_form" value="'.$b.'" type="submit">
@@ -516,8 +516,8 @@ if (!$database) {
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
 
-		if (strlen($post) > 2048) {
-		    $post = substr($post, 0, 2047);
+		if (strlen($post) > 4096) {
+		    $post = substr($post, 0, 4095);
 		}
 
 		if (isset($_POST['recaptcha_response'])) {
@@ -817,7 +817,7 @@ if (!$database) {
 	}
 	echo '
 	<label for="addition">Дополнительно</label>
-	<textarea maxlength="2048" name="user[description]" id="addition" class="area_text_reg">'.$user_description.'</textarea>
+	<textarea maxlength="4096" name="user[description]" id="addition" class="area_text_reg">'.$user_description.'</textarea>
 	<input type="hidden" name="MAX_FILE_SIZE" value="500000">
 	<label for="image">Аватар:</label><input name="image" type="file">
 	<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
@@ -989,8 +989,8 @@ if (!$database) {
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
 		$tmp_post = $row['post'];
-		if (strlen($tmp_post) > 2048) {
-		    $tmp_post = substr($tmp_post, 0, 2047);
+		if (strlen($tmp_post) > 4096) {
+		    $tmp_post = substr($tmp_post, 0, 4095);
 		}
 
 		$post = linkify(convert_youtube($tmp_post), array("http", "https"), array("target" => "_blank"));
