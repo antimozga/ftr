@@ -90,6 +90,36 @@ function linkify($value, $protocols = array('http', 'https'), array $attributes 
     return preg_replace_callback('/<(\d+)>/', function ($match) use (&$links) { return $links[$match[1] - 1]; }, $value);
 }
 
+function strip_tags_content($text, $tags = '', $invert = FALSE)
+{
+    preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
+    $tags = array_unique($tags[1]);
+
+    if(is_array($tags) AND count($tags) > 0) {
+	if($invert == FALSE) {
+	    return preg_replace('@<(?!(?:'. implode('|', $tags) .')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
+	} else {
+	    return preg_replace('@<('. implode('|', $tags) .')\b.*?>.*?</\1>@si', '', $text);
+	}
+    } elseif ($invert == FALSE) {
+	return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $text);
+    }
+
+    return $text;
+}
+
+function remove_iframes($line)
+{
+    $endiframe = strpos($line, "</iframe>");
+    if ($endiframe != FALSE) {
+	$line1 = substr($line, $endiframe + 9);
+	$line = substr($line, 0, $endiframe + 9);
+	$line = $line.strip_tags_content($line1, "<b><i><cite><br>");
+    }
+    $line = preg_replace('#(<br\s?/?>)+#', '<br/>', $line);
+    return $line;
+}
+
 function clon_detector($str) {
     $arr1 = str_split($str,1);
 

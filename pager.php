@@ -71,7 +71,7 @@ echo '
 <div class="dialog_answer_box">
     <form action="" method="post" class="form_dialog">
     <input type="hidden" name="event" value="forumpagercreatemess"/>
-    <textarea class="area_dialog_text" name="pagermess[content]" id="dialog_mess"></textarea>
+    <textarea maxlength="2048" class="area_dialog_text" name="pagermess[content]" id="dialog_mess"></textarea>
     <input type="submit" class="btn_dialog" value="Отправить" onclick="SendMessage(); return false">
     </form>
 </div>
