@@ -505,6 +505,7 @@ label.cloned {
 /*	line-height: 110%; */
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	padding-bottom: 10px;
+	overflow: auto;
 }
 
 .text_box_2 {
