@@ -1002,8 +1002,11 @@ if (!$database) {
 		echo '</a>';
 	    }
 echo $post.'</div>
+	<div class="answer_bar">
 <!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer">Ответить</a>
+<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/ans_w.gif"></a>
+<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/cit_w.gif"></a>
+	</div>
 </div>';
 		$msg_count++;
 	    }

@@ -64,6 +64,11 @@ a.close span {
 	text-align: center;
 }
 
+.answer_bar {
+	width: 740px;
+	float: left;
+}
+
 a.for1, a.for1:hover, a.for1:visited {
 	color: #FFFFFF;
 	font-weight: bold;
@@ -99,12 +104,12 @@ a.for3:hover{
 }
 
 a.answer, a.answer:hover, a.answer:visited, a.up, a.up:hover, a.up:visited {
-	display: block;
+/*	display: block; */
 	width: 50px;
 	text-decoration: underline;
 	font-size: 11px;
 	color: #EEEEEE;
-	margin: 15px 0px 0px 0px;
+	margin: 15px 10px 0px 0px;
 }
 
 a.up, a.up:hover, a.up:visited {
@@ -499,6 +504,7 @@ label.cloned {
 	font-size: 12px;
 /*	line-height: 110%; */
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	padding-bottom: 10px;
 }
 
 .text_box_2 {

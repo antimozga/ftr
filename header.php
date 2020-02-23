@@ -20,7 +20,12 @@ include_once ("style/style.css");
 ?>
 </style>
 <title><?php echo $FORUM_TITLE; ?> - <?php echo $title; ?></title>
-<script type="text/javascript" src="js/scripts.js"></script>
+<!-- <script type="text/javascript" src="js/scripts.js"></script> -->
+<script>
+<?php
+include_once ("js/scripts.js");
+?>
+</script>
 <script type="text/javascript" src="js/highslide.js"></script>
 </head>
 <body>

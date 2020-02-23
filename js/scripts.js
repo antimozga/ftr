@@ -75,3 +75,14 @@ function reply(creator, msg_id)
 	document.getElementById('heading').value=creator;
 	document.getElementById(selField).focus();
 }
+
+function reply_cite(creator, msg_id)
+{
+	selectElementText(document.getElementById(msg_id));
+	var output = getSelectionText();
+
+	document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+
+	document.getElementById('heading').value=creator;
+	document.getElementById(selField).focus();
+}
