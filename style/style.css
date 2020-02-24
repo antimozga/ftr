@@ -144,7 +144,8 @@ img {
 }
 
 img.postimage {
-	float: right;
+	float: left;
+	margin-right: 5px;
 /*	padding-left: 1em; */
 }
 
