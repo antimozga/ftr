@@ -17,16 +17,29 @@ function show_header($title) {
 <style>
 <?php
 include_once ("style/style.css");
+include_once ("style/highslide.css");
 ?>
 </style>
 <title><?php echo $FORUM_TITLE; ?> - <?php echo $title; ?></title>
+<!-- <script type="text/javascript" src="js/highslide.packed.js"></script> -->
 <!-- <script type="text/javascript" src="js/scripts.js"></script> -->
 <script>
 <?php
+include_once ("js/highslide.packed.js");
 include_once ("js/scripts.js");
 ?>
+
+hs.registerOverlay({
+	html: '<div class="closebutton" onclick="return hs.close(this)" title="Close"></div>',
+	position: 'top right',
+	fade: 2 // fading the semi-transparent overlay looks bad in IE
+});
+
+
+hs.graphicsDir = 'graphics/';
+hs.wrapperClassName = 'borderless';
+
 </script>
-<script type="text/javascript" src="js/highslide.js"></script>
 </head>
 <body>
 

@@ -591,8 +591,8 @@ if (!$database) {
 			    $img_file = "img".$post_id.".jpg";
 			    list($img_width, $img_height, $img_type, $img_attr)= getimagesize($image_tmp);
 			    if (is_uploaded_file($image_tmp)) {
-				if (($img_width > 800) || ($img_height > 600)) {
-				    system("convert -resize 800x600 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
+				if (($img_width > 1024) || ($img_height > 768)) {
+				    system("convert -resize 1024x768 -quality 95 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
 				} else {
 				    system("convert -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
 				}
@@ -1022,7 +1022,7 @@ if (!$database) {
 <div id="message_'.$msg_count.'" class="text_box_2_mess">';
 	    $post_img = "img".$row['id_post'].".jpg";
 	    if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-		echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this,{wrapperClassName: \'borderless floating-caption\', dimmingOpacity: 0.75, align: \'center\'})">';
+		echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this)">';
 		echo '<img src="'.$UPLOAD_DIR."/small-".$post_img.'" alt="" class="postimage"/>';
 		echo '</a>';
 	    }
