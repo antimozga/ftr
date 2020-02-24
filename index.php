@@ -102,10 +102,24 @@ function show_banner()
 {
 
     echo '<div class="block1">';
+
     echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
+//    echo '<div class="logo"><a href="./"><img src="images/logo.png"></a></div>';
 
     echo '<div class="weather">';
-    show_gismeteo();
+
+echo '<span class="w_title">Погода</span>
+<span class="w_temp" id="w_temp"></span>
+<br/><span id="w_sign"></span>
+<br/><span id="w_press"></span>
+<br/><span id="w_wind"></span>
+<br/>
+<br/>
+<b id="curr_day"></b>
+<br/>
+<span id="curr_date"></span>
+<script>show_date(); show_weather();</script>';
+
     echo '</div>';
 
     echo '</div>';

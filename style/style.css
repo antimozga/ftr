@@ -417,8 +417,7 @@ label.cloned {
 	border: 0px;
 	width: 740px;
 	height: 120px;
-	padding-top: 20px;
-	padding-bottom: 20px;
+	background: url('images/bg.jpg');
 }
 
 .block2 a, .block2 a:hover, .block2 a:visited {
@@ -434,7 +433,22 @@ label.cloned {
 .weather {
 	position: relative;
 	float: right;
-	right: -20px;
+	right: 30px;
+	padding-top: 5px;
+}
+
+.w_title {
+	font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 120%;
+}
+
+.w_temp {
+	font-size: 18px;
+	font-weight: bold;
+	color: #6ed11e;
+	line-height: 120%;
 }
 
 .copy {

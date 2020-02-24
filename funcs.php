@@ -116,7 +116,8 @@ function remove_iframes($line)
 	$line = substr($line, 0, $endiframe + 9);
 	$line = $line.strip_tags_content($line1, "<b><i><cite><br>");
     }
-    $line = preg_replace('#(<br\s?/?>)+#', '<br/>', $line);
+
+    $line = preg_replace('#(<br\s?/?>){2,}#', '<br/><br/>', $line);
     return $line;
 }
 
