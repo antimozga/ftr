@@ -69,7 +69,7 @@ function reply(creator, msg_id)
 	}
  */
 	if (output != "") {
-	    document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+	    document.getElementById(selField).value += '[re]' + output + '[/re]\n';
 	}
 
 	document.getElementById('heading').value=creator;
@@ -81,7 +81,7 @@ function reply_cite(creator, msg_id)
 	selectElementText(document.getElementById(msg_id));
 	var output = getSelectionText();
 
-	document.getElementById(selField).value = '[re]' + output + '[/re]\n';
+	document.getElementById(selField).value += '[re]' + output + '[/re]\n';
 
 	document.getElementById('heading').value=creator;
 	document.getElementById(selField).focus();
