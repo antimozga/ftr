@@ -3,7 +3,7 @@
 require_once('config.php');
 require_once('config_user.php');
 
-setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24, '/');
+setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24 * 7, '/');
 session_start();
 
 include('funcs.php');
@@ -281,7 +281,7 @@ if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
     $query = "CREATE TABLE IF NOT EXISTS ForumPosts " .
-	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR);";
+	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
@@ -529,6 +529,7 @@ if (!$database) {
 		$nick = convert_string($_REQUEST["message"]["author"]);
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
+		$id_session = md5($_COOKIE['PHPSESSID']);
 
 		if (strlen($post) > 4096) {
 		    $post = substr($post, 0, 4095);
@@ -566,8 +567,8 @@ if (!$database) {
 			}
 			if ($id_topic != 0) {
 			    if ($post != "") {
-				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
-					 "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post');";
+				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
+					 "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post', '$id_session');";
 				$database->exec($query);
 			    }
 			} else {
@@ -992,7 +993,14 @@ if (!$database) {
 	    $view_query = "UPDATE ForumTopics SET view = view + 1 WHERE id = $id_topic;";
 	    $database->exec($view_query);
 
-	    $view_query = "SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id, ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user, ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic FROM ForumPosts, ForumTopics, ForumUsers WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic AND ForumUsers.id = ForumPosts.id_user ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+	    $view_query =	"SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id,".
+				" ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user,".
+				" ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic,".
+				" ForumPosts.id_session AS id_session".
+				" FROM ForumPosts, ForumTopics, ForumUsers".
+				" WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic".
+				" AND ForumUsers.id = ForumPosts.id_user".
+				" ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
 	    $msg_count = 0;
 
@@ -1007,12 +1015,18 @@ if (!$database) {
 		    $tmp_post = substr($tmp_post, 0, 4095);
 		}
 
+		$post_id_session = "";
+		if ($row['id_session']) {
+		    $post_id_session = $row['id_session'];
+		}
+
 		$post = linkify(convert_youtube($tmp_post), array("http", "https"), array("target" => "_blank"));
 
 		$post = remove_iframes($post);
 
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
+		echo '<span id="'.$post_id_session.'"></span>';
 		if (is_forum_admin()) {
 		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
 		}
