@@ -126,6 +126,14 @@ a.remove, a.remove:hover, a.remove:visited {
 	text-decoration: underline;
 }
 
+a.ban, a.ban:hover, a.ban:visited {
+	font-size: 11px;
+	float: right;
+	font-weight: bold;
+	margin: 0px 0px 0px 5px;
+	text-decoration: underline;
+}
+
 a.title {
 	font-size: 18px;
 }

@@ -9,7 +9,6 @@ session_start();
 include('funcs.php');
 include('header.php');
 include('footer.php');
-include('gismeteo.php');
 
 function db_get_val($str, $val)
 {
@@ -322,6 +321,33 @@ if (!$database) {
 	$show_pager = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
 	$show_mylist = 0;
+
+	if (isdefined('unban')) {
+	    $session_id = addslashes($_REQUEST['unban']);
+	    if (is_session('banlist')) {
+		$arr = $_SESSION['banlist'];
+		$pos = array_search($session_id, $arr);
+		unset($arr[$pos]);
+		$arr = array_values($arr);
+		$_SESSION['banlist'] = $arr;
+		$uri = $_SERVER['REQUEST_URI'];
+		$uri = substr($uri, 0, strpos($uri, '&unban'));
+		header("Location: $uri", true, 301);
+		exit();
+	    }
+	} elseif (isdefined('ban')) {
+	    $session_id = addslashes($_REQUEST['ban']);
+	    if (is_session('banlist')) {
+		array_push($_SESSION['banlist'], $session_id);
+	    } else {
+		$_SESSION['banlist'] = array($session_id);
+	    }
+	    $uri = $_SERVER['REQUEST_URI'];
+	    $uri = substr($uri, 0, strpos($uri, '&ban'));
+	    header("Location: $uri", true, 301);
+	    exit();
+	}
+
 
 	if (isdefined("logout")) {
 	    unset($_SESSION['myuser_name']);
@@ -1024,15 +1050,34 @@ if (!$database) {
 
 		$post = remove_iframes($post);
 
+		$request = $_SERVER['REQUEST_URI'].'&ban='.$post_id_session;
+		$banned_session = 0;
+		$banned_text = "скрыть";
+
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
-		echo '<span id="'.$post_id_session.'"></span>';
+
+//echo '<!--';
+		if (is_session('banlist')) {
+		    foreach($_SESSION['banlist'] as $ban_id_session) {
+//			echo $ban_id_session, ' ';
+			if ($post_id_session == $ban_id_session) {
+			    $request = $_SERVER['REQUEST_URI'].'&unban='.$post_id_session;
+			    $banned_session = 1;
+			    $banned_text = "показать";
+			}
+		    }
+		}
+//echo '-->';
+
+		echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		if (is_forum_admin()) {
 		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
 		}
 		echo '</div>
-</div>
-<div class="text_box_2">
+</div>';
+		if ($banned_session == 0) {
+		echo '<div class="text_box_2">
 <div id="message_'.$msg_count.'" class="text_box_2_mess">';
 	    $post_img = "img".$row['id_post'].".jpg";
 	    if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
@@ -1047,6 +1092,7 @@ echo $post.'</div>
 <a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/cit_w.gif"></a>
 	</div>
 </div>';
+	    }
 		$msg_count++;
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
