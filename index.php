@@ -348,6 +348,19 @@ if (!$database) {
 	    exit();
 	}
 
+	if (isdefined('sdel')) {
+	    $session_id = addslashes($_REQUEST['sdel']);
+	    if ($session_id != "") {
+		$query = "DELETE FROM ForumPosts WHERE id_session = \"".$session_id."\";";
+//echo '<!-- = '.$query.' -->';
+		$database->exec($query);
+		$uri = $_SERVER['REQUEST_URI'];
+		$uri = substr($uri, 0, strpos($uri, '&sdel'));
+		header("Location: $uri", true, 301);
+		exit();
+	    }
+	}
+
 
 	if (isdefined("logout")) {
 	    unset($_SESSION['myuser_name']);
@@ -1030,6 +1043,8 @@ if (!$database) {
 
 	    $msg_count = 0;
 
+	    $old_post_id_session = "nothingyethere";
+
 	    foreach ($database->query($view_query) as $row) {
 		echo '<div class="text_box_1">
 <div class="box_user">';
@@ -1044,6 +1059,7 @@ if (!$database) {
 		$post_id_session = "";
 		if ($row['id_session']) {
 		    $post_id_session = $row['id_session'];
+		    $old_post_id_session = $post_id_session;
 		}
 
 		$post = linkify(convert_youtube($tmp_post), array("http", "https"), array("target" => "_blank"));
@@ -1073,6 +1089,7 @@ if (!$database) {
 		echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		if (is_forum_admin()) {
 		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
+		    echo '<a href="'.$_SERVER['REQUEST_URI'].'&sdel='.$post_id_session.'" class="remove">Удалить сессию</a>';
 		}
 		echo '</div>
 </div>';
@@ -1092,8 +1109,11 @@ echo $post.'</div>
 <a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/cit_w.gif"></a>
 	</div>
 </div>';
-	    }
+		}
 		$msg_count++;
+//		if ($msg_count == $MAX_PAGE_ENTRIES) {
+//		    break;
+//		}
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 	}
