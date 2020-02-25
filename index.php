@@ -284,7 +284,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
-	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0);";
+	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0, id_session NVARCHAR);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumGroups " .
@@ -614,8 +614,12 @@ if (!$database) {
 			    }
 			} else {
 			    if ($post != "" && $subj != "") {
-				$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view)" .
-					 "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp, coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user), coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj', coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0));";
+				$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view, id_session)" .
+					 "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp,".
+					 " coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user),".
+					 " coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj',".
+					 " coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0),".
+					 " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'));";
 				$database->exec($query);
 				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
 					 "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
