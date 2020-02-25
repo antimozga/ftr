@@ -351,16 +351,17 @@ if (!$database) {
 	}
 
 	if (isdefined('sdel')) {
-	    $session_id = addslashes($_REQUEST['sdel']);
-	    if ($session_id != "") {
-		$query = "DELETE FROM ForumPosts WHERE id_session = \"".$session_id."\";";
-//echo '<!-- = '.$query.' -->';
-		$database->exec($query);
-		$uri = $_SERVER['REQUEST_URI'];
-		$uri = substr($uri, 0, strpos($uri, '&sdel'));
-		header("Location: $uri", true, 301);
-		exit();
+	    if (is_forum_admin()) {
+		$session_id = addslashes($_REQUEST['sdel']);
+		if ($session_id != "") {
+		    $query = "DELETE FROM ForumPosts WHERE id_session = \"".$session_id."\";";
+		    $database->exec($query);
+		}
 	    }
+	    $uri = $_SERVER['REQUEST_URI'];
+	    $uri = substr($uri, 0, strpos($uri, '&sdel'));
+	    header("Location: $uri", true, 301);
+	    exit();
 	}
 
 
