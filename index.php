@@ -775,7 +775,7 @@ if (!$database) {
 <table class="userstable">
 <tbody>
 <tr>
-    <td colspan="4">
+    <td colspan="5">
     <form action="" method="get">
 	<span>Поиск по нику:</span>
         <input id="user_filter" name="users" value="" type="text"/>
@@ -787,11 +787,12 @@ if (!$database) {
 <th>Пол</th>
 <th>Фото</th>
 <th>Время посещения</th>
+<th>Дата регистрации</th>
 </tr>';
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
-		$view_query = "SELECT id, login, last_login, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
+		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
 	    } else {
-		$view_query = "SELECT id, login, last_login, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
+		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
 	    }
 	    $g = array(1 => 'Не имеет значения', 2 => 'Мужской', 3 => 'Женский', 4 => 'Средний');
 	    foreach ($database->query($view_query) as $row) {
@@ -799,15 +800,16 @@ if (!$database) {
 		    continue;
 		}
 		echo '<tr>';
-		echo '<th>'.format_user_nick($row['login'], $row['id'], $row['login'], $row['id']).'</th>';
-		echo '<th>'.$g[$row['gender']].'</th>';
+		echo '<td>'.format_user_nick($row['login'], $row['id'], $row['login'], $row['id']).'</td>';
+		echo '<td class="tdw1">'.$g[$row['gender']].'</td>';
 		$avatar = $UPLOAD_DIR."/small-id".$row['id'].".jpg";
 		if (file_exists($avatar)) {
-		    echo '<th>'.'ЕСТЬ'.'</th>';
+		    echo '<td class="tdw2">'.'ЕСТЬ'.'</td>';
 		} else {
-		    echo '<th>'.'НЕТ'.'</th>';
+		    echo '<td class="tdw2">'.'НЕТ'.'</td>';
 		}
-		echo '<th>'.date('d.m.Y (H:i)', $row['last_login']).'</th>';
+		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['last_login']).'</td>';
+		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['time']).'</td>';
 		echo '</tr>';
 	    }
 		echo '</tbody>
