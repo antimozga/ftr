@@ -337,10 +337,12 @@ if (!$database) {
 	    }
 	} elseif (isdefined('ban')) {
 	    $session_id = addslashes($_REQUEST['ban']);
-	    if (is_session('banlist')) {
-		array_push($_SESSION['banlist'], $session_id);
-	    } else {
-		$_SESSION['banlist'] = array($session_id);
+	    if ($session_id != "") {
+		if (is_session('banlist')) {
+		    array_push($_SESSION['banlist'], $session_id);
+		} else {
+		    $_SESSION['banlist'] = array($session_id);
+		}
 	    }
 	    $uri = $_SERVER['REQUEST_URI'];
 	    $uri = substr($uri, 0, strpos($uri, '&ban'));
