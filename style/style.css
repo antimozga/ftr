@@ -398,6 +398,11 @@ label.cloned {
 	width: 100px;
 }
 
+.userstable .tdu1 {
+	width: 60px;
+	text-align: center;
+}
+
 .userstable .tdu3 {
 	width: 100px;
 	text-align: center;

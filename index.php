@@ -10,17 +10,10 @@ include('funcs.php');
 include('header.php');
 include('footer.php');
 
-function db_get_val($str, $val)
-{
-    global $database;
-    foreach ($database->query($str) as $row) {
-	return $row[$val];
-    }
-    return "";
-}
-
 function start_page($title) {
 global $FORUM_RULES_LINK;
+global $database;
+
 show_header($title);
 echo 
 '<div class="block_menu">
@@ -40,8 +33,8 @@ if(!is_session('myuser_name')) {
 	<div class="sep"><div></div></div>
 	<div><a href="?reg=1">Регистрация</a></div>';
 } else {
-    $pt = db_get_val('SELECT COUNT(*) AS total FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';', 'total');
-    $pn = db_get_val('SELECT COUNT(*) AS total FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;', 'total');
+    $pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
+    $pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
     echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
 	</div>
 	<div class="sep"><div></div></div>
@@ -54,7 +47,7 @@ if(!is_session('myuser_name')) {
 }
 
 echo '<div class="sep"><div></div></div>
-	<div><a href="?users">Пользователи</a></div>
+	<div><a href="?users">Пользователи</a><a href="./?banlist">(Скрытые)</a></div>
 	<div class="sep"><div></div></div>
 	<div><a href="'.$FORUM_RULES_LINK.'">Правила</a></div>'
 .$group_edit.
@@ -313,7 +306,7 @@ if (!$database) {
 	$id_user = 0;
 	$show_hot = 0;
 	$page = 1;
-	$topic = "ТОП ".$TOP_LIST." ГОРЯЧИХ ТЕМ";
+	$topic = "ТОП ".$MAX_PAGE_ENTRIES." ГОРЯЧИХ ТЕМ";
 	$search_opt = "";
 	$reg_mode = 0;
 	$show_search = 0;
@@ -321,6 +314,7 @@ if (!$database) {
 	$show_pager = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
 	$show_mylist = 0;
+	$show_banlist = 0;
 
 	if (isdefined('unban')) {
 	    $session_id = addslashes($_REQUEST['unban']);
@@ -414,7 +408,7 @@ if (!$database) {
 	    if (isdefined("dp")) {
 		$dp = $_REQUEST["dp"];
 		$dp = ($dp * 10) / 10;
-		$dt = db_get_val("SELECT id_topic FROM ForumPosts WHERE id = ".$dp, "id_topic");
+		$dt = $database->query("SELECT id_topic FROM ForumPosts WHERE id = ".$dp)->fetchColumn();
 		$query = "DELETE FROM ForumPosts WHERE id = ".$dp.";";
 		$database->exec($query);
 		/* remove topic if last post was removed */
@@ -489,7 +483,7 @@ if (!$database) {
 	    }
 	    $ctrlink = "";
 	    if ($id_user != 0) {
-		if (db_get_val("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;", 'id_user') == $id_user) {
+		if ($database->query("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;")->fetchColumn() == $id_user) {
 		    $ctrlink = '<a style="float: right" href="?t='.$id_topic.'&like=0">-</a>';
 		} else {
 		    $ctrlink = '<a style="float: right" href="?t='.$id_topic.'&like=1">+</a>';
@@ -549,10 +543,19 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Поиск");
+	} else if (isdefined("banlist")) {
+	    $show_banlist = 1;
+
+	    $topic = "СКРЫТЫЕ";
+
+	    start_page($topic);
+	    show_banner();
+	    show_menu($database);
+	    show_nav_path("Скрытые");
 	} else {
 	    if (isdefined("s")) {
 		$show_hot = 1;
-		$topic = "ТОП ".$TOP_LIST." ОБЩЕНИЯ";
+		$topic = "ТОП ".$MAX_PAGE_ENTRIES." ОБЩЕНИЯ";
 	    }
 	    if (isdefined("m")) {
 		$show_mylist = 1;
@@ -628,7 +631,7 @@ if (!$database) {
 			    }
 			}
 
-			$post_id = db_get_val("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';", 'id');
+			$post_id = $database->query("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';")->fetchColumn();
 
 			$image = $_FILES['image']['name'];
 			$image_tmp = $_FILES['image']['tmp_name'];
@@ -743,7 +746,7 @@ if (!$database) {
 		." WHERE ForumPager.id_user = ".$id_user." AND ForumUsers.id = ForumPager.id_from_user GROUP BY ForumPager.id_from_user;";
 	    echo '<table class="userstable"><tr><th>&nbsp;</th><th colspan=2 align="left">Пользователь</th><th>Сообщений</th></tr>';
 	    foreach ($database->query($pager_query) as $row) {
-		$pn = db_get_val('SELECT COUNT(*) AS total FROM ForumPager WHERE id_user = '.$id_user.' AND id_from_user = '.$row['id_from_user'].' AND new = 1;', 'total');
+		$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$id_user.' AND id_from_user = '.$row['id_from_user'].' AND new = 1;')->fetchColumn();
 		echo '<tr><td></td><td>'.make_href("showuser.php?id=", $row['id_from_user'], $row['login']).'</td><td>'.$pn.'</span>&nbsp;|&nbsp;'.$row['total'].'</td><td>'.make_href("pager.php?new=", $row['id_from_user'], "Читать").'</td></tr>';
 	    }
 	    echo '</table>';
@@ -929,19 +932,63 @@ if (!$database) {
 		}
 		print "<div class=\"box1\"><a href=\"?g={$row['id']}\" class=\"title\">{$row['grp']}</a> {$row['note']}<br><span class=\"white\">Тем: <span class=\"bold\">".$topics."</span>&nbsp;|&nbsp;Обновление: <span class=\"bold\">".$updated."</span></span></div>";
 	    }
+	} else if ($show_banlist != 0) {
+	    $banned = 0;
+
+	    echo '<table class="userstable">';
+
+	    if (is_session('banlist')) {
+		foreach($_SESSION['banlist'] as $ban_id_session) {
+		    $bannick = "";
+		    foreach($database->query("SELECT DISTINCT nick, id_user FROM ForumPosts WHERE id_session = \"$ban_id_session\"") as $row) {
+			if ($row['id_user'] != 0) {
+			    $bannick = format_user_nick($row['nick'], $row['id_user'], $row['nick'], $row['id_user'])." $bannick";
+			} else {
+			    $bannick = $row['nick']." $bannick";
+			}
+			$banned++;
+		    }
+		    if ($bannick == "") {
+			$bannick = "Пользователь удален";
+		    }
+echo "<!-- bannick $bannick -->";
+		    $request = $_SERVER['REQUEST_URI'].'&unban='.$ban_id_session;
+		    echo '<tr><td>'.$bannick.'</td><td class="tdu1"><a href="'.$request.'">убрать</a></td></tr>';
+		}
+	    }
+
+	    if ($banned == 0) {
+		echo '<tr><td colspan="2">Пока тут никого нет...</td></tr>';
+	    }
+
+	    echo '</table>';
+
 	} else if ($id_topic == 0) {
 	    $posts = 0;
 	    $pnext = "";
 	    $pprev = "";
-	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view, ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
+	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
+			  " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time,".
+			  " ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick,".
+			  " ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
+			  " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
+			  " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
+	    $count_query = "SELECT COUNT(*)".
+			   " FROM ForumTopics WHERE 1 ";
+
 	    if (!$show_trash_topics && $id_grp == 0) {
-	        $base_query = $base_query."AND ForumTopics.id_grp != ".$FORUM_TRASH_GID." ";
+	        $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
+		$count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
 	    }
+
 	    if ($id_grp != 0) {
-		$view_query = "SELECT COUNT(topic) as posts FROM ForumTopics WHERE id_grp = $id_grp;";
-		foreach ($database->query($view_query) as $row) {
-		    $posts = $row['posts'];
-		}
+		$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
+		$count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
+
+echo "<!-- 1count_query $count_query -->";
+
+		$posts = $database->query($count_query)->fetchColumn();
+
 		$numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
 		if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
 		    $pnext = "?g=".$id_grp."&p=".($page + 1);
@@ -949,28 +996,11 @@ if (!$database) {
 		if ($page > 1) {
 		    $pprev = "?g=".$id_grp."&p=".($page - 1);
 		}
+
 		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 
-		$view_query = $base_query." AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+		$view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 	    } else {
-		$view_query = "SELECT COUNT(topic) as posts FROM ForumTopics;";
-		foreach ($database->query($view_query) as $row) {
-		    $posts = $row['posts'];
-		}
-		$numentry = ($page - 1) * $TOP_LIST;
-		if ($numentry + $TOP_LIST < $posts) {
-		    $pnext = "?p=".($page + 1);
-		}
-		if ($page > 1) {
-		    $pprev = "?p=".($page - 1);
-		}
-		show_page_control('down', $page, ceil($posts / $TOP_LIST), $pprev, $pnext);
-
-		if ($show_hot == 0) {
-		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$TOP_LIST;";
-		} else {
-		    $view_query = $base_query." AND ForumUsers.id = ForumTopics.id_user ".$search_opt." GROUP BY id_topic ORDER BY posts DESC LIMIT $numentry,$TOP_LIST;";
-		}
 		if ($show_mylist != 0) {
 		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
 				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
@@ -981,11 +1011,40 @@ if (!$database) {
 				    " AND ForumUsers.id = ForumTopics.id_user".
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
+		} else {
+		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user";
+		}
+
+echo "<!-- 2count_query $count_query -->";
+
+		$posts = $database->query($count_query)->fetchColumn();
+
+		$numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
+		if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
+		    $pnext = "?p=".($page + 1);
+		}
+		if ($page > 1) {
+		    $pprev = "?p=".($page - 1);
+		}
+
+		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+
+		if ($show_mylist != 0) {
+		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
+				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
+				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
+				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
+				    " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups, ForumUserLike".
+				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
+				    " AND ForumUsers.id = ForumTopics.id_user".
+				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
+				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
+		} elseif ($show_hot == 0) {
+		    $view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+		} else {
+		    $view_query = "$base_query GROUP BY id_topic ORDER BY posts DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		}
 	    }
-
-//	    $count_query = "SELECT COUNT(ForumTopics.topic) as posts ".substr($view_query, strpos($view_query, "FROM"));
-//echo '- [ '.$count_query.' ] -';
 
 	    echo '<table class="themes">';
 
@@ -1018,17 +1077,31 @@ if (!$database) {
 
 	    }
 	    echo '</table>';
-//	    if ($id_grp != 0) {
-		show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
-//	    }
+
+	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 	} else {
 	    $posts = 0;
 	    $pnext = "";
 	    $pprev = "";
-	    $view_query = "SELECT COUNT(post) as posts FROM ForumPosts WHERE id_topic = $id_topic;";
-	    foreach ($database->query($view_query) as $row) {
-		$posts = $row['posts'];
+
+	    $ban_opts = "";
+	    if (is_session('banlist')) {
+		foreach($_SESSION['banlist'] as $ban_id_session) {
+		    if ($ban_opts == "") {
+			$ban_opts = "ForumPosts.id_session != \"$ban_id_session\"";
+		    } else {
+			$ban_opts = "$ban_opts AND ForumPosts.id_session != \"$ban_id_session\"";
+		    }
+		}
+		if ($ban_opts != "") {
+		    $ban_opts = "AND ($ban_opts OR ForumPosts.id_session IS NULL)";
+		}
 	    }
+
+echo "<!-- ban_opts $ban_opts -->";
+
+	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic $ban_opts;")->fetchColumn();
+
 	    $numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
 	    if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
 		$pnext = "?t=".$id_topic."&p=".($page + 1);
@@ -1047,8 +1120,10 @@ if (!$database) {
 				" ForumPosts.id_session AS id_session".
 				" FROM ForumPosts, ForumTopics, ForumUsers".
 				" WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic".
-				" AND ForumUsers.id = ForumPosts.id_user".
+				" AND ForumUsers.id = ForumPosts.id_user $ban_opts".
 				" ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+
+echo "<!-- view_opt $view_query -->";
 
 	    $msg_count = 0;
 
@@ -1120,13 +1195,9 @@ echo $post.'</div>
 </div>';
 		}
 		$msg_count++;
-//		if ($msg_count == $MAX_PAGE_ENTRIES) {
-//		    break;
-//		}
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 	}
-
 
 	show_menu($database);
 
@@ -1134,19 +1205,11 @@ echo $post.'</div>
 	$topics = 0;
 	$users = 0;
 
-	$view_query = "SELECT COUNT(post) as posts FROM ForumPosts;";
-	foreach ($database->query($view_query) as $row) {
-	    $posts = $row['posts'];
-	}
-	$view_query = "SELECT COUNT(topic) as topics FROM ForumTopics;";
-	foreach ($database->query($view_query) as $row) {
-	    $topics = $row['topics'];
-	}
-	$view_query = "SELECT COUNT(login) as users FROM ForumUsers;";
-	foreach ($database->query($view_query) as $row) {
-	    $users = $row['users'];
-	}
+	$posts  = $database->query("SELECT COUNT(*) FROM ForumPosts;")->fetchColumn();
+	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics;")->fetchColumn();
+	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers;")->fetchColumn();
 	$users = $users - 1; // minus super Anonymous
+
 	echo '
 <div class="line1"></div>
 <div class="block2">
