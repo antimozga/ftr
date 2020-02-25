@@ -615,8 +615,8 @@ if (!$database) {
 				$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view)" .
 					 "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp, coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user), coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj', coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0));";
 				$database->exec($query);
-				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post)" .
-					 "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post');";
+				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
+					 "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
 				$database->exec($query);
 			    }
 			}
