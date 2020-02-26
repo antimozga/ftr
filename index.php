@@ -26,8 +26,8 @@ $group_edit = "";
 if(!is_session('myuser_name')) {
     echo '  <form action="" method="post"><input type="hidden" name="event" value="login"/>
 	    <div class="form_box_text">
-		<input type="text" style="width:10%;" name="user[name]" onfocus="if(this.value == \'Имя\') { this.value = \'\'; }" value="Имя"/>
-		<input type="password" style="width:10%;" name="user[password]" onfocus="if(this.value == \'Пароль\') { this.value = \'\'; }" value="Пароль"/>
+		<input type="text" autocomplete="username" style="width:10%;" name="user[name]" onfocus="if(this.value == \'Имя\') { this.value = \'\'; }" value="Имя"/>
+		<input type="password" autocomplete="current-password" style="width:10%;" name="user[password]" onfocus="if(this.value == \'Пароль\') { this.value = \'\'; }" value="Пароль"/>
 		<input class="btn_group_sel" type="submit" value="&nbsp;" />
 	    </div>
 	    </form>
@@ -356,8 +356,8 @@ if (!$database) {
 	    if (is_forum_admin()) {
 		$session_id = addslashes($_REQUEST['sdel']);
 		if ($session_id != "") {
-		    $query = "DELETE FROM ForumPosts WHERE id_session = \"".$session_id."\";";
-		    $database->exec($query);
+		    $database->exec("DELETE FROM ForumPosts  WHERE id_topic IN (SELECT id FROM ForumTopics WHERE id_session = \"$session_id\")");
+		    $database->exec("DELETE FROM ForumTopics WHERE id_session = \"$session_id\"");
 		}
 	    }
 	    $uri = $_SERVER['REQUEST_URI'];
@@ -843,7 +843,7 @@ if (!$database) {
 	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
 	<input type="hidden" name="event" value="createuser">
 	<label for="login">* Имя пользователя (login) '.$user_name_warning.'</label>
-	<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'">
+	<input type="text" autocomplete="username" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'">
 	<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
 		';
 	    } else {
@@ -870,9 +870,9 @@ if (!$database) {
 	    echo '
 	<div class="line2"><div></div></div>
 	<label for="password1">* Пароль '.$user_password_warning.'</label>
-	<input type="password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="'.$user_password.'">
+	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="'.$user_password.'">
 	<label for="password2">* Подтверждение пароля </label>
-	<input type="password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="'.$user_password.'">
+	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="'.$user_password.'">
 	<div class="box_small_text">При наборе пароля допускаются любые буквы (как русские, так и латинские) и символы. Пароль регистрозависим (советуем перед набором глянуть на Caps Lock)</div>
 	<div class="line2"><div></div></div>
 	<label for="email">* Ваш e-mail '.$user_email_warning.'</label>
@@ -1023,6 +1023,23 @@ echo "<!-- 1count_query $count_query -->";
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		} else {
 		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user";
+		}
+
+		$ban_opts = "";
+		if (is_session('banlist')) {
+		    foreach($_SESSION['banlist'] as $ban_id_session) {
+			if ($ban_opts == "") {
+			    $ban_opts = "ForumTopics.id_session != \"$ban_id_session\"";
+			} else {
+			    $ban_opts = "$ban_opts AND ForumTopics.id_session != \"$ban_id_session\"";
+			}
+		    }
+		    if ($ban_opts != "") {
+			$ban_opts = "AND ($ban_opts OR ForumTopics.id_session IS NULL)";
+		    }
+
+		    $base_query = "$base_query $ban_opts";
+		    $count_query = "$count_query $ban_opts";
 		}
 
 echo "<!-- 2count_query $count_query -->";
