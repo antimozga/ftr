@@ -62,6 +62,10 @@ $RECAPTCHA_SERV_KEY = 'ВАШ SECRET KEY';
 chmod 600 /var/www/html/config_user.php
 ```
 
+Примечание:
+
+Для отключения рекапчи в целях отладки, измените ```$debug``` на ```true``` в начале файла ```index.php```
+
 Для заливки картинок устанавливаем следующие пакеты
 
 ```
@@ -106,7 +110,22 @@ $FORUM_TRASH_GID = "30"
 $SHOW_TRASH_TOPICS = true;
 ```
 
-## Настройка сертификата LetEncrypt
+### Увеличение лимита на заливаемые файлы (картинки)
+
+В файлах конфигурации
+
+```
+/etc/php/7.2/cgi/php.ini
+/etc/php/7.2/cli/php.ini
+```
+
+исправьте размер для ```upload_max_filesize```
+
+```
+upload_max_filesize = 3M
+```
+
+## Настройка сертификата Let's Encrypt
 
 Установите пакет certbot:
 

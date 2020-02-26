@@ -1,5 +1,7 @@
 <?php
 
+$debug = false;
+
 require_once('config.php');
 require_once('config_user.php');
 
@@ -128,6 +130,7 @@ function show_nav_path($topic, $ctrlink="") {
 }
 
 function show_postbox($type) {
+    global $debug;
     global $RECAPTCHA_SITE_KEY;
     $error = "";
     $name = "";
@@ -157,16 +160,21 @@ function show_postbox($type) {
 echo '
 <script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
 <script>
-function formSubmit () {
-    grecaptcha.ready(function () {
+function formSubmit () {';
+
+if ($debug) {
+    echo '    document.getElementById(\'formMessage\').submit();';
+} else {
+    echo '    grecaptcha.ready(function () {
 	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
 	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
 	    recaptchaResponse.value = token;
 	    document.getElementById(\'formMessage\').submit();
 	});
-    });
+    });';
+}
 
-    return false;
+echo '    return false;
 }
 </script>
 <div class="line1"></div>
@@ -192,13 +200,13 @@ function formSubmit () {
 			<div id="web"></div>
 			<span id="mess_emo"><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Жирный</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Курсив</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Цитата</a>&nbsp;-&nbsp;</span>
 		</div>
-		<input type="hidden" name="MAX_FILE_SIZE" value="1048576">
+		<input type="hidden" name="MAX_FILE_SIZE" value="3145728">
 		    <table class="form_box_image_btn">
 		    <tr><td>
 		    <input name="image" type="file">
 		    </td></tr>
 		    <tr><td>
-		    <label for="image">Картинка JPG,PNG,GIF(макс. размер 1МБ)</label>
+		    <label for="image">Картинка JPG,PNG,GIF(макс. размер 3МБ)</label>
 		    </td></tr>
 		    </table>
 	</div>
@@ -580,7 +588,7 @@ if (!$database) {
 		    $post = substr($post, 0, 4095);
 		}
 
-		if (isset($_POST['recaptcha_response'])) {
+		if (isset($_POST['recaptcha_response']) || $debug) {
 		    // Build POST request:
 		    $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
 		    //    $recaptcha_secret = 'YOUR_RECAPTCHA_SECRET_KEY';
@@ -591,7 +599,9 @@ if (!$database) {
 		    $recaptcha = json_decode($recaptcha);
 
 		    // Take action based on the score returned:
-		    if ($recaptcha->score >= 0.5) {
+		    echo "<!-- recaptcha $recaptcha->success $recaptcha->score -->";
+
+		    if ($recaptcha->score >= 0.5 || $debug) {
 			if ($nick == "") {
 			    unset($_SESSION['user_temp_name']);
 			} else {
