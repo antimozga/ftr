@@ -69,7 +69,7 @@ chmod 600 /var/www/html/config_user.php
 Для заливки картинок устанавливаем следующие пакеты
 
 ```
-  apt install imagemagick netpbm libjpeg-progs
+  apt install imagemagick netpbm libjpeg-progs webp
 ```
 
 Разрешаем запись в директорию

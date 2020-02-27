@@ -206,7 +206,7 @@ echo '    return false;
 		    <input name="image" type="file">
 		    </td></tr>
 		    <tr><td>
-		    <label for="image">Картинка JPG,PNG,GIF(макс. размер 3МБ)</label>
+		    <label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
 		    </td></tr>
 		    </table>
 	</div>
@@ -281,7 +281,7 @@ if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
     $query = "CREATE TABLE IF NOT EXISTS ForumPosts " .
-	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR);";
+	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR, attachment NVARCHAR);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
@@ -647,17 +647,21 @@ if (!$database) {
 			$image_tmp = $_FILES['image']['tmp_name'];
 			$image_ext = strtolower(substr(strrchr($image, '.'), 1));
 
-			if ($image_ext == "jpg" || $image_ext == "jpeg" || $image_ext == "gif" || $image_ext == "png") {
-			    $img_file = "img".$post_id.".jpg";
-			    list($img_width, $img_height, $img_type, $img_attr)= getimagesize($image_tmp);
-			    if (is_uploaded_file($image_tmp)) {
-				if (($img_width > 1024) || ($img_height > 768)) {
-				    system("convert -resize 1024x768 -quality 95 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
-				} else {
-				    system("convert -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/".$img_file);
-				}
+			if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
+			    $image_ext == 'webp' ||
+			    $image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
+			    $image_ext == 'webm') {
+
+			    $img_file = "att-$post_id.$image_ext";
+
+			    if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
+				$image_ext == 'webp') {
 				system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
 			    }
+
+			    move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
+
+			    $database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
 			}
 
 			if ($image_tmp != "") {
@@ -1144,7 +1148,7 @@ echo "<!-- ban_opts $ban_opts -->";
 	    $view_query =	"SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id,".
 				" ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user,".
 				" ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic,".
-				" ForumPosts.id_session AS id_session".
+				" ForumPosts.id_session AS id_session, ForumPosts.attachment AS attachment".
 				" FROM ForumPosts, ForumTopics, ForumUsers".
 				" WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic".
 				" AND ForumUsers.id = ForumPosts.id_user $ban_opts".
@@ -1153,8 +1157,6 @@ echo "<!-- ban_opts $ban_opts -->";
 echo "<!-- view_opt $view_query -->";
 
 	    $msg_count = 0;
-
-	    $old_post_id_session = "nothingyethere";
 
 	    foreach ($database->query($view_query) as $row) {
 		echo '<div class="text_box_1">
@@ -1170,7 +1172,6 @@ echo "<!-- view_opt $view_query -->";
 		$post_id_session = "";
 		if ($row['id_session']) {
 		    $post_id_session = $row['id_session'];
-		    $old_post_id_session = $post_id_session;
 		}
 
 		$post = linkify(convert_youtube($tmp_post), array("http", "https"), array("target" => "_blank"));
@@ -1207,12 +1208,37 @@ echo "<!-- view_opt $view_query -->";
 		if ($banned_session == 0) {
 		echo '<div class="text_box_2">
 <div id="message_'.$msg_count.'" class="text_box_2_mess">';
-	    $post_img = "img".$row['id_post'].".jpg";
-	    if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-		echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this)">';
-		echo '<img src="'.$UPLOAD_DIR."/small-".$post_img.'" alt="" class="postimage"/>';
-		echo '</a>';
+
+	    $attachment = $row['attachment'];
+	    if ($attachment != "") {
+		$image_ext = substr(strrchr($attachment, '.'), 1);
+		if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
+		    $image_ext == 'webp') {
+		    echo '<a href="'.$UPLOAD_DIR.'/'.$attachment.'" class="highslide" onclick="return hs.expand(this)">';
+		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
+		    echo '</a>';
+		} else {
+		    echo '<video class="postvideo" width="420" height="315" controls>';
+		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
+			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/mp4\">";
+		    } else if ($image_ext == 'ogv') {
+			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/ogg\">";
+		    } else if ($image_ext == 'webm') {
+			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/webm\">";
+		    }
+		    echo 'Your browser does not support the video tag.';
+		    echo '</video>';
+		}
+	    } else {
+		$post_img = "img".$row['id_post'].".jpg";
+		if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
+		    echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this)">';
+		    echo '<img src="'.$UPLOAD_DIR."/small-".$post_img.'" alt="" class="postimage"/>';
+		    echo '</a>';
+		}
 	    }
+
+
 echo $post.'</div>
 	<div class="answer_bar">
 <!-- <a href="#ftop" class="up">Вверх</a> -->

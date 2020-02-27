@@ -149,9 +149,19 @@ img.postimage {
 /*	padding-left: 1em; */
 }
 
+video.postvideo {
+	float: left;
+	margin-right: 5px;
+/*	padding-left: 1em; */
+}
+
 label.cloned {
 	color: red;
 	text-decoration: underline;
+}
+
+label.upload_file {
+	font-size: smaller;
 }
 
 .block_menu, .block_menu_m {
