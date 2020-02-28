@@ -1,12 +1,53 @@
 <?php
 
+function microtime_float()
+{
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
+}
+
+setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24 * 7, '/');
+session_start();
+
+if (isset($_SESSION['ajsner'])) {
+    if ($_SESSION['ajsner'] > 100) {
+	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
+	$retryAfterSeconds = 240;
+	header('Retry-After: ' . $retryAfterSeconds);
+	echo '<h1>503 Service Temporarily Unavailable</h1>';
+	exit;
+    }
+}
+
+$time_now = microtime_float();
+
+$time_diff = $time_now - $_SESSION['lkasdas'];
+
+//error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
+//error_log("time diff ".$time_diff);
+
+$_SESSION['lkasdas'] = $time_now;
+
+if ($time_diff < 1) {
+    if (!isset($_SESSION['ajsner'])) {
+	$_SESSION['ajsner'] = 1;
+    } else {
+	$_SESSION['ajsner']++;
+    }
+    header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
+    $retryAfterSeconds = 240;
+    header('Retry-After: ' . $retryAfterSeconds);
+    echo '<h1>503 Service Temporarily Unavailable</h1>';
+    exit;
+} else {
+	$_SESSION['ajsner'] = 0;
+}
+
 $debug = false;
 
 require_once('config.php');
 require_once('config_user.php');
 
-setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24 * 7, '/');
-session_start();
 
 include('funcs.php');
 include('header.php');
