@@ -34,11 +34,14 @@ if ($time_diff < 1) {
     } else {
 	$_SESSION['ajsner']++;
     }
-    header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
-    $retryAfterSeconds = 240;
-    header('Retry-After: ' . $retryAfterSeconds);
-    echo '<h1>503 Service Temporarily Unavailable</h1>';
-    exit;
+
+    if ($_SESSION['ajsner'] > 1) {
+	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
+	$retryAfterSeconds = 240;
+	header('Retry-After: ' . $retryAfterSeconds);
+	echo '<h1>503 Service Temporarily Unavailable</h1>';
+	exit;
+    }
 } else {
 	$_SESSION['ajsner'] = 0;
 }
