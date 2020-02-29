@@ -189,6 +189,11 @@ function show_postbox($type) {
 	$subj = $_SESSION['user_temp_subj'];
     }
 
+    if (isset($_SESSION['post_error_message'])) {
+	$error = "<div class=\"error1\">* ".$_SESSION['post_error_message']."</div>";
+	unset($_SESSION['post_error_message']);
+    }
+
     if (isset($_SESSION['user_temp_post'])) {
 	$post = $_SESSION['user_temp_post'];
 	$error = "<div class=\"error1\">* Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже...</div>";
@@ -691,25 +696,27 @@ if (!$database) {
 			$image_tmp = $_FILES['image']['tmp_name'];
 			$image_ext = strtolower(substr(strrchr($image, '.'), 1));
 
-			if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
-			    $image_ext == 'webp' ||
-			    $image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
-			    $image_ext == 'webm') {
+			if ($post != "" && $post_id != "") {
+			    if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
+				$image_ext == 'webp' ||
+				$image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
+				$image_ext == 'webm') {
 
-			    $img_file = "att-$post_id.$image_ext";
+				$img_file = "att-$post_id.$image_ext";
 
-			    if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
-				$image_ext == 'webp') {
-				system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+				if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
+				    $image_ext == 'webp') {
+				    system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+				}
+
+				move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
+
+				$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
 			    }
-
-			    move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
-
-			    $database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
 			}
 
-			if ($image_tmp != "") {
-			    unlink($image_tmp);
+			if ($post == "") {
+			    $_SESSION['post_error_message'] = "Сообщение не может быть пустым!";
 			}
 
 			unset($_SESSION['user_temp_subj']);
@@ -778,14 +785,11 @@ if (!$database) {
 			    copy($image_tmp, $UPLOAD_DIR."/".$img_file);
 			    $tmpimg = tempnam("/tmp", "MKUP");
 			    system("convert ".$image_tmp." pnm:".$tmpimg);
-			    system("pnmscale -xy 70 70 ".$tmpimg." | cjpeg -qual 75 >".$image_tmp);
+			    system("pnmscale -xy 70 70 ".$tmpimg." | cjpeg -qual 85 >".$image_tmp);
 			    copy($image_tmp, $UPLOAD_DIR."/small-".$img_file);
 			    unlink($tmpimg);
 			}
 		    }
-		}
-		if ($image_tmp != "") {
-		    unlink($image_tmp);
 		}
 	    }
 	}
