@@ -1222,7 +1222,7 @@ echo "<!-- view_opt $view_query -->";
 		    $post_id_session = $row['id_session'];
 		}
 
-		$post = linkify(convert_youtube($tmp_post), array("http", "https"), array("target" => "_blank"));
+		$post = linkify(convert_vkv(convert_youtube($tmp_post)), array("http", "https"), array("target" => "_blank"));
 
 		$post = remove_iframes($post);
 
