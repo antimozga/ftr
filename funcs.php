@@ -56,7 +56,7 @@ function convert_youtube($string) {
 
 function convert_vkv($string) {
     return preg_replace(
-	"/\s*[a-zA-Z\/\/:\.]*vk.com(\/public[0-9]+\?z=|\/feed\?z=|\/)video([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
+	"/\s*[a-zA-Z\/\/:\.]*vk.com(\/[a-zA-Z0-9]+\?z=|\/)video([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
 	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://vk.com/video$2\" allowfullscreen></iframe>",
 	$string
     );
