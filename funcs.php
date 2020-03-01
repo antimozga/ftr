@@ -62,6 +62,14 @@ function convert_vkv($string) {
     );
 }
 
+function convert_tiktok($string) {
+    return preg_replace(
+	"/\s*[a-zA-Z\/\/:\.]*tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/video\/([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
+	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://www.tiktok.com/$1/video/$2\" allowfullscreen></iframe>",
+	$string
+    );
+}
+
 /**
  * Turn all URLs in clickable links.
  *
