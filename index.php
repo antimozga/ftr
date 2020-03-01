@@ -1015,7 +1015,12 @@ if (!$database) {
 		    }
 echo "<!-- bannick $bannick -->";
 		    $request = $_SERVER['REQUEST_URI'].'&unban='.$ban_id_session;
-		    echo '<tr><td>'.$bannick.'</td><td class="tdu1"><a href="'.$request.'">убрать</a></td></tr>';
+		    echo '<tr><td>'.$bannick.'</td><td class="tdu1"><a href="'.$request.'">'.
+			 '<svg viewBox="0 0 20 20" width="16px">'.
+			 '<title>Показать пользователя и его темы</title>'.
+			 '<path fill="#CCCCCC" d="M.2 10a11 11 0 0 1 19.6 0A11 11 0 0 1 .2 10zm9.8 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-2a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>'.
+			 '</svg>'.
+			 '</a></td></tr>';
 		}
 	    }
 
@@ -1228,23 +1233,13 @@ echo "<!-- view_opt $view_query -->";
 
 		$request = $_SERVER['REQUEST_URI'].'&ban='.$post_id_session;
 		$banned_session = 0;
-		$banned_text = "скрыть";
+		$banned_text =	'<svg viewBox="0 0 20 20" width="16px">'.
+				'<title>Скрыть пользователя и его темы</title>'.
+				'<path fill="#CCCCCC" d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>'.
+				'</svg>';
 
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
-
-//echo '<!--';
-		if (is_session('banlist')) {
-		    foreach($_SESSION['banlist'] as $ban_id_session) {
-//			echo $ban_id_session, ' ';
-			if ($post_id_session == $ban_id_session) {
-			    $request = $_SERVER['REQUEST_URI'].'&unban='.$post_id_session;
-			    $banned_session = 1;
-			    $banned_text = "показать";
-			}
-		    }
-		}
-//echo '-->';
 
 		echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		if (is_forum_admin()) {
@@ -1286,12 +1281,21 @@ echo "<!-- view_opt $view_query -->";
 		}
 	    }
 
-
 echo $post.'</div>
 	<div class="answer_bar">
 <!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/ans_w.gif"></a>
-<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="answer"><img src="images/cit_w.gif"></a>
+<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="reply">
+<svg viewBox="0 0 20 20" width="16px">
+<title>Ответить</title>
+<path fill="#CCCCCC" d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
+</svg>
+</a>
+<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="reply">
+<svg viewBox="0 0 20 20" width="16px">
+<title>Цитировать</title>
+<path fill="#CCCCCC" d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
+</svg>
+</a>
 	</div>
 </div>';
 		}

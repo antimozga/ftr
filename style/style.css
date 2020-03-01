@@ -138,6 +138,10 @@ a.title {
 	font-size: 18px;
 }
 
+a.reply {
+	margin-right: 10px;
+}
+
 img {
 	margin: 0px;
 	border: 0px solid;
@@ -522,7 +526,7 @@ label.upload_file {
 
 .text_box_1, .text_box_1_dialog {
 	padding: 0px 5px;
-	margin: 2px 0px 1px 0px;
+	margin: 2px 0px 0px 0px;
 	background: #0F3C60;
 	color: #FFF;
 }
@@ -535,7 +539,7 @@ label.upload_file {
 
 .text_box_2, .text_box_2_dialog {
 	padding: 15px;
-	margin: 1px 0px 2px 0px;
+	margin: 0px 0px 2px 0px;
 	background: #205080;
 	color: #FAFAF0;
 	font-size: 13px;
@@ -555,6 +559,7 @@ label.upload_file {
 	width: 740px;
 	margin-left: auto;
 	margin-right: auto;
+	padding-bottom: 20px;
 }
 
 .text_box_2_dialog {
