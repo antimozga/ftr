@@ -196,7 +196,6 @@ function show_postbox($type) {
 
     if (isset($_SESSION['user_temp_post'])) {
 	$post = $_SESSION['user_temp_post'];
-	$error = "<div class=\"error1\">* Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже...</div>";
     }
 
     if ($type == 'topic') {
@@ -660,10 +659,7 @@ if (!$database) {
 			$tim = time();
 
 			if ($nick == "" && $id_user != 0) {
-			    $user_query = "SELECT login FROM ForumUsers WHERE id = '$id_user';";
-			    foreach ($database->query($user_query) as $row) {
-				$nick = $row['login'];
-			    }
+			    $nick = $database->query("SELECT login FROM ForumUsers WHERE id = '$id_user'")->fetchColumn();
 			}
 
 			if ($nick == "") {
@@ -677,41 +673,24 @@ if (!$database) {
 			    }
 			} else {
 			    if ($post != "" && $subj != "") {
-				$query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view, id_session)" .
-					 "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp,".
-					 " coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user),".
-					 " coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj',".
-					 " coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0),".
-					 " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'));";
-				$database->exec($query);
-				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
-					 "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
-				$database->exec($query);
-			    }
-			}
-
-			$post_id = $database->query("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';")->fetchColumn();
-
-			$image = $_FILES['image']['name'];
-			$image_tmp = $_FILES['image']['tmp_name'];
-			$image_ext = strtolower(substr(strrchr($image, '.'), 1));
-
-			if ($post != "" && $post_id != "") {
-			    if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
-				$image_ext == 'webp' ||
-				$image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
-				$image_ext == 'webm') {
-
-				$img_file = "att-$post_id.$image_ext";
-
-				if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
-				    $image_ext == 'webp') {
-				    system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+				if ($database->query("SELECT id FROM ForumTopics WHERE topic = '$subj'")->fetchColumn() == "") {
+				    $query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view, id_session)" .
+					     "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp,".
+					     " coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user),".
+					     " coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj',".
+					     " coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0),".
+					     " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'));";
+				    $database->exec($query);
+				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
+					     "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
+				    $database->exec($query);
+				} else {
+				    $_SESSION['post_error_message'] = "Тема с таким заголовком уже существует!";
 				}
-
-				move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
-
-				$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
+			    } else {
+				if ($subj == "") {
+				    $_SESSION['post_error_message'] = "Заголовок темы не может быть пустым!";
+				}
 			    }
 			}
 
@@ -719,14 +698,46 @@ if (!$database) {
 			    $_SESSION['post_error_message'] = "Сообщение не может быть пустым!";
 			}
 
-			unset($_SESSION['user_temp_subj']);
-			unset($_SESSION['user_temp_post']);
+			if (is_session('post_error_message')) {
+			    $_SESSION['user_temp_name'] = $nick;
+			    $_SESSION['user_temp_subj'] = $subj;
+			    $_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
+			} else {
+			    $post_id = $database->query("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';")->fetchColumn();
+
+			    $image = $_FILES['image']['name'];
+			    $image_tmp = $_FILES['image']['tmp_name'];
+			    $image_ext = strtolower(substr(strrchr($image, '.'), 1));
+
+			    if ($post != "" && $post_id != "") {
+				if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
+				    $image_ext == 'webp' ||
+				    $image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
+				    $image_ext == 'webm') {
+
+				    $img_file = "att-$post_id.$image_ext";
+
+				    if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
+					$image_ext == 'webp') {
+					system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+				    }
+
+				    move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
+
+				    $database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
+				}
+			    }
+
+			    unset($_SESSION['user_temp_subj']);
+			    unset($_SESSION['user_temp_post']);
+			}
 		    } else {
 			// Not verified - show form error
 			$_SESSION['user_temp_name'] = $nick;
 			$_SESSION['user_temp_subj'] = $subj;
 			$_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
-			//echo "YOU ARE FUCKIN' ROBOT! " . $recaptcha->score;
+
+			$_SESSION['post_error_message'] = "Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже.";
 		    }
 		}
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
