@@ -14,6 +14,45 @@ function is_session($var) {
     }
 }
 
+function is_logged()
+{
+    global $database;
+
+    $sth = $database->prepare('SELECT id, login, password FROM ForumUsers WHERE login="'.$_SESSION['myuser_name'].'"');
+    $sth->execute();
+    $row = $sth->fetch();
+
+    if ($_SESSION['myuser_password'] == md5($row['password']) && ($row['id'] != 0)) {
+	$_SESSION['myuser_id'] = $row['id'];
+
+	$tim = time();
+	$database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = ".$row['id'].";");
+
+	return 1;
+    }
+
+    unset($_SESSION['myuser_name']);
+    unset($_SESSION['myuser_password']);
+    unset($_SESSION['myuser_id']);
+
+    return 0;
+}
+
+function user_login($name, $password)
+{
+    global $database;
+
+    $_SESSION['myuser_name'] = $name;
+    $_SESSION['myuser_password'] = md5($password);
+
+    if (is_logged()) {
+	unset($_SESSION['user_temp_name']);
+	header("location:index.php");
+    }
+
+    // can't login
+}
+
 function is_forum_admin() {
     global $FORUM_ADMIN;
     if (isset($_SESSION['myuser_name'])) {

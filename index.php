@@ -355,6 +355,8 @@ if (!$database) {
 	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR);";
     $database->exec($query);
 
+    is_logged();
+
     {
 	$show_groups = 0;
 	$id_grp = 0;
@@ -433,32 +435,8 @@ if (!$database) {
 	    if ($cmd == "login") {
 		$myuser_name		= convert_string($_REQUEST["user"]["name"]);
 		$myuser_password	= convert_string($_REQUEST["user"]["password"]);
-		$myuser_id		= "";
-		//echo "Login>>>".$myuser_name." ".$myuser_password;
-		$name = "";
-		$password = "";
 
-		$user_query = "SELECT id, login, password FROM ForumUsers WHERE login = '$myuser_name';";
-		foreach ($database->query($user_query) as $row) {
-		    $name = $row['login'];
-		    $password = $row['password'];
-		    $myuser_id = $row['id'];
-		}
-
-		if (($myuser_name == $name) && ($myuser_password == $password) && ($myuser_id != 0)) {
-		    //echo "Logged";
-		    $_SESSION['myuser_name'] = $myuser_name;
-		    $_SESSION['myuser_id'] = $myuser_id;
-
-		    $tim = time();
-		    $query = "UPDATE ForumUsers SET last_login = $tim WHERE id = $myuser_id;";
-		    $database->exec($query);
-
-		    unset($_SESSION['user_temp_name']);
-		    header("location:index.php");
-		} else {
-		    //echo "fail";
-		}
+		user_login($myuser_name, $myuser_password);
 	    }
 	}
 
