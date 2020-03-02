@@ -75,7 +75,7 @@ $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
-    if (isdefined('id')) {
+    if (is_defined('id')) {
 	$id = $_REQUEST['id'];
 	$id = ($id * 10) / 10;
 	$user_query = "SELECT login, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id;";

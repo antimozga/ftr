@@ -32,11 +32,11 @@ $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else if ($myuser_id != 0) {
-    if (isdefined('new')) {
+    if (is_defined('new')) {
 	$to_id = $_REQUEST['new'];
 	$to_id = ($to_id * 10) / 10;
 
-	if (isdefined("event")) {
+	if (is_defined("event")) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumpagercreatemess") {
 		$tim = time();

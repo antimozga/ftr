@@ -174,12 +174,35 @@ function show_nav_path($topic, $ctrlink="") {
 }
 
 function show_postbox($type) {
+    global $database;
     global $debug;
     global $RECAPTCHA_SITE_KEY;
     $error = "";
     $name = "";
     $subj = "";
     $post = "";
+
+    if (is_defined('editpost')) {
+	$edit_post_id = $_REQUEST['editpost'];
+	$edit_post_id = ($edit_post_id * 10) / 10;
+
+	$id_session = md5(session_id());
+
+//echo '<!-- SELECT id, time, nick, subj, post, mod_time FROM ForumPosts WHERE id_session="'.$id_session.'"; -->';
+
+	$sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
+				  " FROM ForumPosts".
+				  " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
+	$sth->execute();
+	$row = $sth->fetch();
+	if ($row['id'] != "") {
+//	    echo "-> ".$row['id']." ".$row['login']." ".$row['password']." <-\n";
+	    $_SESSION['user_temp_name'] = $row['nick'];
+	    $_SESSION['user_temp_subj'] = $row['subj'];
+	    $_SESSION['user_temp_post'] = $row['post'];
+	    $_SESSION['user_edit_post'] = $edit_post_id;
+	}
+    }
 
     if (isset($_SESSION['user_temp_name'])) {
 	$name = $_SESSION['user_temp_name'];
@@ -374,7 +397,7 @@ if (!$database) {
 	$show_mylist = 0;
 	$show_banlist = 0;
 
-	if (isdefined('unban')) {
+	if (is_defined('unban')) {
 	    $session_id = addslashes($_REQUEST['unban']);
 	    if (is_session('banlist')) {
 		$arr = $_SESSION['banlist'];
@@ -387,7 +410,7 @@ if (!$database) {
 		header("Location: $uri", true, 301);
 		exit();
 	    }
-	} elseif (isdefined('ban')) {
+	} elseif (is_defined('ban')) {
 	    $session_id = addslashes($_REQUEST['ban']);
 	    if ($session_id != "") {
 		if (is_session('banlist')) {
@@ -402,7 +425,7 @@ if (!$database) {
 	    exit();
 	}
 
-	if (isdefined('sdel')) {
+	if (is_defined('sdel')) {
 	    if (is_forum_admin()) {
 		$session_id = addslashes($_REQUEST['sdel']);
 		if ($session_id != "") {
@@ -417,10 +440,13 @@ if (!$database) {
 	}
 
 
-	if (isdefined("logout")) {
+	if (is_defined("logout")) {
 	    unset($_SESSION['myuser_name']);
+	    unset($_SESSION['myuser_password']);
 	    unset($_SESSION['myuser_id']);
 	    unset($_SESSION['user_temp_name']);
+
+	    header("location:index.php");
 	}
 
 	if (isset($_SESSION['myuser_id'])) {
@@ -430,7 +456,7 @@ if (!$database) {
 	unset($_SESSION['user_temp_subj']);
 	unset($_SESSION['user_temp_post']);
 
-	if (isdefined("event")) {
+	if (is_defined("event")) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "login") {
 		$myuser_name		= convert_string($_REQUEST["user"]["name"]);
@@ -441,7 +467,7 @@ if (!$database) {
 	}
 
 	if (is_forum_admin()) {
-	    if (isdefined("dp")) {
+	    if (is_defined("dp")) {
 		$dp = $_REQUEST["dp"];
 		$dp = ($dp * 10) / 10;
 		$dt = $database->query("SELECT id_topic FROM ForumPosts WHERE id = ".$dp)->fetchColumn();
@@ -451,10 +477,10 @@ if (!$database) {
 		$query = "DELETE FROM ForumTopics WHERE id = ".$dt." AND (SELECT COUNT(*) FROM ForumPosts WHERE id_topic = ".$dt.") = 0;";
 		$database->exec($query);
 	    }
-	    if (isdefined("dt")) {
+	    if (is_defined("dt")) {
 		$dt = $_REQUEST["dt"];
 		$dt = ($dt * 10) / 10;
-		if (isdefined("trash")) {
+		if (is_defined("trash")) {
 		    $query = "UPDATE ForumPosts SET id_grp = ".$FORUM_TRASH_GID." WHERE id_topic = ".$dt.";";
 		    $database->exec($query);
 		    $query = "UPDATE ForumTopics SET id_grp = ".$FORUM_TRASH_GID." WHERE id = ".$dt.";";
@@ -468,14 +494,14 @@ if (!$database) {
 	    }
 	}
 
-	if (isdefined("p")) {
+	if (is_defined("p")) {
 	    $page = $_REQUEST["p"];
 	    if ($page < 1 ) {
 		$page = 1;
 	    }
 	}
 
-	if (isdefined("g")) {
+	if (is_defined("g")) {
 	    $topic = "ГРУППЫ ТЕМ";
 	    $id_grp = $_REQUEST["g"];
 	    $id_grp = ($id_grp * 10) / 10;
@@ -493,11 +519,11 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("<a href=\"?g=".$id_grp."\">".$topic."</a>");
-	} else if (isdefined("t")) {
+	} else if (is_defined("t")) {
 	    $id_topic = $_REQUEST["t"];
 	    $id_topic = ($id_topic * 10) / 10;
 	
-	    if ($id_user != 0 && isdefined("like")) {
+	    if ($id_user != 0 && is_defined("like")) {
 		$id_like = $_REQUEST["like"];
 		$id_like = ($id_like * 10) / 10;
 		if ($id_like) {
@@ -530,7 +556,7 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("<a href=\"?g=".$id_group."\">".$group."</a> &nbsp;/&nbsp; <a href=\"?t=".$id_topic."\">".$topic."</a>", $ctrlink);
-	} else if (isdefined("reg")) {
+	} else if (is_defined("reg")) {
 	    $reg_mode = $_REQUEST["reg"];
 	    if ($reg_mode == 3 && $id_user == 0) {
 		$reg_mode = 1;
@@ -545,7 +571,7 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path($topic);
-	} else if (isdefined("users")) {
+	} else if (is_defined("users")) {
 	    $show_users = 1;
 	    $show_users_string = convert_string($_REQUEST["users"]);
 
@@ -555,7 +581,7 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Список пользователей");
-	} else if (isdefined("pager")) {
+	} else if (is_defined("pager")) {
 	    $show_pager = 1;
 
 	    $topic = "ПЕЙДЖЕР";
@@ -564,7 +590,7 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Пейджер");
-	} else if (isdefined("search")) {
+	} else if (is_defined("search")) {
 	    $s = convert_string($_REQUEST["search"]);
 
 	    if ($s == "") {
@@ -579,7 +605,7 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Поиск");
-	} else if (isdefined("banlist")) {
+	} else if (is_defined("banlist")) {
 	    $show_banlist = 1;
 
 	    $topic = "СКРЫТЫЕ";
@@ -589,11 +615,11 @@ if (!$database) {
 	    show_menu($database);
 	    show_nav_path("Скрытые");
 	} else {
-	    if (isdefined("s")) {
+	    if (is_defined("s")) {
 		$show_hot = 1;
 		$topic = "ТОП ".$MAX_PAGE_ENTRIES." ОБЩЕНИЯ";
 	    }
-	    if (isdefined("m")) {
+	    if (is_defined("m")) {
 		$show_mylist = 1;
 		$topic = "МОИ ИЗБРАННЫЕ ТЕМЫ";
 	    }
@@ -604,7 +630,7 @@ if (!$database) {
 	    show_nav_path($topic);
 	}
 
-	if (isdefined("event")) {
+	if (is_defined("event")) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumcreatesubj") {
 		$nick = convert_string($_REQUEST["message"]["author"]);
@@ -647,9 +673,25 @@ if (!$database) {
 			}
 			if ($id_topic != 0) {
 			    if ($post != "") {
-				$query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
-					 "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post', '$id_session');";
-				$database->exec($query);
+				if (is_session('user_edit_post')) {
+				    $edit_post_id = $_SESSION['user_edit_post'];
+				    $edit_post_id = ($edit_post_id * 10) / 10;
+
+				    $sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
+							      " FROM ForumPosts".
+							      " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
+				    $sth->execute();
+				    $row = $sth->fetch();
+				    if ($row['id'] != "") {
+					$modtime = time();
+
+					$database->exec("UPDATE ForumPosts SET nick='$nick', subj='$subj', post='$post', modtime=$modtime  WHERE id = $edit_post_id");
+				    }
+				} else {
+				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
+					     "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post', '$id_session');";
+				    $database->exec($query);
+				}
 			    }
 			} else {
 			    if ($post != "" && $subj != "") {
@@ -710,6 +752,7 @@ if (!$database) {
 
 			    unset($_SESSION['user_temp_subj']);
 			    unset($_SESSION['user_temp_post']);
+			    unset($_SESSION['user_edit_post']);
 			}
 		    } else {
 			// Not verified - show form error
@@ -1232,13 +1275,16 @@ echo "<!-- view_opt $view_query -->";
 		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
 <span class="white1">'.$row['subj'].'</span>';
 
-		echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+		$id_session = md5(session_id());
+
+		if ($id_session != $post_id_session) {
+		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+		}
 
 		if (is_session('myuser_name')) {
-		    $id_session = md5(session_id());
-
 		    if ($id_session == $post_id_session) {
-			echo '<a class="ban" href="?editpost='.$row['id_post'].'">'.
+//			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
+			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
 '<svg viewBox="0 0 20 20" width="16px">'.
 '<title>Редактировать сообщение</title>'.
 '<path fill="#CCCCCC" d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>'.

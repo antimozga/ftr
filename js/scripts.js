@@ -78,6 +78,24 @@ function reply(creator, msg_id)
 
 function reply_cite(creator, msg_id)
 {
+	var output = getSelectionText();
+
+	if (output == "") {
+		selectElementText(document.getElementById(msg_id));
+		output = getSelectionText();
+	}
+
+	if (output != "") {
+	    document.getElementById(selField).value += '[re]' + output + '[/re]\n';
+	}
+
+	document.getElementById('heading').value=creator;
+	document.getElementById(selField).focus();
+}
+
+/*
+function reply_cite(creator, msg_id)
+{
 	selectElementText(document.getElementById(msg_id));
 	var output = getSelectionText();
 
@@ -86,6 +104,7 @@ function reply_cite(creator, msg_id)
 	document.getElementById('heading').value=creator;
 	document.getElementById(selField).focus();
 }
+ */
 
 function show_date()
 {
@@ -116,4 +135,31 @@ function show_weather()
 		document.body.appendChild(x);
 	    });
 	});
+}
+
+function post(path, params, method, target) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+    if (target != null) {
+	form.setAttribute("target", target);
+    }
+
+    for(var key in params) {
+	if(params.hasOwnProperty(key)) {
+	    var hiddenField = document.createElement("input");
+	    hiddenField.setAttribute("type", "hidden");
+	    hiddenField.setAttribute("name", key);
+	    hiddenField.setAttribute("value", params[key]);
+
+	    form.appendChild(hiddenField);
+	}
+    }
+
+    document.body.appendChild(form);
+    form.submit();
 }

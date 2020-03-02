@@ -1,5 +1,6 @@
 <?php
-function isdefined($name) {
+
+function is_defined($name) {
     if (isset($_REQUEST[$name])) {
 	return true;
     }
@@ -241,4 +242,13 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
 
     return $post_nick;
 }
+
+function redirect_without($wout)
+{
+    $uri = $_SERVER['REQUEST_URI'];
+    $uri = substr($uri, 0, strpos($uri, $wout));
+    header("Location: $uri", true, 301);
+    exit();
+}
+
 ?>
