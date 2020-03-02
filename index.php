@@ -646,6 +646,7 @@ if (!$database) {
 		$nick = convert_string($_REQUEST["message"]["author"]);
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
+		$post_id = "";
 		$id_session = md5(session_id());
 
 		if (strlen($post) > 4096) {
@@ -696,12 +697,13 @@ if (!$database) {
 					$modtime = time();
 
 					$database->exec("UPDATE ForumPosts SET id_user='$id_user', nick='$nick', subj='$subj', post='$post', modtime=$modtime  WHERE id = $edit_post_id");
+					$post_id = $row['id'];
 				    }
 				} else {
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
 					     "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post', '$id_session');";
 				    $database->exec($query);
-//				    echo '<-- inserted '.$database->lastInsertId().' -->';
+				    $post_id = $database->lastInsertId();
 				}
 			    }
 			} else {
@@ -717,6 +719,7 @@ if (!$database) {
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
 					     "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
 				    $database->exec($query);
+				    $post_id = $database->lastInsertId();
 				} else {
 				    $_SESSION['post_error_message'] = "Тема с таким заголовком уже существует!";
 				}
@@ -740,8 +743,6 @@ if (!$database) {
 				$_SESSION['user_edit_post'] = $_POST['edit_post_info'];
 			    }
 			} else {
-			    $post_id = $database->query("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';")->fetchColumn();
-
 			    $image = $_FILES['image']['name'];
 			    $image_tmp = $_FILES['image']['tmp_name'];
 			    $image_ext = strtolower(substr(strrchr($image, '.'), 1));
