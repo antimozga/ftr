@@ -90,7 +90,9 @@ function reply_cite(creator, msg_id)
 			.replace(/<b>/g,	'[b]'  )
 			.replace(/<\/b>/g,	'[/b]' )
 			.replace(/<br>/g,	'\r\n' )
-			.replace(/<br\/>/g,	'\r\n' );
+			.replace(/<br\/>/g,	'\r\n' )
+			.replace(/<iframe.*>.*?<\/iframe>/ig,'')
+			.replace(/<video.*>.*?<\/video>/ig,  '');
 
 //		selectElementText(document.getElementById(msg_id));
 //		output = getSelectionText();
