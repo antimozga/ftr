@@ -19,17 +19,19 @@ function is_logged()
 {
     global $database;
 
-    $sth = $database->prepare('SELECT id, login, password FROM ForumUsers WHERE login="'.$_SESSION['myuser_name'].'"');
-    $sth->execute();
-    $row = $sth->fetch();
+    if (is_session('myuser_name')) {
+	$sth = $database->prepare('SELECT id, login, password FROM ForumUsers WHERE login="'.$_SESSION['myuser_name'].'"');
+	$sth->execute();
+	$row = $sth->fetch();
 
-    if ($_SESSION['myuser_password'] == md5($row['password']) && ($row['id'] != 0)) {
-	$_SESSION['myuser_id'] = $row['id'];
+	if ($_SESSION['myuser_password'] == md5($row['password']) && ($row['id'] != 0)) {
+	    $_SESSION['myuser_id'] = $row['id'];
 
-	$tim = time();
-	$database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = ".$row['id'].";");
+	    $tim = time();
+	    $database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = ".$row['id'].";");
 
-	return 1;
+	    return 1;
+	}
     }
 
     unset($_SESSION['myuser_name']);

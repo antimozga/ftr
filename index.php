@@ -1283,7 +1283,7 @@ echo "<!-- 1count_query $count_query -->";
 		}
 
 		if (is_session('myuser_name')) {
-		    if ($id_session == $post_id_session) {
+		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 5 ) {
 //			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
 			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
 '<svg viewBox="0 0 20 20" width="16px">'.
