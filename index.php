@@ -1066,7 +1066,7 @@ if (!$database) {
 		    if ($bannick == "") {
 			$bannick = "Пользователь удален";
 		    }
-echo "<!-- bannick $bannick -->";
+//echo "<!-- bannick $bannick -->";
 		    $request = $_SERVER['REQUEST_URI'].'&unban='.$ban_id_session;
 		    echo '<tr><td>'.$bannick.'</td><td class="tdu1"><a href="'.$request.'">'.
 			 '<svg viewBox="0 0 20 20" width="16px">'.
@@ -1105,7 +1105,7 @@ echo "<!-- bannick $bannick -->";
 		$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
 		$count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
 
-echo "<!-- 1count_query $count_query -->";
+//echo "<!-- 1count_query $count_query -->";
 
 		$posts = $database->query($count_query)->fetchColumn();
 
@@ -1280,7 +1280,7 @@ echo "<!-- 1count_query $count_query -->";
 		    $post_id_session = $row['id_session'];
 		}
 
-		$post = linkify(convert_tiktok(convert_vkv(convert_youtube($tmp_post))), array("http", "https"), array("target" => "_blank"));
+		$post = linkify(convert_tiktok2(convert_tiktok(convert_vkv(convert_youtube($tmp_post)))), array("http", "https"), array("target" => "_blank"));
 
 		$post = remove_iframes($post);
 

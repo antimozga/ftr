@@ -123,6 +123,14 @@ function convert_tiktok($string) {
     );
 }
 
+function convert_tiktok2($string) {
+    return preg_replace(
+	"/\s*[a-zA-Z\/\/:\.]*vm.tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/?/i",
+	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://vm.tiktok.com/$1\" allowfullscreen></iframe>",
+	$string
+    );
+}
+
 /**
  * Turn all URLs in clickable links.
  *
