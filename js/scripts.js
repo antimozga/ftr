@@ -91,6 +91,7 @@ function reply_cite(creator, msg_id)
 			.replace(/<\/b>/g,	'[/b]' )
 			.replace(/<br>/g,	'\r\n' )
 			.replace(/<br\/>/g,	'\r\n' )
+			.replace(/<a.*>.*?<\/a>/ig,'')
 			.replace(/<iframe.*>.*?<\/iframe>/ig,'')
 			.replace(/<video.*>.*?<\/video>/ig,  '');
 
