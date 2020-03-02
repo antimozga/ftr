@@ -81,8 +81,19 @@ function reply_cite(creator, msg_id)
 	var output = getSelectionText();
 
 	if (output == "") {
-		selectElementText(document.getElementById(msg_id));
-		output = getSelectionText();
+	    output = document.getElementById(msg_id).innerHTML;
+	    output = output
+			.replace(/<cite>/g,	'[re]' )
+			.replace(/<\/cite>/g,	'[/re]')
+			.replace(/<i>/g,	'[i]'  )
+			.replace(/<\/i>/g,	'[/i]' )
+			.replace(/<b>/g,	'[b]'  )
+			.replace(/<\/b>/g,	'[/b]' )
+			.replace(/<br>/g,	'\r\n' )
+			.replace(/<br\/>/g,	'\r\n' );
+
+//		selectElementText(document.getElementById(msg_id));
+//		output = getSelectionText();
 	}
 
 	if (output != "") {
