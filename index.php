@@ -181,6 +181,7 @@ function show_postbox($type) {
     $name = "";
     $subj = "";
     $post = "";
+    $edit_info = "";
 
     if (is_defined('editpost')) {
 	$edit_post_id = $_REQUEST['editpost'];
@@ -200,8 +201,10 @@ function show_postbox($type) {
 	    $_SESSION['user_temp_name'] = $row['nick'];
 	    $_SESSION['user_temp_subj'] = $row['subj'];
 	    $_SESSION['user_temp_post'] = reconvert_text($row['post']);
-	    $_SESSION['user_edit_post'] = $edit_post_id;
+	    $edit_info = '<input type="hidden" name="edit_post_info" value="'.$edit_post_id.'">';
 	}
+    } else if (is_session('user_edit_post')) {
+	$edit_info = '<input type="hidden" name="edit_post_info" value="'.$_SESSION['user_edit_post'].'">';
     }
 
     if (isset($_SESSION['user_temp_name'])) {
@@ -227,8 +230,9 @@ function show_postbox($type) {
     } else {
 	$h = 'Заголовок сообщения';
 
-	if (is_defined('editpost')) {
+	if (is_defined('editpost') || is_session('user_edit_post')) {
 	    $b = 'Исправить сообщение';
+	    unset($_SESSION['user_edit_post']);
 	} else {
 	    $b = 'Добавить сообщение';
 	}
@@ -287,6 +291,7 @@ echo '    return false;
 		    </table>
 	</div>
 	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
+'.$edit_info.'
 	</form>
 '.$error.'
 </div>
@@ -678,8 +683,8 @@ if (!$database) {
 			}
 			if ($id_topic != 0) {
 			    if ($post != "") {
-				if (is_session('user_edit_post')) {
-				    $edit_post_id = $_SESSION['user_edit_post'];
+				if (isset($_POST['edit_post_info'])) {
+				    $edit_post_id = $_POST['edit_post_info'];
 				    $edit_post_id = ($edit_post_id * 10) / 10;
 
 				    $sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
@@ -730,6 +735,10 @@ if (!$database) {
 			    $_SESSION['user_temp_name'] = $nick;
 			    $_SESSION['user_temp_subj'] = $subj;
 			    $_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
+
+			    if (isset($_POST['edit_post_info'])) {
+				$_SESSION['user_edit_post'] = $_POST['edit_post_info'];
+			    }
 			} else {
 			    $post_id = $database->query("SELECT id FROM ForumPosts WHERE time = '".$tim."' AND post = '".$post."';")->fetchColumn();
 
@@ -765,6 +774,10 @@ if (!$database) {
 			$_SESSION['user_temp_name'] = $nick;
 			$_SESSION['user_temp_subj'] = $subj;
 			$_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
+
+			if (isset($_POST['edit_post_info'])) {
+			    $_SESSION['user_edit_post'] = $_POST['edit_post_info'];
+			}
 
 			$_SESSION['post_error_message'] = "Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже.";
 		    }
