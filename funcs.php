@@ -75,6 +75,17 @@ function convert_text($str)
     return str_replace($order, $replace, $newstr);
 }
 
+function reconvert_text($str)
+{
+    $search  = array('<i>', '</i>', '<b>', '</b>', '<cite>', '</cite>');
+    $replace = array('[i]', '[/i]', '[b]', '[/b]', '[re]',   '[/re]'  );
+    $newstr  = str_replace($search, $replace, $str);
+
+    $order   = '<br/>';
+    $replace = "\r\n";
+    return str_replace($order, $replace, $newstr);
+}
+
 function convert_string($str)
 {
     $search  = array('&',     '"',      '\'',     '<',    '>');

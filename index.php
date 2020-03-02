@@ -199,7 +199,7 @@ function show_postbox($type) {
 //	    echo "-> ".$row['id']." ".$row['login']." ".$row['password']." <-\n";
 	    $_SESSION['user_temp_name'] = $row['nick'];
 	    $_SESSION['user_temp_subj'] = $row['subj'];
-	    $_SESSION['user_temp_post'] = $row['post'];
+	    $_SESSION['user_temp_post'] = reconvert_text($row['post']);
 	    $_SESSION['user_edit_post'] = $edit_post_id;
 	}
     }
@@ -691,6 +691,7 @@ if (!$database) {
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
 					     "VALUES (NULL, '$tim', (SELECT id_grp FROM ForumTopics WHERE id = '$id_topic'), $id_topic, $id_user, '$nick', '$subj', '$post', '$id_session');";
 				    $database->exec($query);
+//				    echo '<-- inserted '.$database->lastInsertId().' -->';
 				}
 			    }
 			} else {
