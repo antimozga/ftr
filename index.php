@@ -329,7 +329,7 @@ if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
     $query = "CREATE TABLE IF NOT EXISTS ForumPosts " .
-	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR, attachment NVARCHAR);";
+	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR, attachment NVARCHAR, modtime INTEGER);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
@@ -437,12 +437,14 @@ if (!$database) {
 		//echo "Login>>>".$myuser_name." ".$myuser_password;
 		$name = "";
 		$password = "";
+
 		$user_query = "SELECT id, login, password FROM ForumUsers WHERE login = '$myuser_name';";
 		foreach ($database->query($user_query) as $row) {
 		    $name = $row['login'];
 		    $password = $row['password'];
 		    $myuser_id = $row['id'];
 		}
+
 		if (($myuser_name == $name) && ($myuser_password == $password) && ($myuser_id != 0)) {
 		    //echo "Logged";
 		    $_SESSION['myuser_name'] = $myuser_name;
@@ -630,7 +632,7 @@ if (!$database) {
 		$nick = convert_string($_REQUEST["message"]["author"]);
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
-		$id_session = md5($_COOKIE['PHPSESSID']);
+		$id_session = md5(session_id());
 
 		if (strlen($post) > 4096) {
 		    $post = substr($post, 0, 4095);
@@ -1253,6 +1255,20 @@ echo "<!-- view_opt $view_query -->";
 <span class="white1">'.$row['subj'].'</span>';
 
 		echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+
+		if (is_session('myuser_name')) {
+		    $id_session = md5(session_id());
+
+		    if ($id_session == $post_id_session) {
+			echo '<a class="ban" href="?editpost='.$row['id_post'].'">'.
+'<svg viewBox="0 0 20 20" width="16px">'.
+'<title>Редактировать сообщение</title>'.
+'<path fill="#CCCCCC" d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>'.
+'</svg>'.
+'</a>';
+		    }
+		}
+
 		if (is_forum_admin()) {
 		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
 		    echo '<a href="'.$_SERVER['REQUEST_URI'].'&sdel='.$post_id_session.'" class="remove">Удалить сессию</a>';
