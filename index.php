@@ -1134,7 +1134,7 @@ echo "<!-- 1count_query $count_query -->";
 		    $count_query = "$count_query $ban_opts";
 		}
 
-echo "<!-- 2count_query $count_query -->";
+//echo "<!-- 2count_query $count_query -->";
 
 		$posts = $database->query($count_query)->fetchColumn();
 
@@ -1217,7 +1217,7 @@ echo "<!-- 2count_query $count_query -->";
 		}
 	    }
 
-echo "<!-- ban_opts $ban_opts -->";
+//echo "<!-- ban_opts $ban_opts -->";
 
 	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic $ban_opts;")->fetchColumn();
 
@@ -1242,7 +1242,7 @@ echo "<!-- ban_opts $ban_opts -->";
 				" AND ForumUsers.id = ForumPosts.id_user $ban_opts".
 				" ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
-echo "<!-- view_opt $view_query -->";
+//echo "<!-- view_opt $view_query -->";
 
 	    $msg_count = 0;
 
