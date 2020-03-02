@@ -685,7 +685,7 @@ if (!$database) {
 				    if ($row['id'] != "") {
 					$modtime = time();
 
-					$database->exec("UPDATE ForumPosts SET nick='$nick', subj='$subj', post='$post', modtime=$modtime  WHERE id = $edit_post_id");
+					$database->exec("UPDATE ForumPosts SET id_user='$id_user', nick='$nick', subj='$subj', post='$post', modtime=$modtime  WHERE id = $edit_post_id");
 				    }
 				} else {
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
@@ -1282,7 +1282,7 @@ echo "<!-- 1count_query $count_query -->";
 		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		}
 
-		if (is_session('myuser_name')) {
+//		if (is_session('myuser_name')) {
 		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 5 ) {
 //			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
 			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
@@ -1292,7 +1292,7 @@ echo "<!-- 1count_query $count_query -->";
 '</svg>'.
 '</a>';
 		    }
-		}
+//		}
 
 		if (is_forum_admin()) {
 		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
