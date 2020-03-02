@@ -226,7 +226,12 @@ function show_postbox($type) {
 	$b = 'Добавить тему';
     } else {
 	$h = 'Заголовок сообщения';
-	$b = 'Добавить сообщение';
+
+	if (is_defined('editpost')) {
+	    $b = 'Исправить сообщение';
+	} else {
+	    $b = 'Добавить сообщение';
+	}
     }
 echo '
 <script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
