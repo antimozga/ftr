@@ -254,6 +254,7 @@ function revealThis(current) {
     if (el.hasAttribute("style")) {
 	current.innerHTML = "показать";
 	el.removeAttribute("style");
+	el.parentElement.previousElementSibling.scrollIntoView({behavior: "smooth"});
     } else {
 	updateHeight(el);
 	current.innerHTML = "спрятать";
