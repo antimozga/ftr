@@ -1266,7 +1266,7 @@ if (!$database) {
 	    $msg_count = 0;
 
 	    foreach ($database->query($view_query) as $row) {
-		echo '<div class="text_box_1">
+		echo '<div class="text_box_1"><a id="post'.$msg_count.'"></a>
 <div class="box_user">';
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
@@ -1352,6 +1352,9 @@ if (!$database) {
 		}
 	    }
 
+//$post_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
+//    'https' : 'http').'://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['REQUEST_URI'].'#post'.$msg_count;
+
 echo $post.'</div>
 	<div class="answer_bar">
 <!-- <a href="#ftop" class="up">Вверх</a> -->
@@ -1365,6 +1368,12 @@ echo $post.'</div>
 <svg viewBox="0 0 20 20" width="16px">
 <title>Цитировать</title>
 <path fill="#CCCCCC" d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
+</svg>
+</a>
+<a href="'.$_SERVER['REQUEST_URI'].'#post'.$msg_count.'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'#post'.$msg_count.'\'); return false;" class="reply">
+<svg viewBox="0 0 20 20" width="16px">
+<title>Ссылка на это сообщение</title>
+<path fill="#CCCCCC" d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
 </svg>
 </a>
 	</div>
