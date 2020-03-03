@@ -871,6 +871,14 @@ label.l_inp_text_name span {
 	text-decoration: none;
 }
 
+svg.svg_button {
+	fill: #CCCCCC;
+}
+
+svg.svg_button:hover {
+	fill: #33CCFF;
+}
+
 /*
   CUT SECTION
  */
