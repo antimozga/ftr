@@ -271,7 +271,7 @@ echo '    return false;
 		    <input class="inp_text_name" id="heading" maxlength="80" name="message[caption]" value="'.$subj.'" type="text">
 		</div>
 		<div class="form_box_mess">
-			<textarea maxlength="4096" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
+			<textarea maxlength="8192" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
 		</div>
 		<div class="form_box_btn">
 			<input class="btn_form" value="'.$b.'" type="submit">
@@ -649,8 +649,8 @@ if (!$database) {
 		$post_id = "";
 		$id_session = md5(session_id());
 
-		if (strlen($post) > 4096) {
-		    $post = substr($post, 0, 4095);
+		if (strlen($post) > 8192) {
+		    $post = substr($post, 0, 8191);
 		}
 
 		if (isset($_POST['recaptcha_response']) || $debug) {
@@ -1272,8 +1272,8 @@ if (!$database) {
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
 		$tmp_post = $row['post'];
-		if (strlen($tmp_post) > 4096) {
-		    $tmp_post = substr($tmp_post, 0, 4095);
+		if (strlen($tmp_post) > 8192) {
+		    $tmp_post = substr($tmp_post, 0, 8191);
 		}
 
 		$post_id_session = "";
