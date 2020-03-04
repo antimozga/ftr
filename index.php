@@ -1332,7 +1332,7 @@ if (!$database) {
 		}
 
 //		if (is_session('myuser_name')) {
-		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 60 * 24) {
+		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 60 * 1) {
 //			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
 			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
 '<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
