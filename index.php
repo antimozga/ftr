@@ -311,11 +311,17 @@ fombj = document.getElementById("formMessage");
 ';
 }
 
-function show_page_control($type, $page, $pages, $pageprev, $pagenext)
+function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic = 0, $id_grp = 0)
 {
     echo '<div class="paging">
-    <form class="paging_sel" action="" method="post">
-	<b>Страница: </b>&nbsp;
+    <form class="paging_sel" action="" method="get">';
+    if ($id_topic != 0) {
+	echo '<input type="hidden" name="t" value="'.$id_topic.'">';
+    }
+    if ($id_grp != 0) {
+	echo '<input type="hidden" name="g" value="'.$id_grp.'">';
+    }
+    echo '<b>Страница: </b>&nbsp;
 	<select class="pagsel" name="p">';
     if ($pages > 0) {
 	$cnt = 1;
@@ -1118,7 +1124,7 @@ if (!$database) {
 		    $pprev = "?g=".$id_grp."&p=".($page - 1);
 		}
 
-		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 
 		$view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 	    } else {
@@ -1216,7 +1222,7 @@ if (!$database) {
 	    }
 	    echo '</table>';
 
-	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 	} else {
 	    $posts = 0;
 	    $pnext = "";
@@ -1240,14 +1246,35 @@ if (!$database) {
 
 	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic $ban_opts;")->fetchColumn();
 
+	    $first_posts = 0;
+	    $post_id_req = "";
+
+	    if (is_defined('post') > 0) {
+		$post_id_req = $_REQUEST['post'];
+		if (is_numeric($post_id_req)) {
+		    $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic AND id >= $post_id_req $ban_opts;")->fetchColumn();
+
+		    if ($first_posts != "") {
+			$first_posts = $first_posts - 1;
+			$page = intdiv($first_posts, $MAX_PAGE_ENTRIES) + 1;
+			$page_offset = $first_posts % $MAX_PAGE_ENTRIES;
+//			$numentry = ($page - 1) * $MAX_PAGE_ENTRIES + $page_offset;
+//echo '<!-- x post id req '.$post_id_req.' first posts '.$first_posts.' '.$page.' '.$page_offset.' -->';
+		    }
+		} else {
+		    $post_id_req = "";
+		}
+	    }
+
 	    $numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
+
 	    if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
 		$pnext = "?t=".$id_topic."&p=".($page + 1);
 	    }
 	    if ($page > 1) {
 		$pprev = "?t=".$id_topic."&p=".($page - 1);
 	    }
-	    show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+	    show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, $id_topic);
 
 	    $view_query = "UPDATE ForumTopics SET view = view + 1 WHERE id = $id_topic;";
 	    $database->exec($view_query);
@@ -1263,10 +1290,13 @@ if (!$database) {
 
 //echo "<!-- view_opt $view_query -->";
 
-	    $msg_count = 0;
-
 	    foreach ($database->query($view_query) as $row) {
-		echo '<div class="text_box_1"><a id="post'.$msg_count.'"></a>
+		if ($row['id_post'] == $post_id_req) {
+		    echo '<div class="shared_post">';
+		} else {
+		    echo '<div>';
+		}
+		echo '<div class="text_box_1"><a id="post'.$row['id_post'].'"></a>
 <div class="box_user">';
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
@@ -1321,7 +1351,7 @@ if (!$database) {
 </div>';
 		if ($banned_session == 0) {
 		echo '<div class="text_box_2">
-<div id="message_'.$msg_count.'" class="text_box_2_mess">';
+<div id="message_'.$row['id_post'].'" class="text_box_2_mess">';
 
 	    $attachment = $row['attachment'];
 	    if ($attachment != "") {
@@ -1358,19 +1388,19 @@ if (!$database) {
 echo $post.'</div>
 	<div class="answer_bar">
 <!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="reply">
+<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
 <svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Ответить</title>
 <path d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
 </svg>
 </a>
-<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$msg_count.'\');" class="reply">
+<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
 <svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Цитировать</title>
 <path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
 </svg>
 </a>
-<a href="'.$_SERVER['REQUEST_URI'].'#post'.$msg_count.'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'#post'.$msg_count.'\'); return false;" class="reply">
+<a href="/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'\'); return false;" class="reply">
 <svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Ссылка на это сообщение</title>
 <path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
@@ -1379,9 +1409,9 @@ echo $post.'</div>
 	</div>
 </div>';
 		}
-		$msg_count++;
+		echo '</div>';
 	    }
-	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
+	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, $id_topic);
 	}
 
 	show_menu($database);

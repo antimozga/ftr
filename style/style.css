@@ -880,6 +880,18 @@ svg.svg_button:hover {
 }
 
 /*
+  SHARED POST
+ */
+
+.shared_post {
+	border-style: dotted;
+	border-color: red;
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*
   CUT SECTION
  */
 
