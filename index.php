@@ -1400,11 +1400,11 @@ echo $post.'</div>
 <path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
 </svg>
 </a>
-<a href="/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'\'); return false;" class="reply">
+<a href="/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'\'); popup_copy(\'pop'.$row['id_post'].'\'); return false;" class="reply popup">
 <svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Ссылка на это сообщение</title>
 <path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
-</svg>
+</svg><span class="popuptext" id="pop'.$row['id_post'].'"></span>
 </a>
 	</div>
 </div>';

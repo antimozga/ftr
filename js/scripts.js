@@ -325,6 +325,24 @@ function load_modal(url, w, h) {
     });
 }
 
+/*****************************************************************************
+ * popup window
+ *****************************************************************************/
+
+function popup(id, text) {
+    var popup = document.getElementById(id);
+    popup.innerHTML = text;
+    popup.classList.toggle("show");
+    setTimeout(function() {
+	popup.classList.toggle("show");
+	popup.innerHTML = "";
+    }, 2000);
+}
+
+function popup_copy(id) {
+    popup(id, "Ссылка скопирована в буфер обмена");
+}
+
 /*
  *
  */
