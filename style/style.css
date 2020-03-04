@@ -1009,6 +1009,7 @@ svg.svg_button:hover {
 }
 
 /* Popup arrow */
+/*
 .popup .popuptext::after {
 	content: "";
 	position: absolute;
@@ -1019,6 +1020,7 @@ svg.svg_button:hover {
 	border-style: solid;
 	border-color: #012F51 transparent transparent transparent;
 }
+*/
 
 /* Toggle this class - hide and show the popup */
 .popup .show {
