@@ -197,7 +197,7 @@ function copyStringToClipboard(str) {
 var allOSB = [];
 var mxh = '';
 
-window.onload = function() {
+function init_cut() {
     // Set Variables
     allOSB = document.getElementsByClassName("text_box_2_mess");
 
@@ -269,4 +269,67 @@ function updateHeight(el) {
 // http://stackoverflow.com/a/4793630/5667951
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+/*****************************************************************************
+ * modal functions
+ *****************************************************************************/
+
+var modal;
+var modal_trigger;
+var modal_closeButton;
+
+function init_modal() {
+    modal = document.querySelector(".modal");
+    trigger = document.querySelector(".trigger");
+    closeButton = document.querySelector(".close-button");
+
+    //trigger.addEventListener("click", toggleModal);
+    closeButton.addEventListener("click", modal_toggle);
+    //window.addEventListener("click", windowOnClick);
+}
+
+function modal_toggle() {
+    modal.classList.toggle("show-modal");
+    el = document.getElementById("modal-content");
+    el.innerHTML = "";
+}
+
+/*
+function windowOnClick(event) {
+    if (event.target === modal) {
+        toggleModal();
+    }
+}
+ */
+
+function show_modal(text) {
+    el = document.getElementById("modal-content");
+    el.innerHTML = text;
+    modal.classList.toggle("show-modal");
+}
+
+function load_modal(url, w, h) {
+    el = document.getElementById("modal-content");
+    el.innerHTML = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
+<path fill=\"#33CCFF\" d=\"M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z\"/>\
+<animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 25 25\" to=\"360 25 25\" dur=\"0.5s\" repeatCount=\"indefinite\"/>\
+</svg>";
+    modal.classList.toggle("show-modal");
+
+    fetch(url).then(function(response) {
+	return response.text().then(function(text) {
+	    el = document.getElementById("modal-content");
+	    el.innerHTML = text;
+	});
+    });
+}
+
+/*
+ *
+ */
+
+window.onload = function() {
+    init_cut();
+    init_modal();
 }

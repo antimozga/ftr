@@ -258,7 +258,7 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
 	if (clon_detector($post_nick)) {
 	    $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
 	}
-	return '<a onclick="window.open(\'\',\'u\',\'scrollbars,width=620,height=350\');" target="u" href="showuser.php?id='.$user_id.'">'.$post_nick.'</a>'.$clon;
+	return '<a onclick="load_modal(\'userinfo.php?id='.$user_id.'\',620,350); return false;">'.$post_nick.'</a>'.$clon;
     }
 
     return $post_nick;

@@ -44,6 +44,12 @@ hs.wrapperClassName = 'borderless';
 </script>
 </head>
 <body>
+<div class="modal">
+    <div class="modal-window">
+        <span class="close-button">&times;</span>
+	<span id="modal-content"></span>
+    </div>
+</div>
 
 <?php
 }
