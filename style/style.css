@@ -886,9 +886,10 @@ svg.svg_button:hover {
 .shared_post {
 	border-style: dotted;
 	border-color: red;
-	width: fit-content;
 	margin-left: auto;
 	margin-right: auto;
+	width: max-content;
+	display: table;
 }
 
 /*
@@ -953,8 +954,8 @@ svg.svg_button:hover {
 	transform: translate(-50%, -50%);
 	background-color: #012F51;
 	padding: 1rem 1.5rem;
-	width: fit-content;
 	border-radius: 0.5rem;
+	width: max-content;
 }
 
 .modal-window .close-button {
