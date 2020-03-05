@@ -275,9 +275,19 @@ function insertAfter(referenceNode, newNode) {
  * modal functions
  *****************************************************************************/
 
+var modal_stack = [];
+var modal_stack_last = "";
+var modal_in_use = 0;
+
 var modal;
 var modal_trigger;
 var modal_closeButton;
+
+var svg_loader = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
+<path fill=\"#33CCFF\" d=\"M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z\">\
+<animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 25 25\" to=\"360 25 25\" dur=\"0.5s\" repeatCount=\"indefinite\"/>\
+</path>\
+</svg>";
 
 function init_modal() {
     modal = document.querySelector(".modal");
@@ -290,9 +300,25 @@ function init_modal() {
 }
 
 function modal_toggle() {
-    modal.classList.toggle("show-modal");
     el = document.getElementById("modal-content");
-    el.innerHTML = "";
+
+    if (Array.isArray(modal_stack) && modal_stack.length) {
+	el.innerHTML = svg_loader;
+	modal_stack_last = modal_stack.pop();
+console.log("pop " + modal_stack_last);
+	fetch(modal_stack_last).then(function(response) {
+	    return response.text().then(function(text) {
+		el = document.getElementById("modal-content");
+		el.innerHTML = text;
+	    });
+	});
+    } else {
+console.log("pop no data, close");
+	modal.classList.toggle("show-modal");
+	el.innerHTML = "";
+	modal_stack_last = "";
+	modal_in_use = 0;
+    }
 }
 
 /*
@@ -311,12 +337,18 @@ function show_modal(text) {
 
 function load_modal(url, w, h) {
     el = document.getElementById("modal-content");
-    el.innerHTML = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
-<path fill=\"#33CCFF\" d=\"M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z\">\
-<animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 25 25\" to=\"360 25 25\" dur=\"0.5s\" repeatCount=\"indefinite\"/>\
-</path>\
-</svg>";
-    modal.classList.toggle("show-modal");
+    el.innerHTML = svg_loader;
+
+    if (modal_in_use != 0) {
+console.log("push " + modal_stack_last);
+	modal_stack.push(modal_stack_last);
+    } else {
+console.log("push no data, init");
+	modal_in_use = 1;
+	modal.classList.toggle("show-modal");
+    }
+
+    modal_stack_last = url;
 
     fetch(url).then(function(response) {
 	return response.text().then(function(text) {

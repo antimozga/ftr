@@ -48,7 +48,7 @@ function show_user_info($name, $email, $fio, $gender, $description, $last_login,
 </div>';
     if (isset($_SESSION['myuser_id'])) {
 	echo '<div class="pasport_info_box_write">
-<a href="pager.php?new='.$id_to.'">Написать сообщение</a>
+<a href="#" onclick="load_modal(\'pagerchat.php/?new='.$id_to.'\',620,350); return false;">Написать сообщение</a>
 </div>
 ';
     }
