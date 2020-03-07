@@ -745,13 +745,14 @@ label.l_inp_text_name span {
 .form_dialog {
 	/*float: left;
 	margin: 10px 250px 0px 0px;*/
-	margin: 10px 10px 10px 0px;
+	margin: 10px 0px 10px 0px;
 }
 
 .area_dialog_text {
-	/*width: 100%;*/
-	width: 95%;
+	width: 100%;
 	height: 90px;
+	padding: 0;
+	border: 0;
 }
 
 .error {
@@ -993,6 +994,7 @@ svg.svg_button:hover {
 	visibility: hidden;
 	transform: scale(1.1);
 	transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+	z-index: 90;
 }
 
 .modal-window {
