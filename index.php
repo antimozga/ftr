@@ -84,7 +84,7 @@ if(!is_session('myuser_name')) {
     echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
 	</div>
 	<div class="sep"><div></div></div>
-	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span>'.$pn.'</span>&nbsp;|&nbsp;'.$pt.')</a></div>
+	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh" src="pagerstatus.php">'.$pn.'&nbsp;|&nbsp;'.$pt.'</span>)</a></div>
 	<div class="sep"><div></div></div>
 	<div><a href="?reg=3">Настройки</a></div>';
     if (is_forum_admin()) {

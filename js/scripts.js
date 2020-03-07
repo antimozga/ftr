@@ -406,6 +406,48 @@ function pager_post_submit(e, form)
     e.preventDefault();
 }
 
+/*****************************************************************************
+ * page update timer
+ *****************************************************************************/
+
+var page_timer = setInterval(page_updater, 10000);
+
+async function page_fetch(url, el) {
+	fetch(url).then(function(response) {
+	    return response.text().then(function(text) {
+//		const el = element;
+		el.innerHTML = text;
+	    });
+	});
+}
+
+function page_updater() {
+//    console.log("page_updater");
+    var elements = document.getElementsByClassName("autorefresh");
+    var names = '';
+    for(var i = 0; i < elements.length; i++) {
+	var url = elements[i].getAttribute("src");
+	var element = elements[i];
+	page_fetch(url, element);
+/*
+//	console.log("autorefresh " + url);
+	fetch(url).then(function(response) {
+	    return response.text().then(function(text) {
+		const el = element;
+//		if (el == null) {
+//		    console.log("... null ...");
+//		}
+		el.innerHTML = text;
+	    });
+	});
+ */
+    }
+}
+
+function page_updater_stop() {
+    clearInterval(page_timer);
+}
+
 /*
  *
  */

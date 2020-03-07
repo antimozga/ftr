@@ -11,7 +11,6 @@ if (!$database) {
     echo '<p>Ошибка базы данных.</p>';
 } else {
     if (is_logged()) {
-	echo '<div class="autorefresh" src="showpager-refr.php">';
 	echo '<div class="pagerchat_window">';
 	    $pager_query = "SELECT COUNT(*) as total, ForumPager.id_from_user AS id_from_user, ForumUsers.login AS login FROM ForumPager,ForumUsers".
 		" WHERE ForumPager.id_user = ".$_SESSION['myuser_id']." AND ForumUsers.id = ForumPager.id_from_user".
@@ -23,7 +22,6 @@ if (!$database) {
 	    }
 	    echo '</table>';
 	echo '</div>';
-	echo '</div>'; // autorefresh
     } else {
 	echo '<p>Доступ запрещен.</p>';
     }
