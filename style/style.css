@@ -567,6 +567,10 @@ label.upload_file {
 	font-size: 12px;
 }
 
+.text_box_2_mess iframe {
+	float: left;
+}
+
 .box_user {
 	display: block;
 	padding: 5px 0px;
