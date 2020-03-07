@@ -15,6 +15,9 @@ function get_user($database, $id) {
     return array("login" => $login, "time" => $last_login);
 }
 
+error_log("PAGERCHAT");
+error_log(print_r($_POST, true));
+
 $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
     echo '<p>Ошибка базы данных.</p>';
@@ -29,15 +32,19 @@ if (!$database) {
 	    if ($cmd == "forumpagercreatemess") {
 		$tim = time();
 		$post = convert_string($_REQUEST["pagermess"]["content"]);
-		$user_query = "INSERT INTO ForumPager (id_user, id_from_user, new, time, post) "
-		    . "VALUES($to_id, $myuser_id, 1, $tim, '$post');";
-		$database->exec($user_query);
+		if ($post != "") {
+		    $user_query = "INSERT INTO ForumPager (id_user, id_from_user, new, time, post) ".
+				  "VALUES($to_id, $myuser_id, 1, $tim, '$post');";
+		    $database->exec($user_query);
+		}
+		exit;
 	    }
 	}
 
 	$to_user = get_user($database, $to_id);
 
-echo '<div class="head">
+echo '<div class="pagerchat_window">
+    <div class="head">
     <div class="user_info">';
 
     $avatar = $UPLOAD_DIR."/small-id".$to_id.".jpg";
@@ -55,10 +62,10 @@ echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_i
 
 echo '
 <div class="dialog_answer_box">
-    <form action="pagerchar.php" method="post" class="form_dialog">
+    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" onsubmit="pager_post_submit(event, this)">
     <input type="hidden" name="event" value="forumpagercreatemess"/>
     <textarea maxlength="4096" class="area_dialog_text" name="pagermess[content]" id="dialog_mess"></textarea>
-    <input type="submit" class="btn_dialog" value="Отправить" onclick="SendMessage(); return false">
+    <input type="submit" class="btn_dialog" value="Отправить">
     </form>
 </div>
 ';
@@ -85,7 +92,7 @@ echo '
  </div>
 </div>';
 	}
-
+echo '</div>';
 	$user_query = "UPDATE ForumPager SET new = 0 WHERE new = 1 AND "
 	    ."(id_from_user = $to_id AND id_user = $myuser_id);";
 	$database->exec($user_query);

@@ -871,6 +871,54 @@ label.l_inp_text_name span {
 	text-decoration: none;
 }
 
+/*
+ PAGER
+ */
+
+.pagerchat_window {
+    width: 100%;
+    height: 90%;
+    overflow: auto;
+}
+
+.pagertable {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 2px;
+	width: 620px;
+}
+
+.pagertable td {
+	background-color: #0F3C60;
+	padding: 10px;
+	vertical-align: middle;
+	border: 1px solid #012F51;
+	color: #FFF;
+}
+
+.pagertable .td2 {
+	width: 60px;
+	text-align: center;
+}
+
+.pagertable .td3 {
+	width: 60px;
+	text-align: center;
+}
+
+.pagertable th {
+	background: #012641;
+	color: #FFF;
+	font-weight: bold;
+	padding: 5px;
+	vertical-align: middle;
+	border: 1px solid #012F51;
+}
+
+/*
+ SVG BUTTONS
+ */
+
 svg.svg_button {
 	fill: #CCCCCC;
 }
@@ -955,7 +1003,8 @@ svg.svg_button:hover {
 	background-color: #012F51;
 	padding: 1rem 1.5rem;
 	border-radius: 0.5rem;
-	width: max-content;
+	width: 620px;
+	height: 350px;
 }
 
 .modal-window .close-button {

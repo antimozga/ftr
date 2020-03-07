@@ -84,7 +84,7 @@ if(!is_session('myuser_name')) {
     echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
 	</div>
 	<div class="sep"><div></div></div>
-	<div><a href="#" onclick="load_modal(\'showpager.php\',620,350); return false;">Пейджер (<span>'.$pn.'</span>&nbsp;|&nbsp;'.$pt.')</a></div>
+	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span>'.$pn.'</span>&nbsp;|&nbsp;'.$pt.')</a></div>
 	<div class="sep"><div></div></div>
 	<div><a href="?reg=3">Настройки</a></div>';
     if (is_forum_admin()) {
@@ -408,7 +408,6 @@ if (!$database) {
 	$reg_mode = 0;
 	$show_search = 0;
 	$show_users = 0;
-	$show_pager = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
 	$show_mylist = 0;
 	$show_banlist = 0;
@@ -597,15 +596,6 @@ if (!$database) {
 	    show_banner();
 	    show_menu($database);
 	    show_nav_path("Список пользователей");
-	} else if (is_defined("pager")) {
-	    $show_pager = 1;
-
-	    $topic = "ПЕЙДЖЕР";
-
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("Пейджер");
 	} else if (is_defined("search")) {
 	    $s = convert_string($_REQUEST["search"]);
 
@@ -860,19 +850,7 @@ if (!$database) {
 	    show_postbox('post');
 	}
 
-	if ($show_pager == 1) {
-	    function make_href($href, $id, $name) {
-		return '<a onclick="window.open(\'\',\'u\',\'scrollbars,width=620,height=350\');" target="u" href="'.$href.$id.'">'.$name.'</a>';
-	    }
-	    $pager_query = "SELECT COUNT(*) as total, ForumPager.id_from_user AS id_from_user, ForumUsers.login AS login FROM ForumPager,ForumUsers"
-		." WHERE ForumPager.id_user = ".$id_user." AND ForumUsers.id = ForumPager.id_from_user GROUP BY ForumPager.id_from_user;";
-	    echo '<table class="userstable"><tr><th>&nbsp;</th><th colspan=2 align="left">Пользователь</th><th>Сообщений</th></tr>';
-	    foreach ($database->query($pager_query) as $row) {
-		$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$id_user.' AND id_from_user = '.$row['id_from_user'].' AND new = 1;')->fetchColumn();
-		echo '<tr><td></td><td>'.make_href("showuser.php?id=", $row['id_from_user'], $row['login']).'</td><td>'.$pn.'</span>&nbsp;|&nbsp;'.$row['total'].'</td><td>'.make_href("pager.php?new=", $row['id_from_user'], "Читать").'</td></tr>';
-	    }
-	    echo '</table>';
-	} else if ($show_search == 1) {
+	if ($show_search == 1) {
 	    echo '
 <div class="block1">
 	<form action="">

@@ -305,7 +305,6 @@ function modal_toggle() {
     if (Array.isArray(modal_stack) && modal_stack.length) {
 	el.innerHTML = svg_loader;
 	modal_stack_last = modal_stack.pop();
-console.log("pop " + modal_stack_last);
 	fetch(modal_stack_last).then(function(response) {
 	    return response.text().then(function(text) {
 		el = document.getElementById("modal-content");
@@ -313,11 +312,22 @@ console.log("pop " + modal_stack_last);
 	    });
 	});
     } else {
-console.log("pop no data, close");
 	modal.classList.toggle("show-modal");
 	el.innerHTML = "";
 	modal_stack_last = "";
 	modal_in_use = 0;
+    }
+}
+
+function modal_reload()
+{
+    if (modal_stack_last != "") {
+	fetch(modal_stack_last).then(function(response) {
+	    return response.text().then(function(text) {
+		el = document.getElementById("modal-content");
+		el.innerHTML = text;
+	    });
+	});
     }
 }
 
@@ -335,15 +345,13 @@ function show_modal(text) {
     modal.classList.toggle("show-modal");
 }
 
-function load_modal(url, w, h) {
+function load_modal(url) {
     el = document.getElementById("modal-content");
     el.innerHTML = svg_loader;
 
     if (modal_in_use != 0) {
-console.log("push " + modal_stack_last);
 	modal_stack.push(modal_stack_last);
     } else {
-console.log("push no data, init");
 	modal_in_use = 1;
 	modal.classList.toggle("show-modal");
     }
@@ -376,6 +384,28 @@ function popup_copy(id) {
     popup(id, "Ссылка скопирована в буфер обмена");
 }
 
+/*****************************************************************************
+ * pager send
+ *****************************************************************************/
+
+function pager_post_submit(e, form)
+{
+    fetch(
+	form.action,
+	{
+	    method: 'post',
+	    body: new FormData(form)
+	}
+    ).then(function(response) {
+	return response.text().then(function(text) {
+//	    console.log("sent...");
+	    modal_reload();
+	});
+    });
+
+    e.preventDefault();
+}
+
 /*
  *
  */
@@ -384,3 +414,4 @@ window.onload = function() {
     init_cut();
     init_modal();
 }
+
