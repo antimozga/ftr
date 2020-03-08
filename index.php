@@ -1171,7 +1171,7 @@ if (!$database) {
 	    echo '<table class="themes">';
 
 	    foreach ($database->query($view_query) as $row) {
-		$timestamp = date('H:i m/d', $row['time']);
+		$timestamp = date('H:i d/m', $row['time']);
 
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 

@@ -14,7 +14,11 @@ if (!$database) {
 	$pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
 	$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
 
-	echo $pn.'&nbsp;|&nbsp;'.$pt;
+	if ($pn > 0) {
+	    echo '<b style="color: red;">'.$pn.'</b>&nbsp;|&nbsp;'.$pt;
+	} else {
+	    echo $pn.'&nbsp;|&nbsp;'.$pt;
+	}
     } else {
 	echo '';
     }

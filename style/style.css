@@ -1010,6 +1010,8 @@ svg.svg_button:hover {
 	background-color: #012F51;
 	padding: 1rem 1.5rem;
 	border-radius: 0.5rem;
+	border-style: solid;
+	border-color: #CCCCCC;
 	width: 620px;
 	height: 350px;
 }
