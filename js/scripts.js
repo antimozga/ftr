@@ -134,23 +134,6 @@ function show_date()
 	document.getElementById("curr_date").innerHTML = date + " " + month + " " + year;
 }
 
-function show_weather()
-{
-	fetch('getweather.php').then(function(response) {
-	    return response.text().then(function(text) {
-		text += "document.getElementById(\"w_temp\").innerHTML = temp;"
-		text += "document.getElementById(\"w_sign\").innerHTML = weatherSignWord;"
-		text += "document.getElementById(\"w_press\").innerHTML = pressure;"
-		text += "document.getElementById(\"w_wind\").innerHTML = wind;"
-//		console.log(text);
-		var x = document.createElement("SCRIPT");
-		var t = document.createTextNode(text);
-		x.appendChild(t);
-		document.body.appendChild(x);
-	    });
-	});
-}
-
 function post(path, params, method, target) {
     method = method || "post"; // Set method to post by default if not specified.
 
@@ -309,6 +292,7 @@ function modal_toggle() {
 	    return response.text().then(function(text) {
 		el = document.getElementById("modal-content");
 		el.innerHTML = text;
+		page_updater_onload(el);
 	    });
 	});
     } else {
@@ -326,6 +310,7 @@ function modal_reload()
 	    return response.text().then(function(text) {
 		el = document.getElementById("modal-content");
 		el.innerHTML = text;
+		page_updater_onload(el);
 	    });
 	});
     }
@@ -362,6 +347,7 @@ function load_modal(url) {
 	return response.text().then(function(text) {
 	    el = document.getElementById("modal-content");
 	    el.innerHTML = text;
+	    page_updater_onload(el);
 	});
     });
 }
@@ -412,6 +398,16 @@ function pager_post_submit(e, form)
 
 var page_timer;
 
+async function page_fetch(url, el) {
+	fetch(url).then(function(response) {
+	    return response.text().then(function(text) {
+//		const el = element;
+		el.innerHTML = text;
+		page_updater_onload(el);
+	    });
+	});
+}
+
 function page_updater_onload(doc) {
 //    console.log("page_updater");
     var elements;// = doc.getElementsByClassName("refreshnow");
@@ -425,15 +421,6 @@ console.log(" url " + url);
 	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
 	page_fetch(url, element);
     }
-}
-
-async function page_fetch(url, el) {
-	fetch(url).then(function(response) {
-	    return response.text().then(function(text) {
-//		const el = element;
-		el.innerHTML = text;
-	    });
-	});
 }
 
 function page_updater() {
