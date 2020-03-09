@@ -84,7 +84,7 @@ if(!is_session('myuser_name')) {
     echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
 	</div>
 	<div class="sep"><div></div></div>
-	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh" src="pagerstatus.php">'.$pn.'&nbsp;|&nbsp;'.$pt.'</span>)</a></div>
+	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a></div>
 	<div class="sep"><div></div></div>
 	<div><a href="?reg=3">Настройки</a></div>';
     if (is_forum_admin()) {
@@ -144,21 +144,7 @@ function show_banner()
     echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
 //    echo '<div class="logo"><a href="./"><img src="images/logo.png"></a></div>';
 
-    echo '<div class="weather">';
-
-echo '<span class="w_title">Погода</span>
-<span class="w_temp" id="w_temp"></span>
-<br/><span id="w_sign"></span>
-<br/><span id="w_press"></span>
-<br/><span id="w_wind"></span>
-<br/>
-<br/>
-<b id="curr_day"></b>
-<br/>
-<span id="curr_date"></span>
-<script>show_date(); show_weather();</script>';
-
-    echo '</div>';
+    echo '<div class="autorefresh refreshnow" src="weather-informer.php"></div>';
 
     echo '</div>';
 }

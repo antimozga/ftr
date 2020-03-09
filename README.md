@@ -171,3 +171,11 @@ $HTTP["scheme"] == "http" {
 ```
 systemctl restart lighttpd
 ```
+
+## Weater
+
+Add to ```/etc/crontab```:
+
+```
+*  *    * * *   www-data php /var/www/html/weather-cron.php
+```

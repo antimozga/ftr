@@ -410,7 +410,22 @@ function pager_post_submit(e, form)
  * page update timer
  *****************************************************************************/
 
-var page_timer = setInterval(page_updater, 10000);
+var page_timer;
+
+function page_updater_onload(doc) {
+//    console.log("page_updater");
+    var elements;// = doc.getElementsByClassName("refreshnow");
+//console.log("nums " + elements.length);
+//    for(var i = 0; i < elements.length; i++) {
+    while ((elements = doc.getElementsByClassName("refreshnow")).length > 0) {
+console.log("nums " + elements.length);
+	var url = elements[0].getAttribute("src");
+console.log(" url " + url);
+	var element = elements[0];
+	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
+	page_fetch(url, element);
+    }
+}
 
 async function page_fetch(url, el) {
 	fetch(url).then(function(response) {
@@ -429,18 +444,6 @@ function page_updater() {
 	var url = elements[i].getAttribute("src");
 	var element = elements[i];
 	page_fetch(url, element);
-/*
-//	console.log("autorefresh " + url);
-	fetch(url).then(function(response) {
-	    return response.text().then(function(text) {
-		const el = element;
-//		if (el == null) {
-//		    console.log("... null ...");
-//		}
-		el.innerHTML = text;
-	    });
-	});
- */
     }
 }
 
@@ -455,5 +458,6 @@ function page_updater_stop() {
 window.onload = function() {
     init_cut();
     init_modal();
+    page_updater_onload(document);
+    page_timer = setInterval(page_updater, 10000);
 }
-

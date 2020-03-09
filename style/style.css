@@ -464,10 +464,11 @@ label.upload_file {
 }
 
 .weather {
+	display: block;
 	position: relative;
 	float: right;
-	right: 30px;
-	padding-top: 5px;
+/*	right: 30px; */
+/*	padding-top: 5px; */
 }
 
 .w_title {
