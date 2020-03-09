@@ -409,14 +409,9 @@ async function page_fetch(url, el) {
 }
 
 function page_updater_onload(doc) {
-//    console.log("page_updater");
-    var elements;// = doc.getElementsByClassName("refreshnow");
-//console.log("nums " + elements.length);
-//    for(var i = 0; i < elements.length; i++) {
+    var elements;
     while ((elements = doc.getElementsByClassName("refreshnow")).length > 0) {
-console.log("nums " + elements.length);
 	var url = elements[0].getAttribute("src");
-console.log(" url " + url);
 	var element = elements[0];
 	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
 	page_fetch(url, element);
