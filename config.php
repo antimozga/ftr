@@ -24,4 +24,6 @@ $RECAPTCHA_SITE_KEY = "SITEKEYMOVEITTOconfig_user.php";
 
 $RECAPTCHA_SERV_KEY = "SERVKEYMOVEITTOconfig_user.php";
 
+$OPENWEATHERMAP_KEY = "MOVEITTOconfig_user.php";
+
 ?>

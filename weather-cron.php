@@ -18,6 +18,7 @@ if (!is_cli()) {
 }
 
 require_once('config.php');
+require_once('config_user.php');
 
 $database = new PDO("sqlite:" . DBASEFILE);
 
@@ -63,7 +64,7 @@ if ($row) {
     }
 }
 
-$content = file_get_contents('https://api.openweathermap.org/data/2.5/weather?id=1489425&appid=0757a4f613d641a36db16a179d62dd70');
+$content = file_get_contents('https://api.openweathermap.org/data/2.5/weather?id=1489425&appid='.$OPENWEATHERMAP_KEY);
 
 if ($content === false) {
     printf("Cannot get weather data\n");
