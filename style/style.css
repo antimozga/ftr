@@ -485,6 +485,25 @@ label.upload_file {
 	line-height: 120%;
 }
 
+.rates {
+	display: block;
+	position: relative;
+	float: right;
+/*	right: 30px; */
+/*	padding-top: 5px; */
+}
+
+.rates_link {
+	font-size: 18px;
+	font-weight: bold;
+	color: #6ed11e;
+	line-height: 120%;
+}
+
+.rates_link:hover, .rates_link:visited {
+	color: #6ed11e;
+}
+
 .copy {
 	float: right;
 	padding-left: 20px;
