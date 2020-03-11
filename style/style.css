@@ -485,6 +485,10 @@ label.upload_file {
 	line-height: 120%;
 }
 
+.w_temp:hover, .w_temp:visited {
+	color: #6ed11e;
+}
+
 .rates {
 	display: block;
 	position: relative;

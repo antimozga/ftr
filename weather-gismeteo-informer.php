@@ -43,9 +43,9 @@ include ('images/gismeteo/'.md5($row['desc']).'.svg');
     echo '</div>';
     echo '<div style="float: right;">';
     echo '<span class="w_title">Погода</span>
-<span class="w_temp" id="w_temp">
-'.round($row['temp'], 1).' &#176;C</span><br/>
-<span id="w_sign">По ощущению '.round($row['temp_feel'], 1).'<br/>'.$row['desc'].'</span><br/>
+<a class="w_temp" href="https://www.gismeteo.ru/weather-tomsk-4652/now/" target="_blank">
+'.round($row['temp'], 1).' &#176;C</a><br/>
+<span id="w_sign">По ощущению '.round($row['temp_feel'], 1).' &#176;C<br/>'.$row['desc'].'</span><br/>
 <span id="w_wind">Ветер '.$row['wind'].' м/с, '.$row['wind_desc'].'</span><br/>
 <span id="w_press">
 <svg viewBox="0 0 30 30" width="16px" style="vertical-align: text-bottom;" class="svg_button">
