@@ -35,8 +35,9 @@ $query = "CREATE TABLE IF NOT EXISTS GisMeteoTable ".
 	 " wind INTEGER,".
 	 " wind_desc NVARCHAR,".
 	 " pressure INTEGER,".
-	 " humidity INTEGER)";
-    $database->exec($query);
+	 " humidity INTEGER,".
+	 " icon NVARCHAR)";
+$database->exec($query);
 
 $sth = $database->prepare("SELECT * FROM GisMeteoTable ORDER BY id DESC LIMIT 1");
 $sth->execute();
@@ -97,6 +98,7 @@ $wind_speed = -1;
 $wind_desc = "";
 $pressure = -1;
 $humidity = -1;
+$icon = "";
 
 if ($class !== false) {
     printf("forecast_now\n");
@@ -124,9 +126,11 @@ if ($class !== false) {
 	    if ($t_icon_img !== false) {
 		foreach ($t_icon_img->childNodes as $node) {
 		    if ($node->nodeName == "svg") {
-			$img_name = dirname($_SERVER['argv']['0']).'/images/gismeteo/'.md5($desc).'.svg';
-			if (!file_exists($img_name)) {
-			    file_put_contents($img_name, $dom->saveXML($node));
+			$svg_str = $dom->saveXML($node);
+			$icon = md5($svg_str).'.svg';
+			$img_path = dirname($_SERVER['argv']['0']).'/images/gismeteo/'.$icon;
+			if (!file_exists($img_path)) {
+			    file_put_contents($img_path, $svg_str);
 			}
 			break;
 		    }
@@ -181,7 +185,7 @@ if ($class !== false) {
 $tim = time();
 
 $database->exec("INSERT INTO GisMeteoTable".
-	" (time, temp, temp_feel, desc, wind, wind_desc, pressure, humidity)".
-	" VALUES($tim, $temp, $temp_feel, '$desc', $wind_speed, '$wind_desc', $pressure, $humidity)");
+	" (time, temp, temp_feel, desc, wind, wind_desc, pressure, humidity, icon)".
+	" VALUES($tim, $temp, $temp_feel, '$desc', $wind_speed, '$wind_desc', $pressure, $humidity, '$icon')");
 
 ?>

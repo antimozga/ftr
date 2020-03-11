@@ -21,7 +21,8 @@ $query = "CREATE TABLE IF NOT EXISTS GisMeteoTable ".
 	 " wind INTEGER,".
 	 " wind_desc NVARCHAR,".
 	 " pressure INTEGER,".
-	 " humidity INTEGER)";
+	 " humidity INTEGER,".
+	 " icon NVARCHAR)";
 $database->exec($query);
 
 $sth = $database->prepare("SELECT * FROM GisMeteoTable ORDER BY id DESC LIMIT 1");
@@ -36,8 +37,8 @@ $year = date('Y');
 if ($row) {
     echo '<div class="weather">';
     echo '<div style="float: left;">';
-    if (file_exists('images/gismeteo/'.md5($row['desc']).'.svg')) {
-include ('images/gismeteo/'.md5($row['desc']).'.svg');
+    if (file_exists('images/gismeteo/'.$row['icon'])) {
+include ('images/gismeteo/'.$row['icon']);
     }
 //  <img src="images/gismeteo/'.md5($row['desc']).'.svg" alt="'.$row['desc'].'"/>
     echo '</div>';
