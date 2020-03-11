@@ -7,7 +7,7 @@
 Установите следующие пакеты:
 
 ```
-apt install lighttpd php-cgi php-sqlite3 php-mbstring
+apt install lighttpd php-cgi php-sqlite3 php-mbstring php-dom
 ```
 
 Дополнительно на кривых VPS может установиться веб сервер Apache, сносим:
@@ -172,10 +172,10 @@ $HTTP["scheme"] == "http" {
 systemctl restart lighttpd
 ```
 
-## Weater
+## Weather
 
 Add to ```/etc/crontab```:
 
 ```
-*  *    * * *   www-data php /var/www/html/weather-cron.php
+*  *    * * *   www-data php /var/www/html/weather-gismeteo-cron.php
 ```

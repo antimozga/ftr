@@ -144,7 +144,7 @@ function show_banner()
     echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
 //    echo '<div class="logo"><a href="./"><img src="images/logo.png"></a></div>';
 
-    echo '<div class="autorefresh refreshnow" src="weather-informer.php"></div>';
+    echo '<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>';
     echo '<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>';
 
     echo '</div>';
