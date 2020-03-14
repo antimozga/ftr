@@ -96,7 +96,7 @@ function convert_string($str)
 
     $order   = array("\r\n", "\n", "\r");
     $replace = '';
-    return str_replace($order, $replace, $newstr);
+    return trim(str_replace($order, $replace, $newstr));
 }
 
 function convert_youtube($string) {

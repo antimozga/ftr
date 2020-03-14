@@ -671,7 +671,7 @@ if (!$database) {
 				    $edit_post_id = $_POST['edit_post_info'];
 				    $edit_post_id = ($edit_post_id * 10) / 10;
 
-				    $sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
+				    $sth = $database->prepare("SELECT id, id_topic, time, nick, subj, post, modtime".
 							      " FROM ForumPosts".
 							      " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
 				    $sth->execute();
@@ -681,6 +681,11 @@ if (!$database) {
 
 					$database->exec("UPDATE ForumPosts SET id_user='$id_user', nick='$nick', subj='$subj', post='$post', modtime=$modtime  WHERE id = $edit_post_id");
 					$post_id = $row['id'];
+
+					if ($subj != "") {
+					    $database->exec("UPDATE ForumTopics SET topic='$subj', nick='$nick', id_user='$id_user'".
+							    " WHERE id=(SELECT id_topic FROM ForumPosts WHERE id=(SELECT id FROM ForumPosts WHERE id_topic='".$row['id_topic']."' AND id_session='$id_session' ORDER BY id ASC LIMIT 1) AND id=(SELECT id FROM ForumPosts WHERE id_topic='".$row['id_topic']."' ORDER BY id ASC LIMIT 1) AND id='$post_id')");
+					}
 				    }
 				} else {
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
