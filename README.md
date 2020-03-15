@@ -21,7 +21,7 @@ apt install lighttpd php-cgi php-sqlite3 php-mbstring php-dom
 Настраиваем моды для вебсервера:
 
 ```
-  lighttpd-enable-mod fastcgi-php fastcgi
+  lighttpd-enable-mod fastcgi-php fastcgi rewrite
 
   systemctl restart lighttpd
 ```

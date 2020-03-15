@@ -1,5 +1,9 @@
 <?php
 
+#
+# url.rewrite-once = ( "^/(.*)" => "/redirect-newsvtomske.php/$1" )
+#
+
 require_once('config.php');
 
 if (!isset($FORUM_NEWSVTOMSKE_GID)) {
