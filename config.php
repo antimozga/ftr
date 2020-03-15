@@ -18,7 +18,9 @@ $FORUM_ADMIN = "antimozga";	// ник пользователя админист�
 
 $SHOW_TRASH_TOPICS = false;	// true/false - разрешить/запретить показывать посты из мусорной корзины в общем списке топов
 
-$FORUM_TRASH_GID = "25";	// id мусорной темы
+$FORUM_TRASH_GID = "25";	// group id мусорной темы
+
+$FORUM_NEWSVTOMSKE_GID = 45;	// group id news.vtomske.ru
 
 $RECAPTCHA_SITE_KEY = "SITEKEYMOVEITTOconfig_user.php";
 
