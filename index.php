@@ -1064,6 +1064,8 @@ if (!$database) {
 	    $posts = 0;
 	    $pnext = "";
 	    $pprev = "";
+	    $having_query = "";
+
 	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
 			  " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time,".
 			  " ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick,".
@@ -1073,14 +1075,22 @@ if (!$database) {
 	    $count_query = "SELECT COUNT(*)".
 			   " FROM ForumTopics WHERE 1 ";
 
-	    if (!$show_trash_topics && $id_grp == 0) {
-		if (isset($FORUM_NEWSVTOMSKE_GID)) {
-		    $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID $search_opt";
-		    $count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID $search_opt";
-		} else {
-		    $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
-		    $count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
+	    if ($id_grp == 0) {
+		if (!$show_trash_topics) {
+		    $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID";
+		    $count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID";
 		}
+
+		if (isset($FORUM_NEWSVTOMSKE_GID)) {
+		    $having_query = " ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID ";
+		    $having_query = " ($having_query OR (ForumTopics.id_grp=$FORUM_NEWSVTOMSKE_GID AND COUNT(*) > 1)) ";
+		    $count_query  = "$count_query AND id IN".
+" (select id_topic from ForumPosts group by id_topic having id_grp!=$FORUM_NEWSVTOMSKE_GID or (id_grp=$FORUM_NEWSVTOMSKE_GID and count(*) > 1))";
+		}
+
+		$having_query = " HAVING $having_query";
+		$base_query   = "$base_query  $search_opt";
+		$count_query  = "$count_query $search_opt";
 	    }
 
 	    if ($id_grp != 0) {
@@ -1159,9 +1169,9 @@ if (!$database) {
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		} elseif ($show_hot == 0) {
-		    $view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		} else {
-		    $view_query = "$base_query GROUP BY id_topic ORDER BY posts DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY posts DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		}
 	    }
 

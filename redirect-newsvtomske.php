@@ -19,6 +19,12 @@ if (!$database) {
 }
 
 $link = substr($_SERVER[REQUEST_URI], strpos($_SERVER[REQUEST_URI], '/news/'));
+
+if (strpos($link, '/news/') === false) {
+    header("Location: https://foruma.vtomske.net/?g=$FORUM_NEWSVTOMSKE_GID");
+    exit;
+}
+
 $id_topic = $database->query("SELECT id_topic FROM NewsVTomske WHERE link='$link'")->fetchColumn();
 
 if ($id_topic != "") {
