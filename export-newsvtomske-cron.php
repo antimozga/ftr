@@ -152,6 +152,10 @@ function addPost($post) {
 	    if ($class_author !== false) {
 		$author = $class_author[0]->textContent;
 
+		if ($author === "На правах рекламы") {
+		    return false;
+		}
+
 		$class_text = findClass($class_material[0], 'div', 'full-text');
 		if ($class_text !== false) {
 		    $class_pars = $class_text[0]->getElementsByTagName('p');

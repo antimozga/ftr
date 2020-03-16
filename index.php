@@ -1074,8 +1074,13 @@ if (!$database) {
 			   " FROM ForumTopics WHERE 1 ";
 
 	    if (!$show_trash_topics && $id_grp == 0) {
-	        $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
-		$count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
+		if (isset($FORUM_NEWSVTOMSKE_GID)) {
+		    $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID $search_opt";
+		    $count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID $search_opt";
+		} else {
+		    $base_query   = "$base_query  AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
+		    $count_query  = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID $search_opt";
+		}
 	    }
 
 	    if ($id_grp != 0) {
