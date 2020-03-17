@@ -156,6 +156,10 @@ function addPost($post) {
 		    return false;
 		}
 
+		if (strpos($author, 'Партнерский материал') !== false) {
+		    return false;
+		}
+
 		$class_text = findClass($class_material[0], 'div', 'full-text');
 		if ($class_text !== false) {
 		    $class_pars = $class_text[0]->getElementsByTagName('p');
