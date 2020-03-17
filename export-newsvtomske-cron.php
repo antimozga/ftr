@@ -152,7 +152,7 @@ function addPost($post) {
 	    if ($class_author !== false) {
 		$author = $class_author[0]->textContent;
 
-		if (strpos($link, 'На правах рекламы') !== false) {
+		if (strpos($author, 'На правах рекламы') !== false) {
 		    return false;
 		}
 
