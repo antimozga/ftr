@@ -251,11 +251,11 @@ echo '    return false;
 	<div class="form_box">
 		<div class="form_box_name">
 			<label for="name" class="l_inp_text_name"> Ваше имя:</label>
-			<input class="inp_text_name" id="name" maxlength="20" name="message[author]" value="'.$name.'" type="text">
+			<input class="inp_text_name" id="name" maxlength="25" name="message[author]" value="'.$name.'" type="text">
 		</div>
 		<div class="form_box_title">
 		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
-		    <input class="inp_text_name" id="heading" maxlength="80" name="message[caption]" value="'.$subj.'" type="text">
+		    <input class="inp_text_name" id="heading" maxlength="100" name="message[caption]" value="'.$subj.'" type="text">
 		</div>
 		<div class="form_box_mess">
 			<textarea maxlength="8192" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
