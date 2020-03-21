@@ -962,6 +962,24 @@ label.l_inp_text_name span {
 	border: 1px solid #012F51;
 }
 
+.vert-center {
+	position: absolute;
+	top: 50%;
+}
+
+.vert-center .tdw1 {
+	width: 100%;
+}
+
+.vert-center .tdw2 {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.vert-center input[type=text] {
+	width: 100%;
+}
+
 /*
  SVG BUTTONS
  */

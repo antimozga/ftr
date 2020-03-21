@@ -129,7 +129,7 @@ function show_menu($database) {
 <div><a href="./?m=1">Избранное</a></div>';
     }
     echo '<div class="sep"><div></div></div>
-    <div><a href="./?search">Поиск</a></div>
+    <div><a href="#" onclick="load_modal(\'searchtopic.php\'); return false;">Поиск</a></div>
 </div></div>';
 
 //<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
