@@ -965,6 +965,7 @@ label.l_inp_text_name span {
 .vert-center {
 	position: absolute;
 	top: 50%;
+	width: -moz-available;
 }
 
 .vert-center .tdw1 {
