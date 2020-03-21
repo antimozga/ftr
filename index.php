@@ -153,11 +153,13 @@ function show_banner()
 function show_nav_path($topic, $ctrlink="") {
     global $FORUM_NAME;
     echo '<div class="navigation">
-    <div class="box_path">:: <a href="./">'.$FORUM_NAME.'</a> &nbsp;/&nbsp; '.$topic;
+    <div class="box_path">
+    <table><tr>
+    <td class="tdw1">:: <a href="./">'.$FORUM_NAME.'</a> &nbsp;/&nbsp; '.$topic.'</td>';
     if ($ctrlink != "") {
-	echo $ctrlink;
+	echo '<td class="tdw2">'.$ctrlink.'</td>';
     }
-    echo '</div></div>';
+    echo '</tr></table></div></div>';
 }
 
 function show_postbox($type) {

@@ -295,6 +295,16 @@ label.upload_file {
 	word-break: break-all;
 }
 
+.navigation .box_path .tdw1 {
+/*	width: 100%; */
+	font-weight: bold;
+}
+
+.navigation .box_path .tdw2 {
+	width: 15px;
+	font-weight: bold;
+}
+
 .navigation .box_path a, .navigation .box_path a:hover, .navigation .box_path a:visited {
 	color: #FCFCFC;
 	text-decoration: none;
