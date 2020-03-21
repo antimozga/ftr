@@ -13,7 +13,7 @@ function show_header($title) {
 <meta http-equiv="Cache-control" content="no-cache" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="Томские форумы. Общение на любые темы." />
-<meta name="keywords" content="Общение,Форумы,Форум,ФТР,foruma.vtomske.net,vtomske.net,чат,фото,видео,цензура,тонет" />
+<meta name="keywords" content="Общение,Форумы,Форум,ФТР,foruma.vtomske.net,vtomske.net,vtomske,чат,фото,видео,цензура,тонет" />
 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 <!-- <link href="style/style.css" type="text/css" rel="stylesheet" /> -->
 <style>
