@@ -67,15 +67,7 @@ echo
 
 $group_edit = "";
 if(!is_session('myuser_name')) {
-    echo '<div>
-	    <form action="" method="post"><input type="hidden" name="event" value="login"/>
-	    <div class="form_box_text">
-		<input type="text" autocomplete="username" style="width:10%;" name="user[name]" onfocus="if(this.value == \'Имя\') { this.value = \'\'; }" value="Имя"/>
-		<input type="password" autocomplete="current-password" style="width:10%;" name="user[password]" onfocus="if(this.value == \'Пароль\') { this.value = \'\'; }" value="Пароль"/>
-		<input class="btn_group_sel" type="submit" value="&nbsp;" />
-	    </div>
-	    </form>
-	</div>
+    echo '<a href="" onclick="load_modal(\'login.php\'); return false;">Вход</a>
 	<div class="sep"><div></div></div>
 	<a href="?reg=1">Регистрация</a>';
 } else {

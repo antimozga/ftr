@@ -13,7 +13,7 @@ body {
 	margin: 0 auto;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 800px) {
 	body {
 		width: 100%;
 	}
@@ -1194,6 +1194,13 @@ svg.svg_button:hover {
 	border-color: #CCCCCC;
 	width: 620px;
 	height: 350px;
+}
+
+@media screen and (max-height: 350px) {
+	.modal-window {
+	    width: 100%;
+	    height: 100%;
+	}
 }
 
 @media screen and (max-width: 600px) {
