@@ -7,9 +7,16 @@ table, td, form, iframe {
 }
 
 body {
-	margin: 0px;
 	padding: 0px;
 	background-color: #012F51;
+	width: 80%;
+	margin: 0 auto;
+}
+
+@media screen and (max-width: 600px) {
+	body {
+		width: 100%;
+	}
 }
 
 html, body {
@@ -65,7 +72,6 @@ a.close span {
 }
 
 .answer_bar {
-	width: 740px;
 	float: left;
 }
 
@@ -169,7 +175,6 @@ label.upload_file {
 }
 
 .block_menu, .block_menu_m {
-	width: 760px;
 	margin-left: auto;
 	margin-right: auto;
 	background: #C3C5C8 url(../images/top_bg.png) repeat-x bottom; 
@@ -253,6 +258,12 @@ label.upload_file {
 	cursor: pointer;
 }
 
+@media screen and (max-width: 600px) {
+	.group_sel {
+		display: none;
+	}
+}
+
 .paging_sel select, .paging_sel option {
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 12px;
@@ -277,7 +288,6 @@ label.upload_file {
 }
 
 .navigation {
-	width: 740px;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 0px 15px;
@@ -326,13 +336,11 @@ label.upload_file {
 }
 
 .paging {
-	width: 738px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 .paging_sel {
-	width: 300px;
 	vertical-align: bottom;
 	color: #FCFCFC;
 	float: left;
@@ -344,10 +352,11 @@ label.upload_file {
 	margin-top: 3px;
 }
 
-.next{
+.next {
 	display: block;
 	float: left;
 	margin-top: 3px;
+	margin-left: 16px;
 }
 
 .up_down{
@@ -366,7 +375,7 @@ label.upload_file {
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 2px;
-	width: 765px;
+	width: 100%;
 }
 
 .themes td, .userstable td {
@@ -404,8 +413,19 @@ label.upload_file {
 	text-align: center;
 }
 
+@media screen and (max-width: 600px) {
+	.themes td.tdw1 {
+		width: unset;
+	}
+
+	.themes td.tdw2 {
+		width: 70px;
+		word-break: break-word;
+	}
+}
+
 .userstable {
-	width: 768px;
+	width: 100%;
 }
 
 .userstable th {
@@ -440,7 +460,6 @@ label.upload_file {
 }
 
 .box1 {
-	width: 750px;
 	margin: 1px 0px;
 	margin-left: auto;
 	margin-right: auto;
@@ -449,7 +468,6 @@ label.upload_file {
 }
 
 .block1, .block2 {
-	width: 738px;
 	background: #000;
 	border: 1px solid #FFF;
 	padding: 6px 15px;
@@ -460,14 +478,18 @@ label.upload_file {
 
 .block2 {
 	border: 0px;
-	width: 740px;
 }
 
 .block1 {
 	border: 0px;
-	width: 740px;
 	height: 120px;
 	background: url('images/bg.jpg');
+}
+
+@media screen and (max-width: 600px) {
+	.block1 {
+		display: none;
+	}
 }
 
 .block2 a, .block2 a:hover, .block2 a:visited {
@@ -533,7 +555,6 @@ label.upload_file {
 
 .line1 {
 	height: 0px;
-	width: 770px;
 	margin-left: auto;
 	margin-right: auto;
 	border-top: 1px solid #FCFCFC;
@@ -573,7 +594,6 @@ label.upload_file {
 }
 
 .text_box_1, .error1 {
-	width: 760px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -597,7 +617,6 @@ label.upload_file {
 }
 
 .text_box_2 {
-	width: 740px;
 	margin-left: auto;
 	margin-right: auto;
 	padding-bottom: 20px;
@@ -618,7 +637,6 @@ label.upload_file {
 }
 
 .box_alfavit {
-	width: 740px;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 5px 15px;
@@ -646,7 +664,6 @@ cite, .box_cite {
 
 .box_pasport {
 	background: #E4E6E5 url(../images/text_bg.png) repeat-x top;
-	width: 770px;
 	margin-left: auto;
 	margin-right: auto;
 	font-size: 11px;
@@ -668,7 +685,6 @@ cite, .box_cite {
 }
 
 .form_mess {
-	width: 770px;
 	height: 200px;
 	margin: 0px;
 	margin-left: auto;
@@ -677,14 +693,29 @@ cite, .box_cite {
 	background: #0F3C60;
 }
 
-.form_box_name, .form_box_btn {
-	padding: 5px 0px 0px 5px;
+.form_box table {
+	width: 100%;
+}
+
+.form_box_btn {
+	padding: 5px 0px 0px 0px;
 	float: left;
 }
 
-.form_box_title, .format {
-	padding: 5px 5px 0px 0px;
+.format {
+	padding: 5px 0px 0px 0px;
 	float: right;
+}
+
+.form_box_name {
+	padding: 5px 4px 0px 0px;
+/*	float: left; */
+	width: 35%;
+}
+
+.form_box_title {
+	padding: 5px 0px 0px 0px;
+/*	float: right; */
 }
 
 .form_box_mess {
@@ -705,7 +736,7 @@ label.l_inp_text_name {
 	color: #FFFFFF;
 	font-weight: bold;
 	display: block;
-	margin: 0px 0px 2px 3px;
+/*	margin: 0px 0px 2px 3px; */
 }
 
 label.l_inp_text_name span {
@@ -721,14 +752,15 @@ label.l_inp_text_name span {
 }
 
 .inp_text_name {
-	width: 376px;
+	width: 100%;
+/*	width: 376px; */
 	height: 18px;
-	padding: 2px 0px 0px 2px;
+/*	padding: 2px 0px 0px 2px; */
 	margin: 0px;
 }
 
 .area_text {
-	width: 760px;
+	width: 100%;
 	height: 110px;
 	padding: 0px;
 	margin: 3px 0px 0px 0px;

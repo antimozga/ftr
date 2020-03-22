@@ -119,7 +119,7 @@ function show_menu($database) {
 <input class="btn_group_sel" type="submit" value="&nbsp;" />
 </form>
 <div class="menu">
-<div><a href="./?g=0">Группы тем</a></div>
+<div><a href="./?g=0">Группы</a></div>
 <div class="sep"><div></div></div>
 <div><a href="./">Горячее</a></div>
 <div class="sep"><div></div></div>
@@ -251,14 +251,18 @@ echo '    return false;
 	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data" onsubmit="return formSubmit()">
 	<input type="hidden" name="event" value="forumcreatesubj">
 	<div class="form_box">
-		<div class="form_box_name">
+	    <table>
+	    <tr>
+	    <td class="form_box_name">
 			<label for="name" class="l_inp_text_name"> Ваше имя:</label>
 			<input class="inp_text_name" id="name" maxlength="25" name="message[author]" value="'.$name.'" type="text">
-		</div>
-		<div class="form_box_title">
+	    </td>
+	    <td class="form_box_title">
 		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
 		    <input class="inp_text_name" id="heading" maxlength="100" name="message[caption]" value="'.$subj.'" type="text">
-		</div>
+	    </td>
+	    </tr>
+	    </table>
 		<div class="form_box_mess">
 			<textarea maxlength="16384" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
 		</div>
@@ -272,7 +276,23 @@ echo '    return false;
 		<input type="hidden" name="MAX_FILE_SIZE" value="3145728">
 		    <table class="form_box_image_btn">
 		    <tr><td>
-		    <input name="image" type="file">
+
+<!--		    <input name="image" type="file"> -->
+
+<!--		    <button onclick="document.getElementById(\'attachFile\').click()"> -->
+<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
+<title>Прикрепить картинку или видео</title>
+<path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
+</svg>
+<!-- </button> -->
+<span id="attachedFile"></span>
+		    <input name="image" type="file" style="display:none;" id="attachFile">
+<script>
+document.getElementById(\'attachFile\').onchange = function () {
+    document.getElementById(\'attachedFile\').innerHTML = this.value.replace(/^.*[\\\/]/, \'\');
+/*  alert(\'Selected file: \' + this.value.replace(/^.*[\\\/]/, \'\')); */
+};
+</script>
 		    </td></tr>
 		    <tr><td>
 		    <label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
