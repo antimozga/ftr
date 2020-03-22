@@ -116,7 +116,7 @@ function show_menu($database) {
 <div class="sep"><div></div></div>
 <div><a href="./">Горячее</a></div>
 <div class="sep"><div></div></div>
-<div><a href="./?s=1">Топ общения</a></div>';
+<div><a href="./?s=1">Топ</a></div>';
     if (is_session('myuser_name')) {
 	echo '<div class="sep"><div></div></div>
 <div><a href="./?m=1">Избранное</a></div>';
