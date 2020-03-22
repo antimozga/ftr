@@ -63,12 +63,12 @@ global $database;
 show_header($title);
 echo 
 '<div class="block_menu">
-    <div class="menu">
-	<div>';
+    <div class="menu" id="mobMenu">';
 
 $group_edit = "";
 if(!is_session('myuser_name')) {
-    echo '  <form action="" method="post"><input type="hidden" name="event" value="login"/>
+    echo '<div>
+	    <form action="" method="post"><input type="hidden" name="event" value="login"/>
 	    <div class="form_box_text">
 		<input type="text" autocomplete="username" style="width:10%;" name="user[name]" onfocus="if(this.value == \'Имя\') { this.value = \'\'; }" value="Имя"/>
 		<input type="password" autocomplete="current-password" style="width:10%;" name="user[password]" onfocus="if(this.value == \'Пароль\') { this.value = \'\'; }" value="Пароль"/>
@@ -77,29 +77,30 @@ if(!is_session('myuser_name')) {
 	    </form>
 	</div>
 	<div class="sep"><div></div></div>
-	<div><a href="?reg=1">Регистрация</a></div>';
+	<a href="?reg=1">Регистрация</a>';
 } else {
     $pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
     $pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
     echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
-	</div>
 	<div class="sep"><div></div></div>
-	<div><a href="#" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a></div>
+	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>
 	<div class="sep"><div></div></div>
-	<div><a href="?reg=3">Настройки</a></div>';
+	<a href="?reg=3">Настройки</a>';
     if (is_forum_admin()) {
-	$group_edit = '<div class="sep"><div></div></div><div><a href="groups.php">Редактор групп тем</a></div>';
+	$group_edit = '<div class="sep"><div></div></div><a href="groups.php">Редактор групп тем</a>';
     }
 }
 
 echo '<div class="sep"><div></div></div>
-	<div><a href="?users">Пользователи</a><a href="./?banlist">(Скрытые)</a></div>
+	<a href="?users">Пользователи</a><a href="./?banlist">(Скрытые)</a>
 	<div class="sep"><div></div></div>
-	<div><a href="'.$FORUM_RULES_LINK.'">Правила</a></div>'
+	<a href="'.$FORUM_RULES_LINK.'">Правила</a>'
 .$group_edit.
 '<!--	<div><a href="contacts.php">Контакты</a></div> -->
+	<a href="javascript:void(0);" class="mobicon" onclick="mobileMenu(\'mobMenu\',\'menu\')">&#9776;</a>
     </div>
 </div>';
+
 }
 
 function show_menu($database) {
@@ -352,14 +353,14 @@ function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic
 	&nbsp;из '.$pages.'
     </form>';
     if ($pagenext != "") {
-	echo '<span class="prev"><a href="'.$pagenext.'">Назад »</a></span>';
+	echo '<span class="prev"><a href="'.$pagenext.'">»</a></span>';
     } else {
-	echo '<span class="prev">Назад »</span>';
+	echo '<span class="prev">»</span>';
     }
     if ($pageprev != "") {
-	echo '<span class="next"><a href="'.$pageprev.'">« Вперед</a></span>';
+	echo '<span class="next"><a href="'.$pageprev.'">«</a></span>';
     } else {
-	echo '<span class="next">« Вперед</span>';
+	echo '<span class="next">«</span>';
     }
     if ($type == 'down') {
 	echo '<a name="ftop"></a><span class="up_down">';

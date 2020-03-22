@@ -9,7 +9,7 @@ table, td, form, iframe {
 body {
 	padding: 0px;
 	background-color: #012F51;
-	width: 80%;
+	width: 70%;
 	margin: 0 auto;
 }
 
@@ -174,7 +174,15 @@ label.upload_file {
 	font-size: smaller;
 }
 
-.block_menu, .block_menu_m {
+.block_menu {
+	margin-left: auto;
+	margin-right: auto;
+	background: #C3C5C8 url(../images/top_bg.png) repeat-x bottom; 
+	padding: 8px 5px 0px 5px;
+	border: 2px solid #727478;
+}
+
+.block_menu_m {
 	margin-left: auto;
 	margin-right: auto;
 	background: #C3C5C8 url(../images/top_bg.png) repeat-x bottom; 
@@ -232,6 +240,67 @@ label.upload_file {
 	line-height: 0px;
 	font-size: 0px;
 	background: #999;
+}
+
+.menu .mobicon {
+	display: none;
+}
+
+@media screen and (max-width: 600px) {
+	.menu {
+	    display: inline-block;
+	    width: 100%;
+	}
+
+	.block_menu .menu {
+	    height: unset;
+	}
+
+	.block_menu .menu a {
+	    float: left;
+	}
+
+	.block_menu .menu a:not(:first-child) {
+	    display: none;
+	    float: none;
+	}
+
+	.block_menu .menu .sep {
+	    display: none;
+	}
+
+	.block_menu .menu a#pagerlink {
+	    display: block;
+	    float: left;
+	}
+
+	.block_menu .menu a.mobicon {
+	    display: block;
+	    float: right;
+	    font-size: 15px;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.block_menu .menu.responsive {
+		position: relative;
+	}
+
+	.block_menu .menu.responsive a {
+		display: block;
+		float: none;
+	}
+
+	.block_menu .menu.responsive a#pagerlink {
+/*	    display: block; */
+	    float: none;
+	}
+
+	.block_menu .menu.responsive a.mobicon {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
 }
 
 .group_sel {
@@ -396,7 +465,7 @@ label.upload_file {
 	width: 100px;
 	border-right: 5px solid #0F3C60;
 	color: #237cad;
-	word-break: break-word;
+	word-break: break-all;
 }
 
 .themes td.tdw3 {
@@ -925,6 +994,12 @@ label.l_inp_text_name span {
 	color: #000;
 }
 
+@media screen and (max-width: 600px) {
+	.pasport2 {
+	    display: none;
+	}
+}
+
 .pasport_text_full {
 	width: 270px;
 	height: 260px;
@@ -964,7 +1039,7 @@ label.l_inp_text_name span {
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 2px;
-	width: 620px;
+	width: 100%;
 }
 
 .pagertable td {
@@ -1106,6 +1181,12 @@ svg.svg_button:hover {
 	border-color: #CCCCCC;
 	width: 620px;
 	height: 350px;
+}
+
+@media screen and (max-width: 600px) {
+	.modal-window {
+	    width: 84%;
+	}
 }
 
 .modal-window .close-button {

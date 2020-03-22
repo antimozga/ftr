@@ -255,6 +255,19 @@ function insertAfter(referenceNode, newNode) {
 }
 
 /*****************************************************************************
+ * responsible button
+ *****************************************************************************/
+
+function mobileMenu(name, eclass) {
+    var x = document.getElementById(name);
+    if (x.className === eclass) {
+	x.className += " responsive";
+    } else {
+	x.className = eclass;
+    }
+}
+
+/*****************************************************************************
  * modal functions
  *****************************************************************************/
 
