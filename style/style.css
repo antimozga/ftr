@@ -732,7 +732,7 @@ cite, .box_cite {
 }
 
 .box_pasport {
-	background: #E4E6E5 url(../images/text_bg.png) repeat-x top;
+	background: #E4E6E5; /* url(../images/text_bg.png) repeat-x top; */
 	margin-left: auto;
 	margin-right: auto;
 	font-size: 11px;
@@ -743,6 +743,12 @@ cite, .box_cite {
 	background: url(../images/pasport.jpg) no-repeat top right;
 	padding: 20px 370px 20px 20px;
 	color: #000;
+}
+
+@media screen and (max-width: 600px) {
+	.box_pasport_bg {
+		padding: 0;
+	}
 }
 
 .box_small_text {
@@ -861,7 +867,7 @@ label.l_inp_text_name span {
 }
 
 .inp_text_reg, .area_text_reg, .area_dialog_text {
-	width: 375px;
+	width: 100%;
 	height: 19px;
 	padding: 2px 0px 0px 3px;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
@@ -873,7 +879,7 @@ label.l_inp_text_name span {
 }
 
 .area_text_reg {
-	width: 375px;
+	width: 100%;
 	height: 90px;
 }
 
@@ -887,6 +893,13 @@ label.l_inp_text_name span {
 	font-size: 11px;
 	text-align: center;
 	padding-bottom: 2px;
+}
+
+@media screen and (max-width: 600px) {
+	.inp_text_reg, .area_text_reg {
+	    border: 0;
+	    padding: 0;
+	}
 }
 
 .form_dialog {
