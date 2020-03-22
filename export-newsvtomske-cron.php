@@ -123,7 +123,7 @@ function addPost($post) {
     $tim = strtotime($date);
 
     $check_tim = $database->query("SELECT time FROM NewsVTomske WHERE link='$href'")->fetchColumn();
-    if ($check_tim == $tim) {
+    if ($check_tim != "") {
 	printf("already added\n");
 	return false;
     }
