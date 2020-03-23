@@ -1223,6 +1223,11 @@ svg.svg_button:hover {
 	color: #33CCFF;
 }
 
+.modal-content-window {
+	width:100%;
+	height: calc(100% - 1.5rem);
+}
+
 .show-modal {
 	opacity: 1;
 	visibility: visible;
