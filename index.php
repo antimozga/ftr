@@ -208,15 +208,15 @@ function show_postbox($type) {
 
     if ($type == 'topic') {
 	$h = 'Заголовок темы';
-	$b = 'Добавить тему';
+	$b = 'Создать';
     } else {
 	$h = 'Заголовок сообщения';
 
 	if (is_defined('editpost') || is_session('user_edit_post')) {
-	    $b = 'Исправить сообщение';
+	    $b = 'Исправить';
 	    unset($_SESSION['user_edit_post']);
 	} else {
-	    $b = 'Добавить сообщение';
+	    $b = 'Отправить';
 	}
     }
 echo '
@@ -259,38 +259,42 @@ echo '    return false;
 		<div class="form_box_mess">
 			<textarea maxlength="16384" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
 		</div>
-		<div class="form_box_btn">
-			<input class="btn_form" value="'.$b.'" type="submit">
-		</div>
-		<div class="format">
-			<div id="web"></div>
-			<span id="mess_emo"><a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold">Жирный</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2">Курсив</a>&nbsp;-&nbsp;<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3">Цитата</a>&nbsp;-&nbsp;</span>
-		</div>
-		<input type="hidden" name="MAX_FILE_SIZE" value="3145728">
-		    <table class="form_box_image_btn">
-		    <tr><td>
+		<div>
+			<div class="form_box_btn">
+				<input class="btn_form" value="'.$b.'" type="submit">
+			</div>
+			<div class="format">
+				<div id="web"></div>
+				<span id="mess_emo">
+					<a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>&nbsp;-&nbsp;
+					<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2"><span class="view-desk">Курсив</span><span class="view-mob">К</span></a>&nbsp;-&nbsp;
+					<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3"><span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>&nbsp;-&nbsp;
+				</span>
+			</div>
 
-<!--		    <input name="image" type="file"> -->
+			<input type="hidden" name="MAX_FILE_SIZE" value="3145728">
 
-<!--		    <button onclick="document.getElementById(\'attachFile\').click()"> -->
+			<div class="form_box_upload">
+			<div>
 <svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
 <title>Прикрепить картинку или видео</title>
 <path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
 </svg>
-<!-- </button> -->
-<span id="attachedFile"></span>
-		    <input name="image" type="file" style="display:none;" id="attachFile">
+				<span id="attachedFile"></span>
+				<input name="image" type="file" style="display:none;" id="attachFile">
 <script>
 document.getElementById(\'attachFile\').onchange = function () {
     document.getElementById(\'attachedFile\').innerHTML = this.value.replace(/^.*[\\\/]/, \'\');
 /*  alert(\'Selected file: \' + this.value.replace(/^.*[\\\/]/, \'\')); */
 };
 </script>
-		    </td></tr>
-		    <tr><td>
-		    <label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
-		    </td></tr>
-		    </table>
+			</div>
+			<div>
+				<label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
+			</div>
+			</div>
+		</div>
+
 	</div>
 	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
 '.$edit_info.'

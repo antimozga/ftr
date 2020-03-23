@@ -9,7 +9,7 @@ table, td, form, iframe {
 body {
 	padding: 0px;
 	background-color: #012F51;
-	width: 70%;
+	width: 770px;
 	margin: 0 auto;
 }
 
@@ -760,7 +760,7 @@ cite, .box_cite {
 }
 
 .form_mess {
-	height: 200px;
+/*	height: 200px; */
 	margin: 0px;
 	margin-left: auto;
 	margin-right: auto;
@@ -780,6 +780,25 @@ cite, .box_cite {
 .format {
 	padding: 5px 0px 0px 0px;
 	float: right;
+	display: block;
+}
+
+.view-desk {
+	display: inline;
+}
+
+.view-mob {
+	display: none;
+}
+
+@media screen and (max-width: 600px) {
+	.view-desk {
+		display: none;
+	}
+
+	.view-mob {
+		display: inline;
+	}
 }
 
 .form_box_name {
@@ -804,6 +823,11 @@ cite, .box_cite {
 	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.form_box_upload {
+	display: grid;
+	text-align: center;
 }
 
 label.l_inp_text_name {
@@ -842,7 +866,7 @@ label.l_inp_text_name span {
 }
 
 .btn_form {
-	width: 150px;
+/*	width: 150px; */
 	height: 19px;
 	border: 0px;
 	background: url(../images/btn_bg.png) repeat-x center;
