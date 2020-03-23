@@ -40,7 +40,7 @@ if (!$database) {
 
 	$to_user = get_user($database, $to_id);
 
-echo '<div class="pagerchat_window">
+echo '<div class="modal-content-window pagerchat_window">
     <div class="head">
     <div class="user_info">';
 

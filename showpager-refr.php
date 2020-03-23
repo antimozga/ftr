@@ -11,7 +11,7 @@ if (!$database) {
     echo '<p>Ошибка базы данных.</p>';
 } else {
     if (is_logged()) {
-	echo '<div class="pagerchat_window">';
+	echo '<div class="modal-content-window pagerchat_window">';
 	    $pager_query = "SELECT COUNT(*) as total, ForumPager.id_from_user AS id_from_user, ForumUsers.login AS login FROM ForumPager,ForumUsers".
 		" WHERE ForumPager.id_user = ".$_SESSION['myuser_id']." AND ForumUsers.id = ForumPager.id_from_user".
 		" GROUP BY ForumPager.id_from_user;";

@@ -1043,8 +1043,6 @@ label.l_inp_text_name span {
  */
 
 .pagerchat_window {
-    width: 100%;
-    height: 90%;
     overflow: auto;
 }
 
