@@ -902,7 +902,7 @@ if (!$database) {
 <th>Пол</th>
 <th>Фото</th>
 <th>Время посещения</th>
-<th>Дата регистрации</th>
+<th class="no-mob-view">Дата регистрации</th>
 </tr>';
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
 		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
@@ -924,7 +924,7 @@ if (!$database) {
 		    echo '<td class="tdw2">'.'НЕТ'.'</td>';
 		}
 		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['last_login']).'</td>';
-		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['time']).'</td>';
+		echo '<td class="tdu3 no-mob-view">'.date('d.m.Y (H:i)', $row['time']).'</td>';
 		echo '</tr>';
 	    }
 		echo '</tbody>

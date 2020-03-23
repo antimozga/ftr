@@ -799,6 +799,10 @@ cite, .box_cite {
 	.view-mob {
 		display: inline;
 	}
+
+	.no-mob-view {
+		display: none;
+	}
 }
 
 .form_box_name {
