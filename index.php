@@ -71,9 +71,16 @@ if(!is_session('myuser_name')) {
 	<div class="sep"><div></div></div>
 	<a href="?reg=1">Регистрация</a>';
 } else {
+    $logout_uri = $_SERVER['REQUEST_URI'];
+    if ($logout_uri === '/') {
+	$logout_uri = '?logout';
+    } else {
+	$logout_uri = $logout_uri.'&logout';
+    }
+
     $pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
     $pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
-    echo '<a class="name_m" href="?logout">'.$_SESSION['myuser_name'].' Выход</a>
+    echo '<a class="name_m" href="'.$logout_uri.'">'.$_SESSION['myuser_name'].' Выход</a>
 	<div class="sep"><div></div></div>
 	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>
 	<div class="sep"><div></div></div>
@@ -403,6 +410,7 @@ if (!$database) {
     is_logged();
 
     {
+	$ctrlink = "";
 	$show_groups = 0;
 	$id_grp = 0;
 	$id_topic = 0;
@@ -460,14 +468,13 @@ if (!$database) {
 	    exit();
 	}
 
-
 	if (is_defined("logout")) {
 	    unset($_SESSION['myuser_name']);
 	    unset($_SESSION['myuser_password']);
 	    unset($_SESSION['myuser_id']);
 	    unset($_SESSION['user_temp_name']);
 
-	    header("location:index.php");
+	    redirect_without('logout');
 	}
 
 	if (isset($_SESSION['myuser_id'])) {
@@ -536,10 +543,7 @@ if (!$database) {
 		$show_groups = 1;
 	    }
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("<a href=\"?g=".$id_grp."\">".$topic."</a>");
+	    $nav_path ="<a href=\"?g=".$id_grp."\">".$topic."</a>";
 	} else if (is_defined("t")) {
 	    $id_topic = $_REQUEST["t"];
 	    $id_topic = ($id_topic * 10) / 10;
@@ -564,7 +568,6 @@ if (!$database) {
 		$group = $row['grp'];
 		$id_group = $row['id_grp'];
 	    }
-	    $ctrlink = "";
 	    if ($id_user != 0) {
 		if ($database->query("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;")->fetchColumn() == $id_user) {
 		    $ctrlink = '<a style="float: right" href="?t='.$id_topic.'&like=0">-</a>';
@@ -573,10 +576,7 @@ if (!$database) {
 		}
 	    }
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("<a href=\"?g=".$id_group."\">".$group."</a> &nbsp;/&nbsp; <a href=\"?t=".$id_topic."\">".$topic."</a>", $ctrlink);
+	    $nav_path = "<a href=\"?g=".$id_group."\">".$group."</a> &nbsp;/&nbsp; <a href=\"?t=".$id_topic."\">".$topic."</a>";
 	} else if (is_defined("reg")) {
 	    $reg_mode = $_REQUEST["reg"];
 	    if ($reg_mode == 3 && $id_user == 0) {
@@ -588,20 +588,14 @@ if (!$database) {
 	        $topic = "НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ";
 	    }
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path($topic);
+	    $nav_path = $topic;
 	} else if (is_defined("users")) {
 	    $show_users = 1;
 	    $show_users_string = convert_string($_REQUEST["users"]);
 
 	    $topic = "ПОЛЬЗОВАТЕЛИ";
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("Список пользователей");
+	    $nav_path = "Список пользователей";
 	} else if (is_defined("search")) {
 	    $s = convert_string($_REQUEST["search"]);
 
@@ -613,19 +607,13 @@ if (!$database) {
 		$search_opt = " AND ForumTopics.topic LIKE '%".$s."%'";
 	    }
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("Поиск");
+	    $nav_path = "Поиск";
 	} else if (is_defined("banlist")) {
 	    $show_banlist = 1;
 
 	    $topic = "СКРЫТЫЕ";
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path("Скрытые");
+	    $nav_path = "Скрытые";
 	} else {
 	    if (is_defined("s")) {
 		$show_hot = 1;
@@ -636,10 +624,7 @@ if (!$database) {
 		$topic = "МОИ ИЗБРАННЫЕ ТЕМЫ";
 	    }
 
-	    start_page($topic);
-	    show_banner();
-	    show_menu($database);
-	    show_nav_path($topic);
+	    $nav_path = $topic;
 	}
 
 	if (is_defined("event")) {
@@ -776,6 +761,10 @@ if (!$database) {
 			    unset($_SESSION['user_temp_subj']);
 			    unset($_SESSION['user_temp_post']);
 			    unset($_SESSION['user_edit_post']);
+
+			    $uri = $_SERVER['REQUEST_URI'];
+			    header("Location: $uri", true, 301);
+			    exit();
 			}
 		    } else {
 			// Not verified - show form error
@@ -854,6 +843,11 @@ if (!$database) {
 		}
 	    }
 	}
+
+	start_page($topic);
+	show_banner();
+	show_menu($database);
+	show_nav_path($nav_path, $ctrlink);
 
 	if ($id_grp != 0) {
 	    show_postbox('topic');

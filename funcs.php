@@ -50,7 +50,9 @@ function user_login($name, $password)
 
     if (is_logged()) {
 	unset($_SESSION['user_temp_name']);
-	header("location:index.php");
+	$uri = $_SERVER['REQUEST_URI'];
+	header("Location: $uri", true, 301);
+	exit();
     }
 
     // can't login
@@ -267,7 +269,7 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
 function redirect_without($wout)
 {
     $uri = $_SERVER['REQUEST_URI'];
-    $uri = substr($uri, 0, strpos($uri, $wout));
+    $uri = substr($uri, 0, strpos($uri, $wout) - 1);
     header("Location: $uri", true, 301);
     exit();
 }
