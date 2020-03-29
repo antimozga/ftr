@@ -28,7 +28,7 @@ if (!$database) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumpagercreatemess") {
 		$tim = time();
-		$post = convert_string($_REQUEST["pagermess"]["content"]);
+		$post = convert_text($_REQUEST["pagermess"]["content"]);
 		if ($post != "") {
 		    $user_query = "INSERT INTO ForumPager (id_user, id_from_user, new, time, post) ".
 				  "VALUES($to_id, $myuser_id, 1, $tim, '$post');";

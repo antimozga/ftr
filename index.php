@@ -961,7 +961,7 @@ if (!$database) {
 		    $user_email = $row['email'];
 		    $user_fio = $row['fio'];
 		    $user_gender = $row['gender'];
-		    $user_description = $row['description'];
+		    $user_description = reconvert_text($row['description']);
 		}
 
 		echo '
