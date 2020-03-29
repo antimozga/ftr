@@ -18,7 +18,7 @@ function get_user($database, $id) {
 $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
     echo '<p>Ошибка базы данных.</p>';
-} else if (is_logged()) {
+} else if (check_login()) {
     $myuser_id = $_SESSION['myuser_id'];
     if (is_defined('to')) {
 	$to_id = $_REQUEST['to'];

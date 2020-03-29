@@ -1,13 +1,15 @@
 <?php
 
-function is_defined($name) {
+function is_defined($name)
+{
     if (isset($_REQUEST[$name])) {
 	return true;
     }
     return false;
 }
 
-function is_session($var) {
+function is_session($var)
+{
     if (isset($_SESSION[$var])) {
 	return true;
     } else {
@@ -15,7 +17,7 @@ function is_session($var) {
     }
 }
 
-function is_logged()
+function check_login()
 {
     global $database;
 
@@ -48,7 +50,7 @@ function user_login($name, $password)
     $_SESSION['myuser_name'] = $name;
     $_SESSION['myuser_password'] = md5($password);
 
-    if (is_logged()) {
+    if (check_login()) {
 	unset($_SESSION['user_temp_name']);
 	$uri = $_SERVER['REQUEST_URI'];
 	header("Location: $uri", true, 301);
@@ -56,6 +58,11 @@ function user_login($name, $password)
     }
 
     // can't login
+}
+
+function is_logged()
+{
+    return is_session('myuser_name');
 }
 
 function is_forum_admin() {

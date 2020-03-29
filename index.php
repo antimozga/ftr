@@ -51,7 +51,6 @@ $debug = false;
 require_once('config.php');
 require_once('config_user.php');
 
-
 include('funcs.php');
 include('header.php');
 include('footer.php');
@@ -126,7 +125,7 @@ function show_menu($database) {
 <div><a href="./">Горячее</a></div>
 <div class="sep"><div></div></div>
 <div><a href="./?s=1">Топ</a></div>';
-    if (is_session('myuser_name')) {
+    if (is_logged()) {
 	echo '<div class="sep"><div></div></div>
 <div><a href="./?m=1">Избранное</a></div>';
 	echo '<div class="sep"><div></div></div>
@@ -415,7 +414,7 @@ if (!$database) {
 	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR);";
     $database->exec($query);
 
-    is_logged();
+    check_login();
 
     {
 	$ctrlink = "";
@@ -1341,7 +1340,7 @@ if (!$database) {
 		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		}
 
-//		if (is_session('myuser_name')) {
+//		if (is_logged()) {
 		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 60 * 1) {
 //			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
 			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
