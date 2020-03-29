@@ -439,6 +439,15 @@ if (!$database) {
 	$show_mytopics = 0;
 	$show_banlist = 0;
 
+	$user_name = '';
+	$user_name_warning = '';
+	$user_password_warning = '';
+	$user_email_warning = '';
+	$user_email = '';
+	$user_fio = '';
+	$user_gender = '';
+	$user_description = '';
+
 	if (is_defined('unban')) {
 	    $session_id = addslashes($_REQUEST['unban']);
 	    if (is_session('banlist')) {
@@ -797,8 +806,6 @@ if (!$database) {
 		    }
 		}
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
-		$user_password_warning = '';
-		$user_email_warning = '';
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);
 		$user_password		= convert_string($_REQUEST["user"]["user_password"]);
 		$user_password_confirm	= convert_string($_REQUEST["user"]["user_password_confirm"]);
