@@ -6,8 +6,9 @@ function microtime_float()
     return ((float)$usec + (float)$sec);
 }
 
-setcookie ('PHPSESSID', $_COOKIE['PHPSESSID'], time() + 60 * 60 * 24 * 7, '/');
 session_start();
+
+setcookie ('PHPSESSID', session_id(), time() + 60 * 60 * 24 * 7, '/');
 
 if (isset($_SESSION['ajsner'])) {
     if ($_SESSION['ajsner'] > 100) {
@@ -21,7 +22,11 @@ if (isset($_SESSION['ajsner'])) {
 
 $time_now = microtime_float();
 
-$time_diff = $time_now - $_SESSION['lkasdas'];
+$time_diff = 0;
+
+if (isset($_SESSION['lkasdas'])) {
+    $time_diff = $time_now - $_SESSION['lkasdas'];
+}
 
 //error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
 //error_log("time diff ".$time_diff);
