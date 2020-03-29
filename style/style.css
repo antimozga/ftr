@@ -190,8 +190,9 @@ label.upload_file {
 	border: 2px solid #727478;
 }
 
-.block_menu_m{
-	padding-top: 8px;
+.block_menu_m {
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
 
 .menu {
@@ -314,7 +315,7 @@ label.upload_file {
 .group_sel {
 	display: block;
 	float: right;
-	padding: 0px 5px 3px 0px;
+	padding: 5px 5px 5px 0px;
 }
 
 .group_sel select, .group_sel option {

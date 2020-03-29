@@ -116,7 +116,7 @@ function show_menu($database) {
     }
 
     echo '</select>
-<input class="btn_group_sel" type="submit" value="&nbsp;" />
+<!-- <input class="btn_group_sel" type="submit" value="&nbsp;" /> -->
 </form>
 <div class="menu">
 <div><a href="./?g=0">Группы</a></div>
