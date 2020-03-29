@@ -242,6 +242,10 @@ label.upload_file {
 	background: #999;
 }
 
+.menu svg {
+	fill: #1a1a1a;
+}
+
 .menu .mobicon {
 	display: none;
 }
@@ -278,6 +282,10 @@ label.upload_file {
 	    display: block;
 	    float: right;
 	    font-size: 15px;
+	}
+
+	.block_menu_m .menu .sep {
+	    margin: 0;
 	}
 }
 

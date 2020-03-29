@@ -127,9 +127,15 @@ function show_menu($database) {
     if (is_session('myuser_name')) {
 	echo '<div class="sep"><div></div></div>
 <div><a href="./?m=1">Избранное</a></div>';
+	echo '<div class="sep"><div></div></div>
+<div><a href="./?o=1">Моё</a></div>';
     }
-    echo '<div class="sep"><div></div></div>
-    <div><a href="#" onclick="load_modal(\'searchtopic.php\'); return false;">Поиск</a></div>
+echo '<div><a style="float:right;" href="#" onclick="load_modal(\'searchtopic.php\'); return false;">
+<svg viewBox="0 0 20 20" width="16px">
+<title>Поиск по темам</title>
+<path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
+</svg>
+</a></div>
 </div></div>';
 
 //<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
@@ -424,6 +430,7 @@ if (!$database) {
 	$show_users = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
 	$show_mylist = 0;
+	$show_mythemes = 0;
 	$show_banlist = 0;
 
 	if (is_defined('unban')) {
@@ -622,6 +629,10 @@ if (!$database) {
 	    if (is_defined("m")) {
 		$show_mylist = 1;
 		$topic = "МОИ ИЗБРАННЫЕ ТЕМЫ";
+	    }
+	    if (is_defined("o")) {
+		$show_mythemes = 1;
+		$topic = "МОИ ТЕМЫ";
 	    }
 
 	    $nav_path = $topic;
@@ -1136,6 +1147,7 @@ if (!$database) {
 				    " AND ForumUsers.id = ForumTopics.id_user".
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
+		} else if ($show_mythemes) {
 		} else {
 		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user";
 		}
@@ -1180,6 +1192,16 @@ if (!$database) {
 				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
 				    " AND ForumUsers.id = ForumTopics.id_user".
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
+				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
+		} else if ($show_mythemes) {
+		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
+				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
+				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
+				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
+				    " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
+				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
+				    " AND ForumUsers.id = ForumTopics.id_user".
+				    " AND ForumTopics.id_user = $id_user".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		} elseif ($show_hot == 0) {
 		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";

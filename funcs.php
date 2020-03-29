@@ -60,7 +60,7 @@ function user_login($name, $password)
 
 function is_forum_admin() {
     global $FORUM_ADMIN;
-    if (isset($_SESSION['myuser_name'])) {
+    if (is_logged()) {
 	if ($_SESSION['myuser_name'] == $FORUM_ADMIN) {
 	    return true;
 	}
