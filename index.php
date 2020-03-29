@@ -430,7 +430,7 @@ if (!$database) {
 	$show_users = 0;
 	$show_trash_topics = $SHOW_TRASH_TOPICS;
 	$show_mylist = 0;
-	$show_mythemes = 0;
+	$show_mytopics = 0;
 	$show_banlist = 0;
 
 	if (is_defined('unban')) {
@@ -631,7 +631,7 @@ if (!$database) {
 		$topic = "МОИ ИЗБРАННЫЕ ТЕМЫ";
 	    }
 	    if (is_defined("o")) {
-		$show_mythemes = 1;
+		$show_mytopics = 1;
 		$topic = "МОИ ТЕМЫ";
 	    }
 
@@ -1137,17 +1137,10 @@ if (!$database) {
 
 		$view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 	    } else {
-		if ($show_mylist != 0) {
-		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
-				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
-				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
-				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
-				    " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups, ForumUserLike".
-				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
-				    " AND ForumUsers.id = ForumTopics.id_user".
-				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
-				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
-		} else if ($show_mythemes) {
+		if ($show_mylist) {
+		    $base_query = "$base_query AND ForumUsers.id = ForumTopics.id_user AND ForumTopics.id IN (SELECT id_like FROM ForumUserLike WHERE id_user = \"$id_user\")";
+		    $count_query = "$count_query AND ForumTopics.id IN (SELECT id_like FROM ForumUserLike WHERE id_user = \"$id_user\")";
+		} else if ($show_mytopics) {
 		    $base_query = "$base_query AND ForumUsers.id = ForumTopics.id_user AND ForumTopics.id_user = $id_user";
 		    $count_query = "$count_query AND ForumTopics.id_user = $id_user";
 		} else {
@@ -1180,7 +1173,7 @@ if (!$database) {
 		    $pprefix = '?s=1&';
 		} else if ($show_mylist) {
 		    $pprefix = '?m=1&';
-		} else if ($show_mythemes) {
+		} else if ($show_mytopics) {
 		    $pprefix = '?o=1&';
 		}
 
@@ -1195,16 +1188,8 @@ if (!$database) {
 		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
 
 		if ($show_mylist != 0) {
-		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
-				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
-				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
-				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
-				    " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups, ForumUserLike".
-				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
-				    " AND ForumUsers.id = ForumTopics.id_user".
-				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
-				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
-		} else if ($show_mythemes) {
+		    $view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
+		} else if ($show_mytopics) {
 		    $view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		} elseif ($show_hot == 0) {
 		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
