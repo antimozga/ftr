@@ -125,11 +125,11 @@ function show_menu($database) {
     echo '</select>
 </form>
 <div class="menu">
-<div><a href="./?g=0">Группы</a></div>
+<div><a href="./?g=0">Группы<span class="view-desk"> тем</span></a></div>
 <div class="sep"><div></div></div>
 <div><a href="./">Горячее</a></div>
 <div class="sep"><div></div></div>
-<div><a href="./?s=1">Топ</a></div>';
+<div><a href="./?s=1">Топ<span class="view-desk"> общения</span></a></div>';
     if (is_logged()) {
 	echo '<div class="sep"><div></div></div>
 <div><a href="./?m=1">Избранное</a></div>';

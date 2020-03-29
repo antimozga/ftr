@@ -186,13 +186,8 @@ label.upload_file {
 	margin-left: auto;
 	margin-right: auto;
 	background: #C3C5C8 url(../images/top_bg.png) repeat-x bottom; 
-	padding: 8px 5px 0px 5px;
+	padding: 4px 5px 4px 5px;
 	border: 2px solid #727478;
-}
-
-.block_menu_m {
-	padding-top: 4px;
-	padding-bottom: 4px;
 }
 
 .menu {
@@ -309,6 +304,12 @@ label.upload_file {
 		position: absolute;
 		right: 0;
 		top: 0;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.menu a, .menu a:hover, .menu a:visited {
+	    padding: 5px 5px;
 	}
 }
 
