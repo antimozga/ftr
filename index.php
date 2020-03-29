@@ -322,7 +322,6 @@ fombj = document.getElementById("formMessage");
 //-->
 </script>
 
-<script src="js/emojiPicker.js"></script>
 <script>
     (() => {
       new EmojiPicker(document.getElementById(\'mess_text\'), document.getElementById(\'mess_emo\'))

@@ -30,6 +30,7 @@ include_once ("style/highslide.css");
 <?php
 include_once ("js/highslide.packed.js");
 include_once ("js/scripts.js");
+include_once ("js/emojiPicker.js");
 ?>
 
 hs.registerOverlay({
