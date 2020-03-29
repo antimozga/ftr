@@ -220,11 +220,9 @@ label.upload_file {
 	float: left;
 }
 
-.menu a.name_m, .menu a.name_m:hover, .menu a.name_m:visited {
-	color: #FF5000;
-	font-size: 12px;
+.menu a.session_ctl, .menu a.session_ctl:hover, .menu a.session_ctl:visited {
+	color: #FF7000;
 	font-weight: bold;
-	text-decoration: none;
 }
 
 .menu a:hover {

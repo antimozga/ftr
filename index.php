@@ -76,7 +76,7 @@ function start_page($title) {
     } else {
 	$pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
 	$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
-	echo '<a href="?reg=3" style="font-weight:bold;">'.$_SESSION['myuser_name'].'</a>
+	echo '<a href="?reg=3" class="session_ctl">'.$_SESSION['myuser_name'].'</a>
 	<div class="sep"><div></div></div>
 	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>';
     }
@@ -95,7 +95,7 @@ function start_page($title) {
 	}
 
 	echo '<div class="sep"><div></div></div>
-	<a href="'.$logout_uri.'" style="font-weight:bold;">Выход</a>';
+	<a href="'.$logout_uri.'" class="session_ctl">Выход</a>';
 
     }
 
