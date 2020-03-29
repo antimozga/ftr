@@ -797,6 +797,8 @@ if (!$database) {
 		    }
 		}
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
+		$user_password_warning = '';
+		$user_email_warning = '';
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);
 		$user_password		= convert_string($_REQUEST["user"]["user_password"]);
 		$user_password_confirm	= convert_string($_REQUEST["user"]["user_password_confirm"]);
@@ -920,14 +922,22 @@ if (!$database) {
 	    } else {
 		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
 	    }
-	    $g = array(1 => 'Не имеет значения', 2 => 'Мужской', 3 => 'Женский', 4 => 'Средний');
+
+	    $g = array(0 => 'Не указан', 1 => 'Не имеет значения', 2 => 'Мужской', 3 => 'Женский', 4 => 'Средний');
+
 	    foreach ($database->query($view_query) as $row) {
 		if ($row['id'] == 0) {
 		    continue;
 		}
+
+		$gender_id = 0;
+		if (is_numeric($row['gender'])) {
+		    $gender_id = $row['gender'];
+		}
+
 		echo '<tr>';
 		echo '<td>'.format_user_nick($row['login'], $row['id'], $row['login'], $row['id']).'</td>';
-		echo '<td class="tdw1">'.$g[$row['gender']].'</td>';
+		echo '<td class="tdw1">'.$g[$gender_id].'</td>';
 		$avatar = $UPLOAD_DIR."/small-id".$row['id'].".jpg";
 		if (file_exists($avatar)) {
 		    echo '<td class="tdw2">'.'ЕСТЬ'.'</td>';
