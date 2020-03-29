@@ -436,6 +436,14 @@ label.upload_file {
 	text-align: center;
 }
 
+.prev a, .next a, .up_down a {
+	color: #33CCFF;
+}
+
+.prev a:visited, .next a:visited, .up_down a:visited {
+	color: #33CCFF;
+}
+
 .white1 {
 	word-break: break-all;
 }
@@ -678,8 +686,8 @@ label.upload_file {
 
 .text_box_2 div.text_box_2_mess {
 	color: #FAFAF0;
-	font-size: 12px;
-/*	line-height: 110%; */
+	font-size: 13px;
+	line-height: 110%;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	padding-bottom: 10px;
 	overflow: auto;

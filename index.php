@@ -356,14 +356,14 @@ function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic
 	&nbsp;из '.$pages.'
     </form>';
     if ($pagenext != "") {
-	echo '<span class="prev"><a href="'.$pagenext.'">»</a></span>';
+	echo '<span class="prev"><a href="'.$pagenext.'"><span class="no-mob-view">Назад </span>»</a></span>';
     } else {
-	echo '<span class="prev">»</span>';
+	echo '<span class="prev"><span class="no-mob-view">Назад </span>»</span>';
     }
     if ($pageprev != "") {
-	echo '<span class="next"><a href="'.$pageprev.'">«</a></span>';
+	echo '<span class="next"><a href="'.$pageprev.'">«<span class="no-mob-view"> Вперед</span></a></span>';
     } else {
-	echo '<span class="next">«</span>';
+	echo '<span class="next">«<span class="no-mob-view"> Вперед</span></span>';
     }
     if ($type == 'down') {
 	echo '<a name="ftop"></a><span class="up_down">';
