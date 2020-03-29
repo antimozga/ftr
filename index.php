@@ -57,46 +57,49 @@ include('header.php');
 include('footer.php');
 
 function start_page($title) {
-global $FORUM_RULES_LINK;
-global $database;
+    global $FORUM_RULES_LINK;
+    global $database;
 
-show_header($title);
-echo 
+    show_header($title);
+    echo
 '<div class="block_menu">
     <div class="menu" id="mobMenu">';
 
-$group_edit = "";
-if(!is_session('myuser_name')) {
-    echo '<a href="" onclick="load_modal(\'login.php\'); return false;">Вход</a>
+    if (!is_logged()) {
+	echo '<a href="" onclick="load_modal(\'login.php\'); return false;">Вход</a>
 	<div class="sep"><div></div></div>
 	<a href="?reg=1">Регистрация</a>';
-} else {
-    $logout_uri = $_SERVER['REQUEST_URI'];
-    if ($logout_uri === '/') {
-	$logout_uri = '?logout';
     } else {
-	$logout_uri = $logout_uri.'&logout';
+	$pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
+	$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
+	echo '<a href="?reg=3" style="font-weight:bold;">'.$_SESSION['myuser_name'].'</a>
+	<div class="sep"><div></div></div>
+	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>';
     }
 
-    $pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
-    $pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
-    echo '<a class="name_m" href="'.$logout_uri.'">'.$_SESSION['myuser_name'].' Выход</a>
-	<div class="sep"><div></div></div>
-	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>
-	<div class="sep"><div></div></div>
-	<a href="?reg=3">Настройки</a>';
-    if (is_forum_admin()) {
-	$group_edit = '<div class="sep"><div></div></div><a href="groups.php">Редактор групп тем</a>';
-    }
-}
-
-echo '<div class="sep"><div></div></div>
+    echo '<div class="sep"><div></div></div>
 	<a href="?users">Пользователи</a><a href="./?banlist">(Скрытые)</a>
 	<div class="sep"><div></div></div>
-	<a href="'.$FORUM_RULES_LINK.'">Правила</a>'
-.$group_edit.
-'<!--	<div><a href="contacts.php">Контакты</a></div> -->
-	<a href="javascript:void(0);" class="mobicon" onclick="mobileMenu(\'mobMenu\',\'menu\')">&#9776;</a>
+	<a href="'.$FORUM_RULES_LINK.'">Правила</a>';
+
+    if (is_logged()) {
+	$logout_uri = $_SERVER['REQUEST_URI'];
+	if ($logout_uri === '/') {
+	    $logout_uri = '?logout';
+	} else {
+	    $logout_uri = $logout_uri.'&logout';
+	}
+
+	echo '<div class="sep"><div></div></div>
+	<a href="'.$logout_uri.'" style="font-weight:bold;">Выход</a>';
+
+    }
+
+    if (is_forum_admin()) {
+	echo '<div class="sep"><div></div></div><a href="groups.php">Редактор групп тем</a>';
+    }
+
+    echo '<a href="javascript:void(0);" class="mobicon" onclick="mobileMenu(\'mobMenu\',\'menu\')">&#9776;</a>
     </div>
 </div>';
 
@@ -116,7 +119,6 @@ function show_menu($database) {
     }
 
     echo '</select>
-<!-- <input class="btn_group_sel" type="submit" value="&nbsp;" /> -->
 </form>
 <div class="menu">
 <div><a href="./?g=0">Группы</a></div>
