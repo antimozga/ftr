@@ -84,7 +84,7 @@ class EmojiPicker {
 	emojiTrigger.style.right = "2px";
 	emojiTrigger.style.textDecoration = "none";
     } else {
-	emojiTrigger.style.float = "right";
+	emojiTrigger.style.float = "left";
     }
     emojiTrigger.setAttribute("href", "javascript:void(0)");
     emojiTrigger.setAttribute("class", "for3");

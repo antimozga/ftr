@@ -280,9 +280,10 @@ echo '    return false;
 			<div class="format">
 				<div id="web"></div>
 				<span id="mess_emo">
-					<a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2"><span class="view-desk">Курсив</span><span class="view-mob">К</span></a>&nbsp;-&nbsp;
+					&nbsp;-&nbsp;
 					<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3"><span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>&nbsp;-&nbsp;
+					<a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>&nbsp;-&nbsp;
+					<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2"><span class="view-desk">Курсив</span><span class="view-mob">К</span></a>
 				</span>
 			</div>
 
