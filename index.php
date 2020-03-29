@@ -1148,6 +1148,8 @@ if (!$database) {
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		} else if ($show_mythemes) {
+		    $base_query = "$base_query AND ForumUsers.id = ForumTopics.id_user AND ForumTopics.id_user = $id_user";
+		    $count_query = "$count_query AND ForumTopics.id_user = $id_user";
 		} else {
 		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user";
 		}
@@ -1173,12 +1175,21 @@ if (!$database) {
 
 		$posts = $database->query($count_query)->fetchColumn();
 
+		$pprefix = '?';
+		if ($show_hot) {
+		    $pprefix = '?s=1&';
+		} else if ($show_mylist) {
+		    $pprefix = '?m=1&';
+		} else if ($show_mythemes) {
+		    $pprefix = '?o=1&';
+		}
+
 		$numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
 		if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
-		    $pnext = "?p=".($page + 1);
+		    $pnext = $pprefix.'p='.($page + 1);
 		}
 		if ($page > 1) {
-		    $pprev = "?p=".($page - 1);
+		    $pprev = $pprefix.'p='.($page - 1);
 		}
 
 		show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext);
@@ -1194,15 +1205,7 @@ if (!$database) {
 				    " AND ForumTopics.id = ForumUserLike.id_like AND ForumUserLike.id_user = $id_user AND ForumUserLike.type = 0 ".
 				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
 		} else if ($show_mythemes) {
-		    $view_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
-				    " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts,".
-				    " ForumPosts.time AS time, ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic,".
-				    " ForumPosts.nick AS last_nick, ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
-				    " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
-				    " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
-				    " AND ForumUsers.id = ForumTopics.id_user".
-				    " AND ForumTopics.id_user = $id_user".
-				    " GROUP BY id_topic ORDER BY ForumPosts.time DESC;";
+		    $view_query = "$base_query GROUP BY id_topic ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		} elseif ($show_hot == 0) {
 		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		} else {
