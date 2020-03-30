@@ -85,11 +85,16 @@ echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_i
 
 echo '
 <div class="dialog_answer_box">
-    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" id="pager_message_form" onsubmit="pager_post_submit(event, this)">
+    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" onsubmit="pager_post_submit(event, this)">
     <input type="hidden" name="event" value="forumpagercreatemess"/>
     <textarea maxlength="4096" class="area_dialog_text" name="pagermess[content]" id="dialog_mess" autofocus></textarea>
-    <input type="hidden" name="pagermess[encrypted]" id="dialog_mess_enc" value="0">
+    <input type="hidden" name="pagermess[encrypted]" value="0">
     <input type="submit" class="btn_dialog" value="Отправить" '.$encrypt_send.'>
+    </form>
+    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" id="pager_message_form" style="display:none;">
+    <input type="hidden" name="event" value="forumpagercreatemess"/>
+    <textarea maxlength="4096" class="area_dialog_text" name="pagermess[content]" id="dialog_mess2" autofocus></textarea>
+    <input type="hidden" name="pagermess[encrypted]" value="1">
     </form>
 </div>
 ';

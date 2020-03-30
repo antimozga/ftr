@@ -1046,7 +1046,6 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	if ($reg_mode == 3) {
 
 	    echo'
-	<script>const userName="'.$user_name.'";</script>
 	<script src="js/pgphelp.js"></script>
 	<a name="pager"></a>
 	<h3>Настройка пейджера</h3>

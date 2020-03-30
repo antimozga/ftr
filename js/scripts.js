@@ -474,9 +474,9 @@ function pgpSendMessage()
     publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
     publicKeyArmored2 = document.getElementById('pubkey2').value;;
 
-    console.log(message);
-    console.log(publicKeyArmored1);
-    console.log(publicKeyArmored2);
+    console.log("mess " + message);
+    console.log("key1 " + publicKeyArmored1);
+    console.log("key2 " + publicKeyArmored2);
 
     const publicKeysArmored = [
 	    publicKeyArmored1,
@@ -494,8 +494,7 @@ function pgpSendMessage()
 //		privateKeys: [privateKey]                                           // for signing (optional)
 	});
 
-	document.getElementById('dialog_mess').value = encrypted;
-	document.getElementById('dialog_mess_enc').value = 1;
+	document.getElementById('dialog_mess2').value = encrypted;
 
 	console.log(encrypted);
 
