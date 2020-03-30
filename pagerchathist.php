@@ -46,7 +46,7 @@ if (!$database) {
 		$encrypted = 0;
 	    }
 
-	    if ($encrypted !== 0) {
+	    if ($encrypted != 0) {
 		$post = stripslashes($row['post']);
 		$login = $login.'&#x1f512;';
 	    } else {
