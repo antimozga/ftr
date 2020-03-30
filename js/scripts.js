@@ -446,6 +446,66 @@ function page_updater_stop() {
     clearInterval(page_timer);
 }
 
+/*****************************************************************************
+ * load openpgp
+ *****************************************************************************/
+
+var openpgp_loaded = false;
+
+function openpgpLoad()
+{
+    if (!openpgp_loaded) {
+	var newScript = document.createElement('script');
+	newScript.type = 'text/javascript';
+	newScript.src = 'js/openpgp.min.js';
+
+	document.body.appendChild(newScript);
+	openpgp_loaded = true;
+    }
+}
+
+function pgpSendMessage()
+{
+//    openpgpLoad();
+
+    console.log("pgpSendMessage!");
+
+    message = document.getElementById('dialog_mess').value;
+    publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
+    publicKeyArmored2 = document.getElementById('pubkey2').value;;
+
+    console.log(message);
+    console.log(publicKeyArmored1);
+    console.log(publicKeyArmored2);
+
+    const publicKeysArmored = [
+	    publicKeyArmored1,
+	    publicKeyArmored2
+	];
+
+    (async () => {
+	const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
+	    return (await openpgp.key.readArmored(key)).keys[0];
+	}));
+
+	const { data: encrypted } = await openpgp.encrypt({
+	    message: openpgp.message.fromText(message),
+	    publicKeys,
+//		privateKeys: [privateKey]                                           // for signing (optional)
+	});
+
+	document.getElementById('dialog_mess').value = encrypted;
+	document.getElementById('dialog_mess_enc').value = 1;
+
+	console.log(encrypted);
+
+//	document.getElementById("pager_message_form").submit();
+	pager_post_submit(event, document.getElementById("pager_message_form"));
+    })();
+
+    return false;
+}
+
 /*
  *
  */

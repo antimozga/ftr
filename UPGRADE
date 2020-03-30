@@ -1,0 +1,5 @@
+Upgrade to encrypted chat:
+
+ALTER TABLE ForumUsers ADD COLUMN pubkey NVARCHAR;
+ALTER TABLE ForumPager ADD COLUMN encrypted INTEGER;
+

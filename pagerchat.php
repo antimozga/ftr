@@ -29,10 +29,16 @@ if (!$database) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumpagercreatemess") {
 		$tim = time();
-		$post = convert_text($_REQUEST["pagermess"]["content"]);
+		$encrypted = $_REQUEST["pagermess"]["encrypted"];
+		$encrypted = ($encrypted * 10) / 10;
+		if ($encrypted != 0) {
+		    $post = addslashes($_REQUEST["pagermess"]["content"]);
+		} else {
+		    $post = convert_text($_REQUEST["pagermess"]["content"]);
+		}
 		if ($post != "") {
-		    $user_query = "INSERT INTO ForumPager (id_user, id_from_user, new, time, post) ".
-				  "VALUES($to_id, $myuser_id, 1, $tim, '$post');";
+		    $user_query = "INSERT INTO ForumPager (id_user, id_from_user, new, time, post, encrypted) ".
+				  "VALUES($to_id, $myuser_id, 1, $tim, '$post', $encrypted);";
 		    $database->exec($user_query);
 		}
 		exit;
@@ -51,6 +57,7 @@ echo '<div class="modal-content-window pagerchat_window">
     }
 
     $encrypted_chat = '';
+    $encrypt_send = '';
 
     if ($to_user['pubkey'] != '') {
 	if ($_SESSION['myuser_pubkey'] != '') {
@@ -58,6 +65,8 @@ echo '<div class="modal-content-window pagerchat_window">
 <title>Переписка защищена шифрованием</title>
 <path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
 </svg>';
+	    $encrypt_send = 'onclick="return pgpSendMessage();"';
+	    echo '<textarea style="display:none;" id="pubkey2">'.$to_user['pubkey'].'</textarea>';
 	} else {
 	    $encrypted_chat = '<a href="?reg=3#pager"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Настройте ключ для защищенной переписки</title>
@@ -76,10 +85,11 @@ echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_i
 
 echo '
 <div class="dialog_answer_box">
-    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" onsubmit="pager_post_submit(event, this)">
+    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" id="pager_message_form" onsubmit="pager_post_submit(event, this)">
     <input type="hidden" name="event" value="forumpagercreatemess"/>
     <textarea maxlength="4096" class="area_dialog_text" name="pagermess[content]" id="dialog_mess" autofocus></textarea>
-    <input type="submit" class="btn_dialog" value="Отправить">
+    <input type="hidden" name="pagermess[encrypted]" id="dialog_mess_enc" value="0">
+    <input type="submit" class="btn_dialog" value="Отправить" '.$encrypt_send.'>
     </form>
 </div>
 ';

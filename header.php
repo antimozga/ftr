@@ -26,6 +26,7 @@ include_once ("style/highslide.css");
 <title><?php echo $FORUM_TITLE; ?> - <?php echo $title; ?></title>
 <!-- <script type="text/javascript" src="js/highslide.packed.js"></script> -->
 <!-- <script type="text/javascript" src="js/scripts.js"></script> -->
+<script type="text/javascript" src="js/openpgp.min.js"></script>
 <script>
 <?php
 include_once ("js/highslide.packed.js");

@@ -416,7 +416,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumPager " .
-	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR);";
+	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR, encrypted INTEGER);";
     $database->exec($query);
 
     check_login();
@@ -874,6 +874,9 @@ if (!$database) {
 	}
 
 	start_page($topic);
+	if (is_logged()) {
+echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
+	}
 	show_banner();
 	show_menu($database);
 	show_nav_path($nav_path, $ctrlink);
@@ -1043,7 +1046,6 @@ if (!$database) {
 	if ($reg_mode == 3) {
 
 	    echo'
-	<script src="js/openpgp.min.js"></script>
 	<script>const userName="'.$user_name.'";</script>
 	<script src="js/pgphelp.js"></script>
 	<a name="pager"></a>

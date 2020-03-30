@@ -149,6 +149,8 @@ function pgpRegInit()
 {
     console.log("pgpRegInit!");
 
+//    openpgpLoad();
+
     document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
     document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
     document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
