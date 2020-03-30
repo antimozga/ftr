@@ -409,7 +409,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumUsers " .
-	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER);";
+	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER, pubkey NVARCHAR);";
     $database->exec($query);
 
     $query = "REPLACE INTO ForumUsers (id, login) VALUES (0, 'Анонимно');";
@@ -447,6 +447,7 @@ if (!$database) {
 	$user_fio = '';
 	$user_gender = '';
 	$user_description = '';
+	$user_pubkey = '';
 
 	if (is_defined('unban')) {
 	    $session_id = addslashes($_REQUEST['unban']);
@@ -813,6 +814,7 @@ if (!$database) {
 		$user_fio		= convert_string($_REQUEST["user"]["user_fio"]);
 		$user_gender		= convert_string($_REQUEST["user"]["user_gender"]);
 		$user_description	= convert_text($_REQUEST["user"]["description"]);
+		$user_pubkey		= addslashes($_REQUEST["user"]["pubkey"]);
 		if ($user_name == "") {
 		    $user_name_warning = '<div class="error">Имя пользователя не может быть пустым.</div>';
 		} else if ($user_password == "") {
@@ -826,7 +828,7 @@ if (!$database) {
 		} else if ($user_email == "") {
 		    $user_email_warning = '<div class="error">E-mail не может быть пустым.</div>';
 		} else if ($cmd == "updateuser") {
-			$query = "UPDATE ForumUsers SET login = '$user_name', password = '$user_password', email = '$user_email', fio = '$user_fio', gender = '$user_gender', description = '$user_description' WHERE id = $id_user;";
+			$query = "UPDATE ForumUsers SET login = '$user_name', password = '$user_password', email = '$user_email', fio = '$user_fio', gender = '$user_gender', description = '$user_description', pubkey = '$user_pubkey' WHERE id = $id_user;";
 			$database->exec($query);
 			$reg_mode = 4;
 		} else {
@@ -976,7 +978,7 @@ if (!$database) {
 	<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
 		';
 	    } else {
-		$user_query = "SELECT login, password, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
+		$user_query = "SELECT login, password, email, fio, gender, description, last_login, pubkey FROM ForumUsers WHERE id = $id_user;";
 		foreach ($database->query($user_query) as $row) {
 		    $user_name = $row['login'];
 		    $user_password = $row['password'];
@@ -984,12 +986,13 @@ if (!$database) {
 		    $user_fio = $row['fio'];
 		    $user_gender = $row['gender'];
 		    $user_description = reconvert_text($row['description']);
+		    $user_pubkey = stripslashes($row['pubkey']);
 		}
 
 		echo '
 		<h3>Настройки пользователя</h3>
 		<h4>Изменение личных настроек пользователя.</h4>
-	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
+	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data" id="regeditform">
 	<input type="hidden" name="event" value="updateuser">
 	<label for="login">* Имя пользователя </label>
 	<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'" readonly="readonly">
@@ -1026,6 +1029,7 @@ if (!$database) {
 	<input type="hidden" name="MAX_FILE_SIZE" value="500000">
 	<label for="image">Аватар:</label><input name="image" type="file">
 	<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
+	<textarea name="user[pubkey]" id="pubkey" style="display:none;"></textarea>
 	<div class="line2"><div></div></div>
 	<div class="box_small_text">Если вся информация верна - нажмите кнопку (достаточно одного раза):</div>';
 	    if ($reg_mode == 1) {
@@ -1054,13 +1058,10 @@ if (!$database) {
 	<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
 	<input type="text" class="inp_text_reg" id="passphrase" value="">
 	<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
-	<form action="" method="post" class="form_reg" name="pagerkey" enctype="multipart/form-data">
-	    <input type="hidden" name="event" value="pagerpubkey">
-	    <label for="pubkey">Открытый PGP ключ</label>
-	    <textarea readonly id="pubkey" class="area_text_reg"></textarea>
-	    <input type="hidden" name="pubkey">
-	    <input type="submit" class="btn_reg" value="Задать ключ" onclick="return pgpRegSetKey();">
-	</form>';
+	<div class="btn_reg_key">
+	    <button type="button" class="btn_reg_left"  onclick="return pgpRegSetKey();">Задать ключ</button>
+	    <button type="button" class="btn_reg_right" onclick="return pgpRegResetKey();">Убрать ключ</button>
+	</div>';
 	}
 
 	echo '

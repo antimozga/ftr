@@ -9,6 +9,10 @@ function pgpRegError(err)
 		document.getElementById('pgpregerror').innerHTML = 'Проверьте формат записи электронной почты!';
 		document.getElementById('lbpassphrase').innerHTML = '';
 		document.getElementById('lbprivkey').innerHTML = '';
+	    } else if (err.message === 'Key packet is already decrypted.') {
+		document.getElementById('pgpregerror').innerHTML = 'Ключ уже установлен!';
+		document.getElementById('lbpassphrase').innerHTML = '';
+		document.getElementById('lbprivkey').innerHTML = '';
 	    } else {
 		document.getElementById('lbpassphrase').innerHTML = '';
 		document.getElementById('lbprivkey').innerHTML = ' - Неправильный ключ!';
@@ -88,6 +92,8 @@ function pgpRegSetKey() {
 		document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
 
 		pgpRegError(null);
+
+		document.getElementById("regeditform").submit();
 	    } catch (err) {
 		pgpRegError(err);
 	    }
@@ -103,16 +109,38 @@ function pgpRegSetKey() {
 		console.log(publicKeyArmored);
 
 		document.getElementById('pubkey').value = publicKeyArmored;
-		pgpRegError(null);
 
 		localStorage.setItem(userName + '.passphrase', passPhrase);
 		localStorage.setItem(userName + '.privkey', privateKeyArmored);
 		localStorage.setItem(userName + '.pubkey', publicKeyArmored);
+
+		pgpRegError(null);
+
+		document.getElementById("regeditform").submit();
 	    } catch(err) {
 		pgpRegError(err);
 	    }
 	})();
     }
+
+    return false;
+}
+
+function pgpRegResetKey()
+{
+    localStorage.removeItem(userName + '.passphrase');
+    localStorage.removeItem(userName + '.privkey');
+    localStorage.removeItem(userName + '.pubkey');
+
+    document.getElementById('pubkey').value = '';
+
+    document.getElementById('passphrase').value = '';
+    document.getElementById('privkey').value = '';
+    document.getElementById('pubkey').value = '';
+
+    pgpRegError(null);
+
+    document.getElementById("regeditform").submit();
 
     return false;
 }
@@ -124,4 +152,10 @@ function pgpRegInit()
     document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
     document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
     document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
+
+    if (document.getElementById('pubkey').value != '') {
+	document.getElementById('privkey').readOnly = true;
+	document.getElementById('passphrase').readOnly = true;
+    }
+    console.log(document.getElementById('pubkey').value);
 }

@@ -935,8 +935,8 @@ label.l_inp_text_name span {
 	height: 90px;
 }
 
-.btn_reg, .btn_dialog {
-	width: 220px;
+.btn_reg, .btn_dialog, .btn_reg_left, .btn_reg_right {
+/*	width: 220px; */
 	height: 19px;
 	border: 0px;
 	background: url(../images/btn_bg.png) repeat-x center;
@@ -945,6 +945,19 @@ label.l_inp_text_name span {
 	font-size: 11px;
 	text-align: center;
 	padding-bottom: 2px;
+}
+
+.btn_reg_left {
+	float: left;
+}
+
+.btn_reg_right {
+	float: right;
+}
+
+.btn_reg_key {
+	height: 20px;
+	width: 100%;
 }
 
 @media screen and (max-width: 600px) {
