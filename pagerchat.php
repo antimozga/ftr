@@ -99,7 +99,7 @@ echo '
 </div>
 ';
 
-echo '<div class="autorefresh refreshnow" src="pagerchathist.php/?to='.$to_id.'"></div>';
+echo '<div class="autorefresh refreshnow" src="pagerchathist.php/?to='.$to_id.'" exec="pgpDecryptMessages"></div>';
 echo '</div>';
     }
 } else {

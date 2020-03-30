@@ -412,32 +412,35 @@ function pager_post_submit(e, form)
 var page_timer;
 
 async function page_fetch(url, el) {
-	fetch(url).then(function(response) {
-	    return response.text().then(function(text) {
-//		const el = element;
-		el.innerHTML = text;
-		page_updater_onload(el);
-	    });
+//    var url = el.getAttribute("src");
+
+    fetch(url).then(function(response) {
+	return response.text().then(function(text) {
+	    exec = el.getAttribute("exec");
+	    el.innerHTML = text;
+	    page_updater_onload(el);
+	    if (exec != null) {
+		window[exec](el);
+	    }
 	});
+    });
 }
 
 function page_updater_onload(doc) {
     var elements;
     while ((elements = doc.getElementsByClassName("refreshnow")).length > 0) {
-	var url = elements[0].getAttribute("src");
 	var element = elements[0];
+	var url = elements[0].getAttribute("src");
 	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
 	page_fetch(url, element);
     }
 }
 
 function page_updater() {
-//    console.log("page_updater");
     var elements = document.getElementsByClassName("autorefresh");
-    var names = '';
     for(var i = 0; i < elements.length; i++) {
-	var url = elements[i].getAttribute("src");
 	var element = elements[i];
+	var url = elements[i].getAttribute("src");
 	page_fetch(url, element);
     }
 }
@@ -468,15 +471,13 @@ function pgpSendMessage()
 {
 //    openpgpLoad();
 
-    console.log("pgpSendMessage!");
-
     message = document.getElementById('dialog_mess').value;
     publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
     publicKeyArmored2 = document.getElementById('pubkey2').value;;
 
-    console.log("mess " + message);
-    console.log("key1 " + publicKeyArmored1);
-    console.log("key2 " + publicKeyArmored2);
+//    console.log("mess " + message);
+//    console.log("key1 " + publicKeyArmored1);
+//    console.log("key2 " + publicKeyArmored2);
 
     const publicKeysArmored = [
 	    publicKeyArmored1,
@@ -496,13 +497,49 @@ function pgpSendMessage()
 
 	document.getElementById('dialog_mess2').value = encrypted;
 
-	console.log(encrypted);
-
-//	document.getElementById("pager_message_form").submit();
 	pager_post_submit(event, document.getElementById("pager_message_form"));
     })();
 
     return false;
+}
+
+function pgpDecryptMessage(el)
+{
+    const passphrase = localStorage.getItem(userName + '.passphrase');
+    const privateKeyArmored = localStorage.getItem(userName + '.privkey');
+    const publicKeyArmored = localStorage.getItem(userName + '.pubkey');
+
+    (async () => {
+	var text = el.innerHTML;
+
+	try {
+	    const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
+	    if (passphrase != '') {
+		await privateKey.decrypt(passphrase);
+	    }
+
+	    const { data: decrypted } = await openpgp.decrypt({
+		message: await openpgp.message.readArmored(text),              // parse armored message
+		publicKeys: (await openpgp.key.readArmored(publicKeyArmored)).keys, // for verification (optional)
+		privateKeys: [privateKey]                                           // for decryption
+	    });
+	
+	    el.innerHTML = decrypted;
+	} catch(err) {
+	    el.innerHTML = '<span class="error">Ошибка расшифровки</span>';
+	}
+    })();
+}
+
+function pgpDecryptMessages(el)
+{
+    var elements = document.getElementsByClassName("text_box_2_dialog");
+    for(var i = 0; i < elements.length; i++) {
+	var encrypted = elements[i].getAttribute("encrypted");
+	if (encrypted != 0) {
+	    pgpDecryptMessage(elements[i]);
+	}
+    }
 }
 
 /*
