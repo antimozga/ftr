@@ -1,0 +1,127 @@
+function pgpRegError(err)
+{
+    if (err != null) {
+	    console.log(err.message);
+	    if (err.message === 'Incorrect key passphrase') {
+		document.getElementById('lbpassphrase').innerHTML = ' - Неправильный пароль!';
+		document.getElementById('lbprivkey').innerHTML = '';
+	    } else if (err.message === 'Error generating keypair: Invalid user id format') {
+		document.getElementById('pgpregerror').innerHTML = 'Проверьте формат записи электронной почты!';
+		document.getElementById('lbpassphrase').innerHTML = '';
+		document.getElementById('lbprivkey').innerHTML = '';
+	    } else {
+		document.getElementById('lbpassphrase').innerHTML = '';
+		document.getElementById('lbprivkey').innerHTML = ' - Неправильный ключ!';
+	    }
+    } else {
+	document.getElementById('pgpregerror').innerHTML = '';
+	document.getElementById('lbpassphrase').innerHTML = '';
+	document.getElementById('lbprivkey').innerHTML = '';
+    }
+}
+
+function pgpRegGetPubKey() {
+    window.setTimeout(function() {
+	console.log("Get pub key!!");
+
+	passPhrase  = document.getElementById('passphrase').value;
+	privateKeyArmored = document.getElementById('privkey').value;
+
+	console.log(passPhrase);
+	console.log(privateKeyArmored);
+
+	(async () => {
+	    try {
+		const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
+		await privateKey.decrypt(passPhrase);
+
+		publicKeyArmored = privateKey.toPublic().armor();
+
+		console.log(publicKeyArmored);
+
+		document.getElementById('pubkey').value = publicKeyArmored;
+		pgpRegError(null);
+
+		localStorage.setItem(userName + '.passphrase', passPhrase);
+		localStorage.setItem(userName + '.privkey', privateKeyArmored); 
+		localStorage.setItem(userName + '.pubkey', publicKeyArmored);
+
+	    } catch(err) {
+		pgpRegError(err);
+	    }
+	})();
+    }, 100);
+}
+
+function pgpRegSetKey() {
+    console.log("Get pub key!!");
+
+    passPhrase  = document.getElementById('passphrase').value;
+    privateKeyArmored = document.getElementById('privkey').value;
+    login = document.getElementById('login').value;
+    email = document.getElementById('email').value;
+
+    console.log(login);
+    console.log(email);
+    console.log(passPhrase);
+    console.log(privateKeyArmored);
+
+    if (privateKeyArmored === '') {
+	(async () => {
+	    try {
+		const { privateKeyArmored, publicKeyArmored, revocationCertificate } = await openpgp.generateKey({
+		    userIds: [{ name: login, email: email }],
+		    curve: 'ed25519',                                           // ECC curve name
+		    passphrase: passPhrase
+		});
+
+		console.log(passPhrase);
+		console.log(privateKeyArmored);
+		console.log(publicKeyArmored);
+
+		localStorage.setItem(userName + '.passphrase', passPhrase);
+		localStorage.setItem(userName + '.privkey', privateKeyArmored);
+		localStorage.setItem(userName + '.pubkey', publicKeyArmored);
+
+		document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
+		document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
+		document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
+
+		pgpRegError(null);
+	    } catch (err) {
+		pgpRegError(err);
+	    }
+	})();
+    } else {
+	(async () => {
+	    try {
+		const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
+		await privateKey.decrypt(passPhrase);
+
+		publicKeyArmored = privateKey.toPublic().armor();
+
+		console.log(publicKeyArmored);
+
+		document.getElementById('pubkey').value = publicKeyArmored;
+		pgpRegError(null);
+
+		localStorage.setItem(userName + '.passphrase', passPhrase);
+		localStorage.setItem(userName + '.privkey', privateKeyArmored);
+		localStorage.setItem(userName + '.pubkey', publicKeyArmored);
+	    } catch(err) {
+		pgpRegError(err);
+	    }
+	})();
+    }
+
+    return false;
+}
+
+function pgpRegInit()
+{
+    console.log("pgpRegInit!");
+
+    document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
+    document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
+    document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
+}

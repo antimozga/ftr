@@ -968,7 +968,7 @@ if (!$database) {
 	    if ($reg_mode == 1) {
 		echo '
 		<h3>Регистрация пользователя</h3>
-		Для регистрации на Форуме Вам необходимо заполнить форму. Поля, обязательные для заполнения, обозначены значком (*).
+		<h4>Для регистрации на Форуме Вам необходимо заполнить форму. Поля, обязательные для заполнения, обозначены значком (*).</h4>
 	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
 	<input type="hidden" name="event" value="createuser">
 	<label for="login">* Имя пользователя (login) '.$user_name_warning.'</label>
@@ -988,7 +988,7 @@ if (!$database) {
 
 		echo '
 		<h3>Настройки пользователя</h3>
-		Изменение личных настроек пользователя.
+		<h4>Изменение личных настроек пользователя.</h4>
 	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
 	<input type="hidden" name="event" value="updateuser">
 	<label for="login">* Имя пользователя </label>
@@ -1034,7 +1034,36 @@ if (!$database) {
 		echo '<input type="submit" class="btn_reg" value="Сохранить">';
 	    }
 	echo '
-	</form>
+	</form>';
+
+	if ($reg_mode == 3) {
+
+	    echo'
+	<script src="js/openpgp.min.js"></script>
+	<script>const userName="'.$user_name.'";</script>
+	<script src="js/pgphelp.js"></script>
+	<h3>Настройка пейджера</h3>
+	<div><span class="error" id="pgpregerror"></span></div>
+	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем и отправителем.</h4>
+	<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
+<!--	<textarea maxlength="4096" id="privkey" class="area_text_reg" onpaste="pgpRegGetPubKey()"
+	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea> -->
+	<textarea maxlength="4096" id="privkey" class="area_text_reg"
+	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
+	<div class="box_small_text">Скопируйте и храните ключ в надежном месте</div>
+	<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
+	<input type="text" class="inp_text_reg" id="passphrase" value="">
+	<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
+	<form action="" method="post" class="form_reg" name="pagerkey" enctype="multipart/form-data">
+	    <input type="hidden" name="event" value="pagerpubkey">
+	    <label for="pubkey">Открытый PGP ключ</label>
+	    <textarea readonly id="pubkey" class="area_text_reg"></textarea>
+	    <input type="hidden" name="pubkey">
+	    <input type="submit" class="btn_reg" value="Задать ключ" onclick="return pgpRegSetKey();">
+	</form>';
+	}
+
+	echo '
 	</div>
 </div>
 ';

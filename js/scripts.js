@@ -455,4 +455,8 @@ window.onload = function() {
     init_modal();
     page_updater_onload(document);
     page_timer = setInterval(page_updater, 10000);
+
+    if (typeof pgpRegInit === "function") {
+	pgpRegInit();
+    }
 }
