@@ -7,12 +7,13 @@ session_start();
 include('funcs.php');
 
 function get_user($database, $id) {
-    $query = "SELECT login, last_login FROM ForumUsers WHERE id = $id;";
+    $query = "SELECT login, last_login, pubkey FROM ForumUsers WHERE id = $id;";
     foreach ($database->query($query) as $row) {
 	$login = $row['login'];
 	$last_login = $row['last_login'];
+	$pubkey = $row['pubkey'];
     }
-    return array("login" => $login, "time" => $last_login);
+    return array("login" => $login, "time" => $last_login, "pubkey" => $pubkey);
 }
 
 $database = new PDO("sqlite:" . DBASEFILE);
@@ -49,7 +50,23 @@ echo '<div class="modal-content-window pagerchat_window">
 	echo '<img src="'.$avatar.'" class="user_info_img" alt="">';
     }
 
-echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_id).'</h3>
+    $encrypted_chat = '';
+
+    if ($to_user['pubkey'] != '') {
+	if ($_SESSION['myuser_pubkey'] != '') {
+	    $encrypted_chat = '<svg viewBox="0 0 20 20" width="16px" class="svg_icon">
+<title>Переписка защищена шифрованием</title>
+<path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg>';
+	} else {
+	    $encrypted_chat = '<a href="?reg=3#pager"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<title>Настройте ключ для защищенной переписки</title>
+<path d="M4 8V6a6 6 0 1 1 12 0h-3v2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg></a>';
+	}
+    }
+
+echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_id).$encrypted_chat.'</h3>
         <span class="user_info_date">был на FTR: '.date('d.m.Y H:i', $to_user['time']).'</span>
     </div>
     <div class="dialog_brn_box"><div>

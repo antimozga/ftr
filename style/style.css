@@ -1176,6 +1176,10 @@ svg.svg_button:hover {
 	fill: #33CCFF;
 }
 
+svg.svg_icon {
+	fill: #CCCCCC;
+}
+
 /*
   SHARED POST
  */

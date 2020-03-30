@@ -496,6 +496,7 @@ if (!$database) {
 	    unset($_SESSION['myuser_password']);
 	    unset($_SESSION['myuser_id']);
 	    unset($_SESSION['user_temp_name']);
+	    unset($_SESSION['myuser_pubkey']);
 
 	    redirect_without('logout');
 	}
@@ -978,7 +979,7 @@ if (!$database) {
 	<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
 		';
 	    } else {
-		$user_query = "SELECT login, password, email, fio, gender, description, last_login, pubkey FROM ForumUsers WHERE id = $id_user;";
+		$user_query = "SELECT login, password, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
 		foreach ($database->query($user_query) as $row) {
 		    $user_name = $row['login'];
 		    $user_password = $row['password'];
@@ -986,7 +987,6 @@ if (!$database) {
 		    $user_fio = $row['fio'];
 		    $user_gender = $row['gender'];
 		    $user_description = reconvert_text($row['description']);
-		    $user_pubkey = stripslashes($row['pubkey']);
 		}
 
 		echo '
@@ -1046,9 +1046,10 @@ if (!$database) {
 	<script src="js/openpgp.min.js"></script>
 	<script>const userName="'.$user_name.'";</script>
 	<script src="js/pgphelp.js"></script>
+	<a name="pager"></a>
 	<h3>Настройка пейджера</h3>
 	<div><span class="error" id="pgpregerror"></span></div>
-	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем и отправителем.</h4>
+	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
 	<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
 <!--	<textarea maxlength="4096" id="privkey" class="area_text_reg" onpaste="pgpRegGetPubKey()"
 	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea> -->
