@@ -162,6 +162,8 @@ function pgpSendMessage()
 
     (async () => {
 	try {
+	    openpgp.config.compression = openpgp.enums.compression.zlib;
+
 	    const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
 	    if (passphrase != '') {
 		await privateKey.decrypt(passphrase);
