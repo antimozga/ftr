@@ -432,27 +432,33 @@ function pager_post_submit(e, form)
 
 let page_timer;
 
-async function page_fetch(url, el) {
-//    var url = el.getAttribute("src");
-    fetch(url).then(function(response) {
-	return response.text().then(function(text) {
-	    let exec = el.getAttribute("exec");
-	    el.innerHTML = text;
-	    page_updater_onload(el);
-	    if (exec != null) {
-		window[exec](el);
-	    }
+async function page_fetch(el) {
+    let url = el.getAttribute("src");
+    if (url != null || url != "") {
+	fetch(url).then(function(response) {
+	    return response.text().then(function(text) {
+		el.innerHTML = text;
+		page_updater_onload(el);
+		let exec = el.getAttribute("exec");
+		if (exec != null) {
+		    window[exec](el);
+		}
+	    });
 	});
-    });
+    } else {
+	let exec = el.getAttribute("exec");
+	if (exec != null) {
+	    window[exec](el);
+	}
+    }
 }
 
 function page_updater_onload(doc) {
     let elements;
     while ((elements = doc.getElementsByClassName("refreshnow")).length > 0) {
 	let element = elements[0];
-	let url = elements[0].getAttribute("src");
 	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
-	page_fetch(url, element);
+	page_fetch(element);
     }
 }
 
@@ -460,8 +466,7 @@ function page_updater() {
     let elements = document.getElementsByClassName("autorefresh");
     for (let i = 0; i < elements.length; i++) {
 	let element = elements[i];
-	let url = elements[i].getAttribute("src");
-	page_fetch(url, element);
+	page_fetch(element);
     }
 }
 
