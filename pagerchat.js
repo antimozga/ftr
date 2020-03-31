@@ -14,7 +14,7 @@ function pagerInsertPost(el, data)
 	const passphrase = localStorage.getItem(userName + '.passphrase');
 	const privateKeyArmored = localStorage.getItem(userName + '.privkey');
 	const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
-	const publicKeyArmored2 = document.getElementById('pubkey2').value;;
+	const publicKeyArmored2 = document.getElementById('pubkey2').value;
 
 	const publicKeysArmored = [
 		publicKeyArmored1,
@@ -32,13 +32,27 @@ function pagerInsertPost(el, data)
 		    return (await openpgp.key.readArmored(key)).keys;
 		}));
 
-		const { data: decrypted } = await openpgp.decrypt({
+		const { data: decrypted, signatures: signatures } = await openpgp.decrypt({
 		    message: await openpgp.message.readArmored(data.p),  // parse armored message
-		    publicKeys,                                          // for verification (optional)
+		    publicKeys: openpgp.key.readArmored(publicKeyArmored2).keys,  // for verification (optional)
 		    privateKeys: [privateKey]                            // for decryption
 		});
 
-		lock = '&#x1f512;';
+		if ((signatures[0].keyid.toHex() === publicKeys[0][0].keyPacket.keyid.toHex() && data.l === userName) ||
+		    (signatures[0].keyid.toHex() === publicKeys[1][0].keyPacket.keyid.toHex() && data.l !== userName)) {
+		    //lock = '&#x1f512;';
+		    lock = `<svg viewBox="0 0 20 20" width="16px" class="svg_icon">
+<title>Подпись отправителя проверена</title>
+<path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg>`;
+		} else {
+		    //lock = '&#x1F513;';
+		    lock = `<svg viewBox="0 0 20 20" width="16px" class="svg_icon_error">
+<title>Подпись отправителя отличается</title>
+<path d="M4 8V6a6 6 0 1 1 12 0h-3v2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg>`;
+		}
+
 		let text = '<div class="text_box_1_dialog"><div class="box_user"><span class="name">'
 			+ data.l + lock + '</span> -&gt; <span>' + data.d + " " + newm + '</span></div></div>';
 		text = text + '<div class="text_box_2_dialog">' + linkify(convert_text(decrypted), linkify_options) + '</div>';
@@ -46,7 +60,11 @@ function pagerInsertPost(el, data)
 		el.innerHTML = text;
 	    } catch(err) {
 		console.log(err.message);
-		el.innerHTML = '<span class="error">Ошибка расшифровки</span>';
+		let text = '<div class="text_box_1_dialog"><div class="box_user"><span class="name">'
+			+ data.l + lock + '</span> -&gt; <span>' + data.d + " " + newm + '</span></div></div>';
+		text = text + '<div class="text_box_2_dialog"><span class="error">Ошибка расшифровки</span></div>';
+
+		el.innerHTML = text;
 	    }
 	})();
     } else {
