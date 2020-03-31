@@ -13,7 +13,13 @@ function pagerInsertPost(el, data)
     if (data.e != 0) {
 	const passphrase = localStorage.getItem(userName + '.passphrase');
 	const privateKeyArmored = localStorage.getItem(userName + '.privkey');
-	const publicKeyArmored = localStorage.getItem(userName + '.pubkey');
+	const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
+	const publicKeyArmored2 = document.getElementById('pubkey2').value;;
+
+	const publicKeysArmored = [
+		publicKeyArmored1,
+		publicKeyArmored2
+	];
 
 	(async () => {
 	    try {
@@ -22,10 +28,14 @@ function pagerInsertPost(el, data)
 		    await privateKey.decrypt(passphrase);
 		}
 
+		const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
+		    return (await openpgp.key.readArmored(key)).keys;
+		}));
+
 		const { data: decrypted } = await openpgp.decrypt({
-		    message: await openpgp.message.readArmored(data.p),              // parse armored message
-		    publicKeys: (await openpgp.key.readArmored(publicKeyArmored)).keys, // for verification (optional)
-		    privateKeys: [privateKey]                                           // for decryption
+		    message: await openpgp.message.readArmored(data.p),  // parse armored message
+		    publicKeys,                                          // for verification (optional)
+		    privateKeys: [privateKey]                            // for decryption
 		});
 
 		lock = '&#x1f512;';
@@ -35,6 +45,7 @@ function pagerInsertPost(el, data)
 
 		el.innerHTML = text;
 	    } catch(err) {
+		console.log(err.message);
 		el.innerHTML = '<span class="error">Ошибка расшифровки</span>';
 	    }
 	})();
@@ -121,6 +132,8 @@ function pager_post_submit(e, form)
 function pgpSendMessage()
 {
     let message = document.getElementById('dialog_mess').value;
+    const passphrase = localStorage.getItem(userName + '.passphrase');
+    const privateKeyArmored = localStorage.getItem(userName + '.privkey');
     const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
     const publicKeyArmored2 = document.getElementById('pubkey2').value;;
 
@@ -130,19 +143,28 @@ function pgpSendMessage()
 	];
 
     (async () => {
-	const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
-	    return (await openpgp.key.readArmored(key)).keys[0];
-	}));
+	try {
+	    const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
+	    if (passphrase != '') {
+		await privateKey.decrypt(passphrase);
+	    }
 
-	const { data: encrypted } = await openpgp.encrypt({
-	    message: openpgp.message.fromText(message),
-	    publicKeys,
-//		privateKeys: [privateKey]                                           // for signing (optional)
-	});
+	    const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
+		return (await openpgp.key.readArmored(key)).keys[0];
+	    }));
 
-	document.getElementById('dialog_mess2').value = encrypted;
+	    const { data: encrypted } = await openpgp.encrypt({
+		message: openpgp.message.fromText(message),
+		publicKeys,
+		privateKeys: [privateKey]                                           // for signing (optional)
+	    });
 
-	pager_post_submit(event, document.getElementById("pager_message_form"));
+	    document.getElementById('dialog_mess2').value = encrypted;
+
+	    pager_post_submit(event, document.getElementById("pager_message_form"));
+	} catch(err) {
+	    console.log(err.message);
+	}
     })();
 
     return false;
