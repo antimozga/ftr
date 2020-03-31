@@ -26,13 +26,8 @@ function pgpRegError(err)
 
 function pgpRegGetPubKey() {
     window.setTimeout(function() {
-	console.log("Get pub key!!");
-
 	passPhrase  = document.getElementById('passphrase').value;
 	privateKeyArmored = document.getElementById('privkey').value;
-
-	console.log(passPhrase);
-	console.log(privateKeyArmored);
 
 	(async () => {
 	    try {
@@ -40,8 +35,6 @@ function pgpRegGetPubKey() {
 		await privateKey.decrypt(passPhrase);
 
 		publicKeyArmored = privateKey.toPublic().armor();
-
-		console.log(publicKeyArmored);
 
 		document.getElementById('pubkey').value = publicKeyArmored;
 		pgpRegError(null);
@@ -58,17 +51,10 @@ function pgpRegGetPubKey() {
 }
 
 function pgpRegSetKey() {
-    console.log("Get pub key!!");
-
     passPhrase  = document.getElementById('passphrase').value;
     privateKeyArmored = document.getElementById('privkey').value;
     login = document.getElementById('login').value;
     email = document.getElementById('email').value;
-
-    console.log(login);
-    console.log(email);
-    console.log(passPhrase);
-    console.log(privateKeyArmored);
 
     if (privateKeyArmored === '') {
 	(async () => {
@@ -78,10 +64,6 @@ function pgpRegSetKey() {
 		    curve: 'ed25519',                                           // ECC curve name
 		    passphrase: passPhrase
 		});
-
-		console.log(passPhrase);
-		console.log(privateKeyArmored);
-		console.log(publicKeyArmored);
 
 		localStorage.setItem(userName + '.passphrase', passPhrase);
 		localStorage.setItem(userName + '.privkey', privateKeyArmored);
@@ -105,8 +87,6 @@ function pgpRegSetKey() {
 		await privateKey.decrypt(passPhrase);
 
 		publicKeyArmored = privateKey.toPublic().armor();
-
-		console.log(publicKeyArmored);
 
 		document.getElementById('pubkey').value = publicKeyArmored;
 
@@ -147,10 +127,6 @@ function pgpRegResetKey()
 
 function pgpRegInit()
 {
-    console.log("pgpRegInit!");
-
-//    openpgpLoad();
-
     document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
     document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
     document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
@@ -159,5 +135,4 @@ function pgpRegInit()
 	document.getElementById('privkey').readOnly = true;
 	document.getElementById('passphrase').readOnly = true;
     }
-    console.log(document.getElementById('pubkey').value);
 }

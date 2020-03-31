@@ -2,21 +2,21 @@ var selField = 'mess_text';
 
 function doInsert(ibTag, ibClsTag, isSingle)
 {
-	var isClose = false;
-	var obj_ta = eval('fombj.' + selField);
+	let isClose = false;
+	let obj_ta = eval('fombj.' + selField);
 
 	if ( obj_ta.selectionEnd ) {
-		var ss = obj_ta.selectionStart;
-		var st = obj_ta.scrollTop;
-		var es = obj_ta.selectionEnd;
+		let ss = obj_ta.selectionStart;
+		let st = obj_ta.scrollTop;
+		let es = obj_ta.selectionEnd;
 		
 		if (es <= 2) {
 			es = obj_ta.textLength;
 		}
 		
-		var start  = (obj_ta.value).substring(0, ss);
-		var middle = (obj_ta.value).substring(ss, es);
-		var end    = (obj_ta.value).substring(es, obj_ta.textLength);
+		let start  = (obj_ta.value).substring(0, ss);
+		let middle = (obj_ta.value).substring(ss, es);
+		let end    = (obj_ta.value).substring(es, obj_ta.textLength);
 		
 		if (obj_ta.selectionEnd - obj_ta.selectionStart > 0) {
 			middle = ibTag + middle + ibClsTag;
@@ -26,7 +26,7 @@ function doInsert(ibTag, ibClsTag, isSingle)
 		
 		obj_ta.value = start + middle + end;
 		
-		var cpos = ss + (middle.length);
+		let cpos = ss + (middle.length);
 		
 		obj_ta.selectionStart = cpos + 2;
 		obj_ta.selectionEnd   = cpos;
@@ -43,16 +43,16 @@ function doInsert(ibTag, ibClsTag, isSingle)
 
 function selectElementText(el)
 {
-	var range = document.createRange();
+	let range = document.createRange();
 	range.selectNodeContents(el);
-	var selection = window.getSelection();
+	let selection = window.getSelection();
 	selection.removeAllRanges();
 	selection.addRange(range);
 }
 
 function getSelectionText()
 {
-    var selectedText = "";
+    let selectedText = "";
     if (window.getSelection) {
         selectedText = window.getSelection().toString();
     }
@@ -61,7 +61,7 @@ function getSelectionText()
 
 function reply(creator, msg_id)
 {
-	var output = getSelectionText();
+	let output = getSelectionText();
 /*
 	if (output == "") {
 		selectElementText(document.getElementById(msg_id));
@@ -78,7 +78,7 @@ function reply(creator, msg_id)
 
 function reply_cite(creator, msg_id)
 {
-	var output = getSelectionText();
+	let output = getSelectionText();
 
 	if (output == "") {
 	    output = document.getElementById(msg_id).innerHTML;
@@ -143,13 +143,13 @@ function convert_text(text)
 
 function show_date()
 {
-	var days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
-	var months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-	var d = new Date();
-	var day = days[d.getDay()];
-	var date = d.getDate();
-	var month = months[d.getMonth()];
-	var year = d.getFullYear();
+	let days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+	let months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+	let d = new Date();
+	let day = days[d.getDay()];
+	let date = d.getDate();
+	let month = months[d.getMonth()];
+	let year = d.getFullYear();
 
 	document.getElementById("curr_day").innerHTML = day;
 	document.getElementById("curr_date").innerHTML = date + " " + month + " " + year;
@@ -160,16 +160,16 @@ function post(path, params, method, target) {
 
     // The rest of this code assumes you are not using a library.
     // It can be made less wordy if you use one.
-    var form = document.createElement("form");
+    let form = document.createElement("form");
     form.setAttribute("method", method);
     form.setAttribute("action", path);
     if (target != null) {
 	form.setAttribute("target", target);
     }
 
-    for(var key in params) {
+    for(let key in params) {
 	if(params.hasOwnProperty(key)) {
-	    var hiddenField = document.createElement("input");
+	    let hiddenField = document.createElement("input");
 	    hiddenField.setAttribute("type", "hidden");
 	    hiddenField.setAttribute("name", key);
 	    hiddenField.setAttribute("value", params[key]);
@@ -183,7 +183,7 @@ function post(path, params, method, target) {
 }
 
 function copyStringToClipboard(str) {
-    var el = document.createElement('textarea');
+    let el = document.createElement('textarea');
     el.value = str;
     el.setAttribute('readonly', '');
     el.style = {position: 'absolute', left: '-9999px'};
@@ -198,8 +198,8 @@ function copyStringToClipboard(str) {
  *****************************************************************************/
 
 // Create Variables
-var allOSB = [];
-var mxh = '';
+let allOSB = [];
+let mxh = '';
 
 function init_cut() {
     // Set Variables
@@ -210,8 +210,8 @@ function init_cut() {
 	mxh = parseInt(mxh.replace('px', ''));
 
 	// Add read-more button to each OSB section
-	for (var i = 0; i < allOSB.length; i++) {
-	    var el = document.createElement("button");
+	for (let i = 0; i < allOSB.length; i++) {
+	    let el = document.createElement("button");
 	    el.innerHTML = "показать";
 	    el.setAttribute("type", "button");
 	    el.setAttribute("class", "read-more hid");
@@ -221,8 +221,8 @@ function init_cut() {
     }
 
     // Add click function to buttons
-    var readMoreButtons = document.getElementsByClassName("read-more");
-    for (var i = 0; i < readMoreButtons.length; i++) {
+    let readMoreButtons = document.getElementsByClassName("read-more");
+    for (let i = 0; i < readMoreButtons.length; i++) {
 	readMoreButtons[i].addEventListener("click", function() { 
 	    revealThis(this);
 	}, false);
@@ -280,7 +280,7 @@ function insertAfter(referenceNode, newNode) {
  *****************************************************************************/
 
 function mobileMenu(name, eclass) {
-    var x = document.getElementById(name);
+    let x = document.getElementById(name);
     if (x.className === eclass) {
 	x.className += " responsive";
     } else {
@@ -292,15 +292,15 @@ function mobileMenu(name, eclass) {
  * modal functions
  *****************************************************************************/
 
-var modal_stack = [];
-var modal_stack_last = "";
-var modal_in_use = 0;
+let modal_stack = [];
+let modal_stack_last = "";
+let modal_in_use = 0;
 
-var modal;
-var modal_trigger;
-var modal_closeButton;
+let modal;
+let modal_trigger;
+let modal_closeButton;
 
-var svg_loader = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
+let svg_loader = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
 <path fill=\"#33CCFF\" d=\"M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z\">\
 <animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 25 25\" to=\"360 25 25\" dur=\"0.5s\" repeatCount=\"indefinite\"/>\
 </path>\
@@ -308,23 +308,23 @@ var svg_loader = "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\">\
 
 function init_modal() {
     modal = document.querySelector(".modal");
-    trigger = document.querySelector(".trigger");
-    closeButton = document.querySelector(".close-button");
+    modal_trigger = document.querySelector(".trigger");
+    modal_closeButton = document.querySelector(".close-button");
 
-    //trigger.addEventListener("click", toggleModal);
-    closeButton.addEventListener("click", modal_toggle);
-    //window.addEventListener("click", windowOnClick);
+    //modal_trigger.addEventListener("click", toggleModal);
+    modal_closeButton.addEventListener("click", modal_toggle);
+    //modal_window.addEventListener("click", windowOnClick);
 }
 
 function modal_toggle() {
-    el = document.getElementById("modal-content");
+    let el = document.getElementById("modal-content");
 
     if (Array.isArray(modal_stack) && modal_stack.length) {
 	el.innerHTML = svg_loader;
 	modal_stack_last = modal_stack.pop();
 	fetch(modal_stack_last).then(function(response) {
 	    return response.text().then(function(text) {
-		el = document.getElementById("modal-content");
+		let el = document.getElementById("modal-content");
 		el.innerHTML = text;
 		page_updater_onload(el);
 	    });
@@ -342,7 +342,7 @@ function modal_reload()
     if (modal_stack_last != "") {
 	fetch(modal_stack_last).then(function(response) {
 	    return response.text().then(function(text) {
-		el = document.getElementById("modal-content");
+		let el = document.getElementById("modal-content");
 		el.innerHTML = text;
 		page_updater_onload(el);
 	    });
@@ -359,13 +359,13 @@ function windowOnClick(event) {
  */
 
 function show_modal(text) {
-    el = document.getElementById("modal-content");
+    let el = document.getElementById("modal-content");
     el.innerHTML = text;
     modal.classList.toggle("show-modal");
 }
 
 function load_modal(url) {
-    el = document.getElementById("modal-content");
+    let el = document.getElementById("modal-content");
     el.innerHTML = svg_loader;
 
     if (modal_in_use != 0) {
@@ -379,7 +379,7 @@ function load_modal(url) {
 
     fetch(url).then(function(response) {
 	return response.text().then(function(text) {
-	    el = document.getElementById("modal-content");
+	    let el = document.getElementById("modal-content");
 	    el.innerHTML = text;
 	    page_updater_onload(el);
 	});
@@ -391,7 +391,7 @@ function load_modal(url) {
  *****************************************************************************/
 
 function popup(id, text) {
-    var popup = document.getElementById(id);
+    let popup = document.getElementById(id);
     popup.innerHTML = text;
     popup.classList.toggle("show");
     setTimeout(function() {
@@ -430,14 +430,13 @@ function pager_post_submit(e, form)
  * page update timer
  *****************************************************************************/
 
-var page_timer;
+let page_timer;
 
 async function page_fetch(url, el) {
 //    var url = el.getAttribute("src");
-
     fetch(url).then(function(response) {
 	return response.text().then(function(text) {
-	    exec = el.getAttribute("exec");
+	    let exec = el.getAttribute("exec");
 	    el.innerHTML = text;
 	    page_updater_onload(el);
 	    if (exec != null) {
@@ -448,20 +447,20 @@ async function page_fetch(url, el) {
 }
 
 function page_updater_onload(doc) {
-    var elements;
+    let elements;
     while ((elements = doc.getElementsByClassName("refreshnow")).length > 0) {
-	var element = elements[0];
-	var url = elements[0].getAttribute("src");
+	let element = elements[0];
+	let url = elements[0].getAttribute("src");
 	elements[0].className = elements[0].className.replace(/\brefreshnow\b/g, "");
 	page_fetch(url, element);
     }
 }
 
 function page_updater() {
-    var elements = document.getElementsByClassName("autorefresh");
-    for(var i = 0; i < elements.length; i++) {
-	var element = elements[i];
-	var url = elements[i].getAttribute("src");
+    let elements = document.getElementsByClassName("autorefresh");
+    for (let i = 0; i < elements.length; i++) {
+	let element = elements[i];
+	let url = elements[i].getAttribute("src");
 	page_fetch(url, element);
     }
 }
@@ -471,34 +470,14 @@ function page_updater_stop() {
 }
 
 /*****************************************************************************
- * load openpgp
+ * OpenPGP
  *****************************************************************************/
-
-var openpgp_loaded = false;
-
-function openpgpLoad()
-{
-    if (!openpgp_loaded) {
-	var newScript = document.createElement('script');
-	newScript.type = 'text/javascript';
-	newScript.src = 'js/openpgp.min.js';
-
-	document.body.appendChild(newScript);
-	openpgp_loaded = true;
-    }
-}
 
 function pgpSendMessage()
 {
-//    openpgpLoad();
-
-    message = document.getElementById('dialog_mess').value;
-    publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
-    publicKeyArmored2 = document.getElementById('pubkey2').value;;
-
-//    console.log("mess " + message);
-//    console.log("key1 " + publicKeyArmored1);
-//    console.log("key2 " + publicKeyArmored2);
+    let message = document.getElementById('dialog_mess').value;
+    const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
+    const publicKeyArmored2 = document.getElementById('pubkey2').value;;
 
     const publicKeysArmored = [
 	    publicKeyArmored1,
@@ -531,7 +510,7 @@ function pgpDecryptMessage(el)
     const publicKeyArmored = localStorage.getItem(userName + '.pubkey');
 
     (async () => {
-	var text = el.innerHTML;
+	let text = el.innerHTML;
 
 	try {
 	    const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
@@ -554,9 +533,9 @@ function pgpDecryptMessage(el)
 
 function pgpDecryptMessages(el)
 {
-    var elements = document.getElementsByClassName("text_box_2_dialog");
-    for(var i = 0; i < elements.length; i++) {
-	var encrypted = elements[i].getAttribute("encrypted");
+    let elements = document.getElementsByClassName("text_box_2_dialog");
+    for(let i = 0; i < elements.length; i++) {
+	let encrypted = elements[i].getAttribute("encrypted");
 	if (encrypted != 0) {
 	    pgpDecryptMessage(elements[i]);
 	}
