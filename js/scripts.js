@@ -405,28 +405,6 @@ function popup_copy(id) {
 }
 
 /*****************************************************************************
- * pager send
- *****************************************************************************/
-
-function pager_post_submit(e, form)
-{
-    fetch(
-	form.action,
-	{
-	    method: 'post',
-	    body: new FormData(form)
-	}
-    ).then(function(response) {
-	return response.text().then(function(text) {
-//	    console.log("sent...");
-	    modal_reload();
-	});
-    });
-
-    e.preventDefault();
-}
-
-/*****************************************************************************
  * page update timer
  *****************************************************************************/
 
@@ -503,79 +481,6 @@ function page_updater() {
 
 function page_updater_stop() {
     clearInterval(page_timer);
-}
-
-/*****************************************************************************
- * OpenPGP
- *****************************************************************************/
-
-function pgpSendMessage()
-{
-    let message = document.getElementById('dialog_mess').value;
-    const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
-    const publicKeyArmored2 = document.getElementById('pubkey2').value;;
-
-    const publicKeysArmored = [
-	    publicKeyArmored1,
-	    publicKeyArmored2
-	];
-
-    (async () => {
-	const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
-	    return (await openpgp.key.readArmored(key)).keys[0];
-	}));
-
-	const { data: encrypted } = await openpgp.encrypt({
-	    message: openpgp.message.fromText(message),
-	    publicKeys,
-//		privateKeys: [privateKey]                                           // for signing (optional)
-	});
-
-	document.getElementById('dialog_mess2').value = encrypted;
-
-	pager_post_submit(event, document.getElementById("pager_message_form"));
-    })();
-
-    return false;
-}
-
-function pgpDecryptMessage(el)
-{
-    const passphrase = localStorage.getItem(userName + '.passphrase');
-    const privateKeyArmored = localStorage.getItem(userName + '.privkey');
-    const publicKeyArmored = localStorage.getItem(userName + '.pubkey');
-
-    (async () => {
-	let text = el.innerHTML;
-
-	try {
-	    const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
-	    if (passphrase != '') {
-		await privateKey.decrypt(passphrase);
-	    }
-
-	    const { data: decrypted } = await openpgp.decrypt({
-		message: await openpgp.message.readArmored(text),              // parse armored message
-		publicKeys: (await openpgp.key.readArmored(publicKeyArmored)).keys, // for verification (optional)
-		privateKeys: [privateKey]                                           // for decryption
-	    });
-	
-	    el.innerHTML = linkify(convert_text(decrypted), linkify_options);
-	} catch(err) {
-	    el.innerHTML = '<span class="error">Ошибка расшифровки</span>';
-	}
-    })();
-}
-
-function pgpDecryptMessages(el)
-{
-    let elements = document.getElementsByClassName("text_box_2_dialog");
-    for(let i = 0; i < elements.length; i++) {
-	let encrypted = elements[i].getAttribute("encrypted");
-	if (encrypted != 0) {
-	    pgpDecryptMessage(elements[i]);
-	}
-    }
 }
 
 /*

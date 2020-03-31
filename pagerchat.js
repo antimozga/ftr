@@ -98,3 +98,52 @@ function pagerHistoryUpdate()
 
     pagerLoadJson();
 }
+
+function pager_post_submit(e, form)
+{
+    fetch(
+	form.action,
+	{
+	    method: 'post',
+	    body: new FormData(form)
+	}
+    ).then(function(response) {
+	return response.text().then(function(text) {
+	    document.getElementById('dialog_mess').value = '';
+	    document.getElementById('dialog_mess2').value = '';
+	    pagerHistoryUpdate();
+	});
+    });
+
+    e.preventDefault();
+}
+
+function pgpSendMessage()
+{
+    let message = document.getElementById('dialog_mess').value;
+    const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
+    const publicKeyArmored2 = document.getElementById('pubkey2').value;;
+
+    const publicKeysArmored = [
+	    publicKeyArmored1,
+	    publicKeyArmored2
+	];
+
+    (async () => {
+	const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
+	    return (await openpgp.key.readArmored(key)).keys[0];
+	}));
+
+	const { data: encrypted } = await openpgp.encrypt({
+	    message: openpgp.message.fromText(message),
+	    publicKeys,
+//		privateKeys: [privateKey]                                           // for signing (optional)
+	});
+
+	document.getElementById('dialog_mess2').value = encrypted;
+
+	pager_post_submit(event, document.getElementById("pager_message_form"));
+    })();
+
+    return false;
+}
