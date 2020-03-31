@@ -433,6 +433,15 @@ function pager_post_submit(e, form)
 let page_timer;
 
 async function page_fetch(el) {
+    let preexec = el.getAttribute("preexec");
+    if (preexec != null) {
+	if (typeof window[preexec] === "function") {
+	    window[preexec](el);
+	} else {
+	    console.log("Function " + preexec + " not found!");
+	}
+	el.setAttribute("preexec", "");
+    }
     let url = el.getAttribute("src");
     if (url !== null && url.length > 0) {
 	fetch(url).then(function(response) {
