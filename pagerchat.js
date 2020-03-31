@@ -1,5 +1,5 @@
 var pagerReadyFlag = 0;
-var pagerHistoryLastTime;
+var pagerHistoryLastTime = 0;
 
 function pagerInsertPost(el, data)
 {
@@ -54,14 +54,21 @@ function pagerLoadJson()
     if (pagerHistoryLastTime != 0) {
 	url = url + '&from=' + pagerHistoryLastTime;
     }
-
     fetch(url)
 	.then(res => res.json())
 	.then(data => {
+	    let firstChild = el.firstChild;
 	    for (let i in data) {
+		if (i == 0) {
+		    pagerHistoryLastTime = data[i].t;
+		}
 		let div1 = document.createElement('div');
 		div1.className = 'dialog_box_text';
-		el.appendChild(div1);
+		if (pagerHistoryLastTime != 0) {
+		    el.insertBefore(div1, firstChild);
+		} else {
+		    el.appendChild(div1);
+		}
 		pagerInsertPost(div1, data[i]);
 	    }
 	})
@@ -88,4 +95,6 @@ function pagerHistoryUpdate()
     if (!pagerReadyFlag) {
 	return;
     }
+
+    pagerLoadJson();
 }

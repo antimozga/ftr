@@ -26,6 +26,13 @@ if (!$database) {
 
 	$to_user = get_user($database, $to_id);
 
+	$where_time = '';
+	if (is_defined('from')) {
+	    $from_time = $_REQUEST['from'];
+	    $from_time = ($from_time * 10) / 10;
+	    $where_time = "AND ForumPager.time > $from_time";
+	}
+
 	echo '[';
 
 	$cnt = 0;
@@ -33,7 +40,7 @@ if (!$database) {
 	$user_query = "SELECT id_user, id_from_user, ForumPager.new AS new, "
 	    ."ForumPager.time AS time, ForumPager.subj AS subj, "
 	    ."ForumPager.post AS post, ForumPager.encrypted AS encrypted "
-	    ."FROM ForumUsers, ForumPager WHERE ForumUsers.id = $to_id AND "
+	    ."FROM ForumUsers, ForumPager WHERE ForumUsers.id = $to_id $where_time AND"
 	    ."((ForumPager.id_from_user = $to_id AND ForumPager.id_user = $myuser_id) OR "
 	    ." (ForumPager.id_from_user = $myuser_id AND ForumPager.id_user = $to_id)) ORDER BY ForumPager.time DESC;";
 	foreach ($database->query($user_query) as $row) {
