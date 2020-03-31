@@ -99,8 +99,10 @@ echo '
 </div>
 ';
 
-echo '<div class="autorefresh refreshnow" src="pagerchathist.php/?to='.$to_id.'" exec="pgpDecryptMessages"></div>';
-echo '</div>';
+echo '<div class="refreshnow" src="pagerchat.js" preexec="pagerHistoryReset" exec="pagerHistoryLoad"></div>';
+echo '<div class="autorefresh refreshnow" exec="pagerHistoryUpdate"></div>';
+
+echo '<div id="pager_history" src="pagerchathist.php/?to='.$to_id.'"></div>';
     }
 } else {
     echo '<p>Доступ запрещен.</p>';
