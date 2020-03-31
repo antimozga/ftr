@@ -434,21 +434,43 @@ let page_timer;
 
 async function page_fetch(el) {
     let url = el.getAttribute("src");
-    if (url != null || url != "") {
+    if (url !== null && url.length > 0) {
 	fetch(url).then(function(response) {
 	    return response.text().then(function(text) {
-		el.innerHTML = text;
-		page_updater_onload(el);
+		while (el.firstChild) {
+		    el.removeChild(el.lastChild);
+		}
+
+		if (url.substring(url.lastIndexOf('.') + 1) == 'js') {
+		    let script = document.createElement("script");
+		    script.type="text/javascript";
+		    script.innerHTML = text;
+		    el.appendChild(script);
+		} else {
+		    let span = document.createElement("span");
+		    span.innerHTML = text;
+		    el.appendChild(span);
+		    page_updater_onload(el);
+		}
+
 		let exec = el.getAttribute("exec");
 		if (exec != null) {
-		    window[exec](el);
+		    if (typeof window[exec] === "function") {
+			window[exec](el);
+		    } else {
+			console.log("Function " + exec + " not found!");
+		    }
 		}
 	    });
 	});
     } else {
 	let exec = el.getAttribute("exec");
 	if (exec != null) {
-	    window[exec](el);
+	    if (typeof window[exec] === "function") {
+		window[exec](el);
+	    } else {
+		console.log("Function " + exec + " not found!");
+	    }
 	}
     }
 }
