@@ -1166,6 +1166,49 @@ label.l_inp_text_name span {
 }
 
 /*
+  PAGER SHOW/HIDE SENDER PUBLIC KEY
+ */
+
+.sender_key_block {
+	display: inline-block;
+	width: 100%;
+}
+
+.sender_key_block .sender_key {
+	width: 100%;
+	height: 60px;
+	border: 0;
+	padding: 0;
+	margin-top: 5px;
+	font-size: small;
+}
+
+.sender_key_block input {
+	display: none;
+}
+
+.sender_key_block .sender_key {
+	display: none;
+}
+
+.sender_key_block input#sender_key_show:checked ~ .sender_key {
+	display: block;
+}
+
+.sender_key_block input#sender_key_hide:checked ~ .sender_key {
+	display: none;
+}
+
+.sender_key_block label {
+	cursor: pointer;
+}
+
+.sender_key_block label:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+/*
  SVG BUTTONS
  */
 

@@ -66,7 +66,6 @@ echo '<div class="modal-content-window pagerchat_window">
 <path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
 </svg>';
 	    $encrypt_send = 'onclick="return pgpSendMessage();"';
-	    echo '<textarea style="display:none;" id="pubkey2">'.$to_user['pubkey'].'</textarea>';
 	} else {
 	    $encrypted_chat = '<a href="?reg=3#pager"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Настройте ключ для защищенной переписки</title>
@@ -76,9 +75,17 @@ echo '<div class="modal-content-window pagerchat_window">
     }
 
 echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_id).$encrypted_chat.'</h3>
-        <span class="user_info_date">был на FTR: '.date('d.m.Y H:i', $to_user['time']).'</span>
-    </div>
-    <div class="dialog_brn_box"><div>
+        <span class="user_info_date">был в сети: '.date('d.m.Y H:i', $to_user['time']).'</span>
+    </div>';
+
+    if ($encrypt_send != '') {
+	echo '<div class="sender_key_block">
+<label for="sender_key_show">Показать</label><input type="radio" id="sender_key_show" name="group">
+<label for="sender_key_hide">Скрыть</label><input type="radio" id="sender_key_hide" name="group"> открытый ключ';
+	echo '<textarea readonly id="pubkey2" class="sender_key">'.$to_user['pubkey'].'</textarea></div>';
+    }
+
+echo '<div class="dialog_brn_box"><div>
 
     </div></div>
 </div>';
