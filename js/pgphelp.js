@@ -152,6 +152,7 @@ function pgpRegInit()
     document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
     document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
     document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
+    document.getElementById('x_pubkey').value = localStorage.getItem(userName + '.pubkey');
 
     let el = document.getElementById('addremove_key_button');
 
@@ -170,6 +171,10 @@ function pgpRegInit()
 	    }
 	}
     } else {
-	el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegSetKey();">Добавить локально</button>';
+	if (document.getElementById('pubkey').value != '') {
+	    el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegRemoveKey();">Удалить локально</button>';
+	} else {
+	    el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegSetKey();">Добавить локально</button>';
+	}
     }
 }

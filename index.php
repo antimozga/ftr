@@ -1053,14 +1053,15 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	<div><span class="error" id="pgpregerror"></span></div>
 	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
 	<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
-<!--	<textarea maxlength="4096" id="privkey" class="area_text_reg" onpaste="pgpRegGetPubKey()"
-	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea> -->
 	<textarea maxlength="4096" id="privkey" class="area_text_reg"
 	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
-	<div class="box_small_text">Скопируйте и храните ключ в надежном месте, недоступном для посторонних</div>
+	<div class="box_small_text">Скопируйте и храните закрытый ключ в надежном месте, недоступном для посторонних</div>
 	<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
 	<input type="text" class="inp_text_reg" id="passphrase" value="">
 	<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
+	<label for="x_pubkey">Открытый PGP ключ</label>
+	<textarea readonly id="x_pubkey" class="area_text_reg"></textarea>
+	<div class="line2"><div></div></div>
 	<div class="btn_reg_key">';
 	    if ($_SESSION['myuser_pubkey'] !== "") {
 		echo '<textarea readonly style="display:none;" id="active_pubkey">'.$_SESSION['myuser_pubkey'].'</textarea>';
