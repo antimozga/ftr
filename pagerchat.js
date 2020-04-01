@@ -1,5 +1,6 @@
 var pagerReadyFlag = 0;
 var pagerHistoryLastTime = 0;
+var pagerHistoryFirstTime = 0;
 
 function pagerInsertPost(el, data)
 {
@@ -82,27 +83,53 @@ function pagerInsertPost(el, data)
     }
 }
 
-function pagerLoadJson()
+function pagerLoadJson(dir = 1)
 {
     let el = document.getElementById('pager_history');
     let url = el.getAttribute('src');
-    if (pagerHistoryLastTime != 0) {
-	url = url + '&from=' + pagerHistoryLastTime;
+    if (dir < 0) {
+	if (pagerHistoryFirstTime != 0) {
+	    url = url + '&before=' + pagerHistoryFirstTime;
+	}
+    } else {
+	if (pagerHistoryLastTime != 0) {
+	    url = url + '&from=' + pagerHistoryLastTime;
+	}
     }
     fetch(url)
 	.then(res => res.json())
 	.then(data => {
-	    let firstChild = el.firstChild;
+	    let firstChild;
+	    if (dir < 0) {
+		firstChild = el.lastChild;
+	    } else {
+		firstChild = el.firstChild;
+	    }
 	    for (let i in data) {
-		if (i == 0) {
+		if (i == 0 && data[i].t > pagerHistoryLastTime) {
 		    pagerHistoryLastTime = data[i].t;
+		    if (pagerHistoryFirstTime == 0) {
+			pagerHistoryFirstTime = pagerHistoryLastTime;
+		    }
 		}
+		if (data[i].t < pagerHistoryFirstTime) {
+		    pagerHistoryFirstTime = data[i].t;
+		}
+
 		let div1 = document.createElement('div');
 		div1.className = 'dialog_box_text';
-		if (pagerHistoryLastTime != 0) {
-		    el.insertBefore(div1, firstChild);
+		if (dir < 0) {
+//		    if (pagerHistoryFirstTime != 0) {
+//			el.insertAfter(div1, firstChild);
+//		    } else {
+			el.appendChild(div1);
+//		    }
 		} else {
-		    el.appendChild(div1);
+		    if (pagerHistoryLastTime != 0) {
+			el.insertBefore(div1, firstChild);
+		    } else {
+			el.appendChild(div1);
+		    }
 		}
 		pagerInsertPost(div1, data[i]);
 	    }
@@ -194,4 +221,11 @@ function pgpSendMessage()
     })();
 
     return false;
+}
+
+function pagerHistoryScroll(el)
+{
+    if (el.scrollHeight - el.offsetHeight - el.scrollTop < 1) {
+	pagerLoadJson(-1);
+    }
 }

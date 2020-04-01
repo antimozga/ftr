@@ -47,7 +47,7 @@ if (!$database) {
 
 	$to_user = get_user($database, $to_id);
 
-echo '<div class="modal-content-window pagerchat_window">
+echo '<div class="modal-content-window pagerchat_window" onscroll="pagerHistoryScroll(this)">
     <div class="head">
     <div class="user_info">';
 
@@ -109,7 +109,8 @@ echo '
 echo '<div class="refreshnow" src="pagerchat.js" preexec="pagerHistoryReset" exec="pagerHistoryLoad"></div>';
 echo '<div class="autorefresh refreshnow" exec="pagerHistoryUpdate"></div>';
 
-echo '<div id="pager_history" src="pagerchathist.php/?to='.$to_id.'"></div>';
+echo '<div id="pager_history" src="pagerchathist.php/?to='.$to_id.'&count=15"></div>
+</div>';
     }
 } else {
     echo '<p>Доступ запрещен.</p>';

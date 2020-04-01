@@ -27,10 +27,24 @@ if (!$database) {
 	$to_user = get_user($database, $to_id);
 
 	$where_time = '';
+
 	if (is_defined('from')) {
 	    $from_time = $_REQUEST['from'];
 	    $from_time = ($from_time * 10) / 10;
 	    $where_time = "AND ForumPager.time > $from_time";
+	}
+
+	if (is_defined('before')) {
+	    $from_time = $_REQUEST['before'];
+	    $from_time = ($from_time * 10) / 10;
+	    $where_time = "AND ForumPager.time < $from_time";
+	}
+
+	$msg_limit = '';
+	if (is_defined('count')) {
+	    $msg_count = $_REQUEST['count'];
+	    $msg_count = ($msg_count * 10) / 10;
+	    $msg_limit = "LIMIT 0, $msg_count";
 	}
 
 	echo '[';
@@ -42,7 +56,7 @@ if (!$database) {
 	    ."ForumPager.post AS post, ForumPager.encrypted AS encrypted "
 	    ."FROM ForumUsers, ForumPager WHERE ForumUsers.id = $to_id $where_time AND"
 	    ."((ForumPager.id_from_user = $to_id AND ForumPager.id_user = $myuser_id) OR "
-	    ." (ForumPager.id_from_user = $myuser_id AND ForumPager.id_user = $to_id)) ORDER BY ForumPager.time DESC;";
+	    ." (ForumPager.id_from_user = $myuser_id AND ForumPager.id_user = $to_id)) ORDER BY ForumPager.time DESC $msg_limit;";
 	foreach ($database->query($user_query) as $row) {
 	    $user = get_user($database, $row['id_from_user']);
 	    $n = 0;
