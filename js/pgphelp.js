@@ -149,10 +149,25 @@ function pgpRegRemoveKey()
 
 function pgpRegInit()
 {
-    document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
-    document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
-    document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
-    document.getElementById('x_pubkey').value = localStorage.getItem(userName + '.pubkey');
+    if (localStorage.getItem(userName + '.passphrase') != null) {
+	document.getElementById('passphrase').value = localStorage.getItem(userName + '.passphrase');
+    } else {
+	document.getElementById('passphrase').value = '';
+    }
+
+    if (localStorage.getItem(userName + '.privkey') != null) {
+	document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
+    } else {
+	document.getElementById('privkey').value = '';
+    }
+
+    if (localStorage.getItem(userName + '.pubkey') != null) {
+	document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
+	document.getElementById('x_pubkey').value = localStorage.getItem(userName + '.pubkey');
+    } else {
+	document.getElementById('pubkey').value = '';
+	document.getElementById('x_pubkey').value = '';
+    }
 
     let el = document.getElementById('addremove_key_button');
 

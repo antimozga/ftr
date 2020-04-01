@@ -94,7 +94,7 @@ echo '<div class="dialog_brn_box"><div>
 
 echo '
 <div class="dialog_answer_box">
-    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" id="pager_message_form_default" onsubmit="pager_post_submit(event, this)">
+    <form action="pagerchat.php/?new='.$to_id.'" method="post" class="form_dialog" id="pager_message_form_default" onsubmit="return pager_post_submit(event, this);">
     <input type="hidden" name="event" value="forumpagercreatemess"/>
     <textarea maxlength="4096" class="area_dialog_text" name="pagermess[content]" id="dialog_mess" autofocus></textarea>
     <input type="hidden" name="pagermess[encrypted]" value="0">

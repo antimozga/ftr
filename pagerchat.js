@@ -15,7 +15,7 @@ function pagerInsertPost(el, data)
 	const passphrase = localStorage.getItem(userName + '.passphrase');
 	const privateKeyArmored = localStorage.getItem(userName + '.privkey');
 	const publicKeyArmored1 = localStorage.getItem(userName + '.pubkey');
-	const publicKeyArmored2 = document.getElementById('pubkey2').value;
+	const publicKeyArmored2 = (document.getElementById('pubkey2') != null) ? document.getElementById('pubkey2').value : publicKeyArmored1;
 
 	const publicKeysArmored = [
 		publicKeyArmored1,
@@ -197,6 +197,7 @@ function pager_post_submit(e, form)
     });
 
     e.preventDefault();
+    return false;
 }
 
 function pgpSendMessage()
