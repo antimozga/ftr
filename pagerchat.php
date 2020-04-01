@@ -78,7 +78,7 @@ echo '<h3>'.format_user_nick($to_user['login'], $to_id, $to_user['login'], $to_i
         <span class="user_info_date">был в сети: '.date('d.m.Y H:i', $to_user['time']).'</span>
     </div>';
 
-    if ($encrypt_send != '') {
+    if ($to_user['pubkey'] != '') {
 	echo '<div class="sender_key_block">
 <label for="sender_key_show">Показать</label><input type="radio" id="sender_key_show" name="group">
 <label for="sender_key_hide">Скрыть</label><input type="radio" id="sender_key_hide" name="group"> открытый ключ';

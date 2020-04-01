@@ -21,10 +21,12 @@ function pgpRegError(err)
 	document.getElementById('pgpregerror').innerHTML = '';
 	document.getElementById('lbpassphrase').innerHTML = '';
 	document.getElementById('lbprivkey').innerHTML = '';
+	document.getElementById('pgpregwarn').innerHTML = '';
     }
 }
 
-function pgpRegGetPubKey() {
+function pgpRegGetPubKey()
+{
     window.setTimeout(function() {
 	passPhrase  = document.getElementById('passphrase').value;
 	privateKeyArmored = document.getElementById('privkey').value;
@@ -50,7 +52,8 @@ function pgpRegGetPubKey() {
     }, 100);
 }
 
-function pgpRegSetKey() {
+function pgpRegSetKey(submit = 0)
+{
     passPhrase  = document.getElementById('passphrase').value;
     privateKeyArmored = document.getElementById('privkey').value;
     login = document.getElementById('login').value;
@@ -75,7 +78,11 @@ function pgpRegSetKey() {
 
 		pgpRegError(null);
 
-		document.getElementById("regeditform").submit();
+		if (submit != 0) {
+		    document.getElementById("regeditform").submit();
+		} else {
+		    pgpRegInit();
+		}
 	    } catch (err) {
 		pgpRegError(err);
 	    }
@@ -84,7 +91,9 @@ function pgpRegSetKey() {
 	(async () => {
 	    try {
 		const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
-		await privateKey.decrypt(passPhrase);
+		if (passPhrase != '') {
+		    await privateKey.decrypt(passPhrase);
+		}
 
 		publicKeyArmored = privateKey.toPublic().armor();
 
@@ -96,7 +105,11 @@ function pgpRegSetKey() {
 
 		pgpRegError(null);
 
-		document.getElementById("regeditform").submit();
+		if (submit != 0) {
+		    document.getElementById("regeditform").submit();
+		} else {
+		    pgpRegInit();
+		}
 	    } catch(err) {
 		pgpRegError(err);
 	    }
@@ -108,19 +121,28 @@ function pgpRegSetKey() {
 
 function pgpRegResetKey()
 {
-    localStorage.removeItem(userName + '.passphrase');
-    localStorage.removeItem(userName + '.privkey');
-    localStorage.removeItem(userName + '.pubkey');
-
-    document.getElementById('pubkey').value = '';
-
-    document.getElementById('passphrase').value = '';
-    document.getElementById('privkey').value = '';
     document.getElementById('pubkey').value = '';
 
     pgpRegError(null);
 
     document.getElementById("regeditform").submit();
+
+    return false;
+}
+
+function pgpRegRemoveKey()
+{
+    document.getElementById('passphrase').value = '';
+    document.getElementById('privkey').value = '';
+    document.getElementById('pubkey').value = '';
+
+    localStorage.removeItem(userName + '.passphrase');
+    localStorage.removeItem(userName + '.privkey');
+    localStorage.removeItem(userName + '.pubkey');
+
+    pgpRegError(null);
+
+    pgpRegInit();
 
     return false;
 }
@@ -131,8 +153,23 @@ function pgpRegInit()
     document.getElementById('privkey').value = localStorage.getItem(userName + '.privkey');
     document.getElementById('pubkey').value = localStorage.getItem(userName + '.pubkey');
 
-    if (document.getElementById('pubkey').value != '') {
-	document.getElementById('privkey').readOnly = true;
-	document.getElementById('passphrase').readOnly = true;
+    let el = document.getElementById('addremove_key_button');
+
+    if (document.getElementById('active_pubkey').value != '') {
+	if (document.getElementById('pubkey').value === document.getElementById('active_pubkey').value) {
+	    document.getElementById('privkey').readOnly = true;
+	    document.getElementById('passphrase').readOnly = true;
+	    el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegRemoveKey();">Удалить локально</button>';
+	} else {
+	    if (document.getElementById('pubkey').value != '') {
+		document.getElementById('pgpregwarn').innerHTML = 'Используемый ключ шифрования отличается от добавленного локально. Удалите и добавьте правильный закрытый ключ или запретите текущий и активируйте локальный.';
+		el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegRemoveKey();">Удалить локально</button>';
+	    } else {
+		document.getElementById('pgpregwarn').innerHTML = 'Шифрование включено на сервере, но не настроено на устройстве. Скопируйте ваш закрытый ключ, пароль и добавьте локально.';
+		el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegSetKey();">Добавить локально</button>';
+	    }
+	}
+    } else {
+	el.innerHTML = '<button type="button" class="btn_reg_right" onclick="return pgpRegSetKey();">Добавить локально</button>';
     }
 }
