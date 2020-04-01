@@ -147,6 +147,25 @@ function pagerHistoryLoad()
 {
     pagerHistoryLastTime = 0;
 
+
+    if (document.getElementById('pubkey2') &&
+	document.getElementById('pubkey2').value != '') {
+	document.getElementById('current_pubkey').value = localStorage.getItem(userName + '.pubkey');
+	let statusIcon = `<a href="?reg=3#pager"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<title>Настройте ключ для защищенной переписки</title>
+<path d="M4 8V6a6 6 0 1 1 12 0h-3v2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg></a>`;
+
+	if (document.getElementById('active_pubkey').value != '' &&
+	    (document.getElementById('active_pubkey').value === document.getElementById('current_pubkey').value)) {
+	    statusIcon = `<svg viewBox="0 0 20 20" width="16px" class="svg_icon">
+<title>Переписка защищена шифрованием</title>
+<path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z"/>
+</svg>`;
+	}
+	document.getElementById('encrypted_status').innerHTML = statusIcon;
+    }
+
     pagerLoadJson();
 
     pagerReadyFlag = 1;
@@ -182,6 +201,12 @@ function pager_post_submit(e, form)
 
 function pgpSendMessage()
 {
+    if (document.getElementById('active_pubkey').value == '' ||
+	(document.getElementById('active_pubkey').value !== document.getElementById('current_pubkey').value)) {
+	    pager_post_submit(event, document.getElementById("pager_message_form_default"));
+	    return false;
+    }
+
     let message = document.getElementById('dialog_mess').value;
     const passphrase = localStorage.getItem(userName + '.passphrase');
     const privateKeyArmored = localStorage.getItem(userName + '.privkey');
