@@ -1201,11 +1201,14 @@ label.l_inp_text_name span {
 
 .sender_key_block label {
 	cursor: pointer;
+	font-weight: bold;
+	color: #CCCCCC;
 }
 
 .sender_key_block label:hover {
 	cursor: pointer;
 	text-decoration: underline;
+	color: #33CCFF;
 }
 
 /*
