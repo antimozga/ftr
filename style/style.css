@@ -698,7 +698,7 @@ label.upload_file {
 	color: #FAFAF0;
 	font-size: 13px;
 	line-height: 120%;
-	word-break: break-all;
+	overflow-wrap: break-word;
 }
 
 .text_box_2 div.text_box_2_mess {
@@ -728,6 +728,7 @@ label.upload_file {
 .box_user {
 	display: block;
 	padding: 5px 0px;
+	overflow-wrap: break-word;
 }
 
 .box_alfavit {
