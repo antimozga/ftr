@@ -121,7 +121,10 @@ function convert_youtube($string) {
 function convert_vkv($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*vk.com(\/[a-zA-Z0-9]+\?z=|\/)video([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
-	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vk.com/video$2\" title=\"https://vk.com/video$2\" controls></video>",
+	"<div class=\"videobox\">".
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vk.com/video$2\" title=\"https://vk.com/video$2\" controls></video>".
+	"<a class=\"videolink\" target=\"_blank\" href=\"https://vk.com/video$2\">vk.com/video$2</a>".
+	"</div>",
 	$string
     );
 }
@@ -129,7 +132,10 @@ function convert_vkv($string) {
 function convert_tiktok($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/video\/([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
-	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://www.tiktok.com/$1/video/$2\" title=\"https://www.tiktok.com/$1/video/$2\" controls></video>",
+	"<div class=\"videobox\">".
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://www.tiktok.com/$1/video/$2\" title=\"https://www.tiktok.com/$1/video/$2\" controls></video>".
+	"<a class=\"videolink\" target=\"_blank\" href=\"https://www.tiktok.com/$1/video/$2\">www.tiktok.com/$1/video/$2</a>".
+	"</div>",
 	$string
     );
 }
@@ -137,7 +143,10 @@ function convert_tiktok($string) {
 function convert_tiktok2($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*vm.tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/?/i",
-	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vm.tiktok.com/$1\" title=\"https://video.vtomske.net/cache.php?url=//vm.tiktok.com/$1\" controls></video>",
+	"<div class=\"videobox\">".
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vm.tiktok.com/$1\" title=\"https://video.vtomske.net/cache.php?url=//vm.tiktok.com/$1\" controls></video>".
+	"<a class=\"videolink\" target=\"_blank\" href=\"https://vm.tiktok.com/$1\">vm.tiktok.com/$1</a>".
+	"</div>",
 	$string
     );
 }

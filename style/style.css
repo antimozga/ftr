@@ -169,6 +169,24 @@ img.postimage {
 	max-height: 315px;
 }
 
+.videobox {
+	margin: 0;
+	border: 0;
+	position: relative;
+	overflow: hidden;
+}
+
+.videobox a {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	font-size: smaller;
+	font-weight: bold;
+	width: 100%;
+	color: #33CCFF;
+}
+
 video.postvideo {
 	float: left;
 	margin-right: 5px;
