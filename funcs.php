@@ -121,7 +121,7 @@ function convert_youtube($string) {
 function convert_vkv($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*vk.com(\/[a-zA-Z0-9]+\?z=|\/)video([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
-	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://vk.com/video$2\" allowfullscreen></iframe>",
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vk.com/video$2\" title=\"https://vk.com/video$2\" controls></video>",
 	$string
     );
 }
@@ -129,7 +129,7 @@ function convert_vkv($string) {
 function convert_tiktok($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/video\/([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
-	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://www.tiktok.com/$1/video/$2\" allowfullscreen></iframe>",
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://www.tiktok.com/$1/video/$2\" title=\"https://www.tiktok.com/$1/video/$2\" controls></video>",
 	$string
     );
 }
@@ -137,7 +137,7 @@ function convert_tiktok($string) {
 function convert_tiktok2($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*vm.tiktok.com\/([\@a-zA-Z0-9\-_\.]+)\/?/i",
-	" <iframe width=\"420\" height=\"315\" src=\"//video.vtomske.net/get_video.php?w=420&h=315&url=https://vm.tiktok.com/$1\" allowfullscreen></iframe>",
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vm.tiktok.com/$1\" title=\"https://video.vtomske.net/cache.php?url=//vm.tiktok.com/$1\" controls></video>",
 	$string
     );
 }

@@ -777,7 +777,7 @@ if (!$database) {
 
 				    if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
 					$image_ext == 'webp') {
-					system("convert -resize 80x60 -quality 85 ".$image_tmp." ".$UPLOAD_DIR."/small-".$img_file);
+					system('convert -resize 420x315\> -quality 85 '.$image_tmp.' '.$UPLOAD_DIR.'/small-'.$img_file);
 				    }
 
 				    move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
@@ -1434,7 +1434,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
 		    echo '</a>';
 		} else {
-		    echo '<video class="postvideo" width="420" height="315" controls>';
+		    echo '<video class="postvideo" controls>';
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
 			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/mp4\">";
 		    } else if ($image_ext == 'ogv') {
