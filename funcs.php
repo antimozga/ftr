@@ -113,7 +113,7 @@ function convert_string($str)
 function convert_youtube($string) {
     return preg_replace(
 	"/\s*[a-zA-Z\/\/:\.]*youtu(be.com\/watch\?v=|.be\/)([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
-	"<iframe width=\"420\" height=\"315\" src=\"//www.youtube.com/embed/$2\" allowfullscreen></iframe>",
+	"<iframe class=\"postyoutube\" src=\"//www.youtube.com/embed/$2\" allowfullscreen></iframe>",
 	$string
     );
 }

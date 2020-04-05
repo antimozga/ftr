@@ -169,6 +169,25 @@ img.postimage {
 	max-height: 315px;
 }
 
+.postyoutube {
+	width: 420px;
+	height: 315px;
+}
+
+@media screen and (max-width: 420px) {
+	.postyoutube {
+		width: 320px;
+		height: 240px;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.postyoutube {
+		width: 280px;
+		height: 210px;
+	}
+}
+
 .videobox {
 	margin: 0;
 	border: 0;
