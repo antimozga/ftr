@@ -397,7 +397,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
-	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0, id_session NVARCHAR);";
+	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0, id_session NVARCHAR, purgatory INTEGER DEFAULT 0);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumGroups " .
@@ -533,14 +533,14 @@ if (!$database) {
 		$dt = $_REQUEST["dt"];
 		$dt = ($dt * 10) / 10;
 		if (is_defined("trash")) {
-		    $query = "UPDATE ForumPosts SET id_grp = ".$FORUM_TRASH_GID." WHERE id_topic = ".$dt.";";
+		    $query = "UPDATE ForumPosts SET id_grp = $FORUM_TRASH_GID WHERE id_topic = $dt;";
 		    $database->exec($query);
-		    $query = "UPDATE ForumTopics SET id_grp = ".$FORUM_TRASH_GID." WHERE id = ".$dt.";";
+		    $query = "UPDATE ForumTopics SET id_grp = $FORUM_TRASH_GID, purgatory = 0 WHERE id = $dt;";
 		    $database->exec($query);
 		} else {
-		    $query = "DELETE FROM ForumPosts WHERE id_topic = ".$dt.";";
+		    $query = "DELETE FROM ForumPosts WHERE id_topic = $dt;";
 		    $database->exec($query);
-		    $query = "DELETE FROM ForumTopics WHERE id = ".$dt.";";
+		    $query = "DELETE FROM ForumTopics WHERE id = $dt;";
 		    $database->exec($query);
 		}
 	    }
@@ -691,13 +691,20 @@ if (!$database) {
 
 			$tim = time();
 
+			$purgatory = 1;
+
 			if ($nick == "" && $id_user != 0) {
-			    $nick = $database->query("SELECT login FROM ForumUsers WHERE id = '$id_user'")->fetchColumn();
+			    $nick = $_SESSION['myuser_name']; //$database->query("SELECT login FROM ForumUsers WHERE id = '$id_user'")->fetchColumn();
 			}
 
 			if ($nick == "") {
 			    $nick = "Анонимно";
 			}
+
+			if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
+			    $purgatory = 0;
+			}
+
 			if ($id_topic != 0) {
 			    if ($post != "") {
 				if (isset($_POST['edit_post_info'])) {
@@ -716,7 +723,7 @@ if (!$database) {
 					$post_id = $row['id'];
 
 					if ($subj != "") {
-					    $database->exec("UPDATE ForumTopics SET topic='$subj', nick='$nick', id_user='$id_user'".
+					    $database->exec("UPDATE ForumTopics SET topic='$subj', nick='$nick', id_user='$id_user', purgatory=$purgatory".
 							    " WHERE id=(SELECT id_topic FROM ForumPosts WHERE id=(SELECT id FROM ForumPosts WHERE id_topic='".$row['id_topic']."' AND id_session='$id_session' ORDER BY id ASC LIMIT 1) AND id=(SELECT id FROM ForumPosts WHERE id_topic='".$row['id_topic']."' ORDER BY id ASC LIMIT 1) AND id='$post_id')");
 					}
 				    }
@@ -730,12 +737,13 @@ if (!$database) {
 			} else {
 			    if ($post != "" && $subj != "") {
 				if ($database->query("SELECT id FROM ForumTopics WHERE topic = '$subj'")->fetchColumn() == "") {
-				    $query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view, id_session)" .
+				    $query = "REPLACE INTO ForumTopics (id, id_grp, id_user, nick, topic, view, id_session, purgatory)" .
 					     "VALUES ((SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_grp,".
 					     " coalesce((SELECT id_user FROM ForumTopics WHERE topic = '$subj'), $id_user),".
 					     " coalesce((SELECT nick FROM ForumTopics WHERE topic = '$subj'),'$nick'), '$subj',".
 					     " coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0),".
-					     " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'));";
+					     " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'),".
+					     " $purgatory);";
 				    $database->exec($query);
 				    $topic_id = $database->lastInsertId();
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
@@ -889,7 +897,8 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 	if ($id_grp != 0) {
 	    if (!(isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) &&
-		!(isset($FORUM_NEWSVTOMSKE_GID) && $id_grp == $FORUM_NEWSVTOMSKE_GID)) {
+		!(isset($FORUM_NEWSVTOMSKE_GID) && $id_grp == $FORUM_NEWSVTOMSKE_GID) &&
+		!(isset($FORUM_TRASH_GID)       && $id_grp == $FORUM_TRASH_GID)) {
 		show_postbox('topic');
 	    }
 	} else if ($id_topic != 0) {
@@ -1111,12 +1120,14 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    foreach ($database->query($group_query) as $row) {
 		$topics = 0;
 		$updated = 0;
-		$view_query = "SELECT COUNT(*) as topics, (SELECT MAX(time) FROM ForumPosts WHERE id_grp = {$row['id']}) as time FROM ForumTopics WHERE id_grp = {$row['id']} GROUP BY id_grp;";
+			$view_query =
+"SELECT (SELECT COUNT(*) FROM ForumTopics WHERE purgatory=0 AND id_grp = {$row['id']}) as topics, ".
+"(SELECT MAX(ForumPosts.time) FROM ForumPosts,ForumTopics WHERE ForumPosts.id_grp = {$row['id']} AND ForumPosts.id_topic = ForumTopics.id AND ForumTopics.purgatory=0) as time;";
 		if (isset($FORUM_PURGATORIUM_GID)) {
 		    if ($row['id'] == $FORUM_PURGATORIUM_GID) {
-			$view_query = "SELECT COUNT(*) as topics, MAX(ForumPosts.time) as time FROM ForumTopics,ForumUsers,ForumPosts WHERE ForumTopics.id_user=ForumUsers.id AND ForumTopics.id_grp != 25 AND ForumTopics.id_grp != 45 AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24) AND ForumPosts.time=(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id ORDER BY time DESC LIMIT 1)";
-		    } else {
-			$view_query = "SELECT COUNT(*) as topics, MAX(ForumPosts.time) as time FROM ForumTopics,ForumUsers,ForumPosts WHERE ForumTopics.id_user=ForumUsers.id AND ForumTopics.id_grp = {$row['id']} AND ((ForumTopics.id_user!=0 AND ForumTopics.nick==ForumUsers.login) OR (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) AND ForumPosts.time=(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id ORDER BY time DESC LIMIT 1)";
+			$view_query =
+"SELECT (SELECT COUNT(*) FROM ForumTopics WHERE purgatory!=0 AND id_grp != $FORUM_TRASH_GID AND id_grp != $FORUM_NEWSVTOMSKE_GID) as topics, ".
+"(SELECT MAX(ForumPosts.time) FROM ForumPosts,ForumTopics WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.purgatory!=0 AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID) as time;";
 		    }
 		}
 		foreach ($database->query($view_query) as $row1) {
@@ -1198,15 +1209,11 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			$count_query  = "$count_query AND";
 		    }
 		    if (isset($FORUM_NEWSVTOMSKE_GID)) {
-		    $having_query = "$having_query ((ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID) OR (ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
-"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
-		    $count_query  = "$count_query ((ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID) OR (ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
-"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+			$having_query = "$having_query (ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID OR ForumTopics.purgatory = 0) ";
+			$count_query  = "$count_query (ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID OR ForumTopics.purgatory = 0) ";
 		    } else {
-		    $having_query = "$having_query ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
-"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
-		    $count_query  = "$count_query ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
-"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+			$having_query = "$having_query ForumTopics.purgatory = 0 ";
+			$count_query  = "$count_query ForumTopics.purgatory = 0 ";
 		    }
 		}
 
@@ -1227,19 +1234,14 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			$count_query = "$count_query AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID";
 		    }
 
-		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user ".
-"AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) ".
-"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24)";
-		    $count_query = "$count_query AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) ".
-"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24)";
+		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user AND ForumTopics.purgatory != 0";
+		    $count_query = "$count_query AND ForumTopics.purgatory != 0";
 		} else {
 		    if (isset($FORUM_PURGATORIUM_GID)) {
 			$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user ".
-"AND ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) ".
-"OR (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24)";
+"AND ForumTopics.purgatory = 0";
 			$count_query = "$count_query AND ForumTopics.id_grp = $id_grp ".
-"AND ((ForumTopics.id_user!=0 OR ForumTopics.nick=ForumUsers.login) ".
-"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24)";
+"AND ForumTopics.purgatory = 0";
 		    } else {
 			$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
 			$count_query = "$count_query AND ForumTopics.id_grp = $id_grp";

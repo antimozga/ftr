@@ -1,3 +1,10 @@
+Upgrade purgaritorium:
+
+ALTER TABLE ForumTopics ADD COLUMN purgatory INTEGER DEFAULT 0;
+
+
+History:
+
 Upgrade to encrypted chat:
 
 ALTER TABLE ForumUsers ADD COLUMN pubkey NVARCHAR;
