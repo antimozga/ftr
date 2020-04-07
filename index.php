@@ -557,6 +557,19 @@ if (!$database) {
 	    $topic = "ГРУППЫ ТЕМ";
 	    $id_grp = $_REQUEST["g"];
 	    $id_grp = ($id_grp * 10) / 10;
+
+	    if (is_forum_admin()) {
+		if (is_defined("public")) {
+		    $id_public = $_REQUEST['public'];
+		    $id_public = ($id_public * 10) / 10;
+		    if ($id_public > 0) {
+			$query = "UPDATE ForumTopics SET purgatory = 0 WHERE id = $id_public;";
+			$database->exec($query);
+		    }
+		    redirect_without("public");
+		}
+	    }
+
 	    if ($id_grp != 0) {
 		$group_query = "SELECT grp FROM ForumGroups WHERE id = $id_grp;";
 		foreach ($database->query($group_query) as $row) {
@@ -1348,6 +1361,9 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    echo '<a href="?'.$rmargs.'" class="remove">Удалить</a>';
 		    if ($id_grp != $FORUM_TRASH_GID) {
 			echo '<a href="?'.$rmargs.'&trash=1" class="remove">Мусор</a>';
+		    }
+		    if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
+			echo '<a href="'.$_SERVER['REQUEST_URI'].'&public='.$row['id_topic'].'" class="remove">Показать</a>';
 		    }
 		}
 		print("</td>".
