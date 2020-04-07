@@ -1223,8 +1223,17 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    $count_query = "$count_query AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) ".
 "AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24)";
 		} else {
-		    $base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
-		    $count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
+		    if (isset($FORUM_PURGATORIUM_GID)) {
+			$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user ".
+"AND ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) ".
+"OR (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24)";
+			$count_query = "$count_query AND ForumTopics.id_grp = $id_grp ".
+"AND ((ForumTopics.id_user!=0 OR ForumTopics.nick=ForumUsers.login) ".
+"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24)";
+		    } else {
+			$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
+			$count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
+		    }
 		}
 //echo "<!-- 1count_query $count_query -->";
 
