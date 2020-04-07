@@ -1103,6 +1103,9 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		$topics = 0;
 		$updated = 0;
 		$view_query = "SELECT COUNT(*) as topics, (SELECT MAX(time) FROM ForumPosts WHERE id_grp = {$row['id']}) as time FROM ForumTopics WHERE id_grp = {$row['id']} GROUP BY id_grp;";
+		if (isset($FORUM_PURGATORIUM_GID) && $row['id'] == $FORUM_PURGATORIUM_GID) {
+		    $view_query = "SELECT COUNT(*) as topics, ForumPosts.time as time FROM ForumTopics,ForumUsers,ForumPosts WHERE ForumTopics.id_user=ForumUsers.id AND ForumTopics.id_grp != 25 AND ForumTopics.id_grp != 45 AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24) AND ForumPosts.time=(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id ORDER BY time DESC LIMIT 1)";
+		}
 		foreach ($database->query($view_query) as $row1) {
 		    $topics = $row1['topics'];
 		    $updated = $row1['time'];
