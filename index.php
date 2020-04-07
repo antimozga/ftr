@@ -662,6 +662,7 @@ if (!$database) {
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
 		$post_id = "";
+		$topic_id = "";
 		$id_session = md5(session_id());
 
 		if (mb_strlen($post) > 16384) {
@@ -736,6 +737,7 @@ if (!$database) {
 					     " coalesce((SELECT view FROM ForumTopics WHERE topic = '$subj'), 0),".
 					     " coalesce((SELECT id_session FROM ForumTopics WHERE topic = '$subj'), '$id_session'));";
 				    $database->exec($query);
+				    $topic_id = $database->lastInsertId();
 				    $query = "INSERT INTO ForumPosts (id, time, id_grp, id_topic, id_user, nick, subj, post, id_session)" .
 					     "VALUES (NULL, '$tim', $id_grp, (SELECT id FROM ForumTopics WHERE topic = '$subj'), $id_user, '$nick', '$subj', '$post', '$id_session');";
 				    $database->exec($query);
@@ -790,7 +792,11 @@ if (!$database) {
 			    unset($_SESSION['user_temp_post']);
 			    unset($_SESSION['user_edit_post']);
 
-			    $uri = $_SERVER['REQUEST_URI'];
+			    if ($id_topic != 0) {
+				$uri = $_SERVER['REQUEST_URI'];
+			    } else {
+				$uri = "?t=$topic_id";
+			    }
 			    header("Location: $uri", true, 301);
 			    exit();
 			}
