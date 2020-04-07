@@ -20,6 +20,8 @@ $SHOW_TRASH_TOPICS = false;	// true/false - разрешить/запретит�
 
 $FORUM_TRASH_GID = "25";	// group id мусорной темы
 
+$FORUM_PURGATORIUM_GID = 46;	// purgatorium group id
+
 $FORUM_NEWSVTOMSKE_GID = 45;	// group id news.vtomske.ru
 
 $RECAPTCHA_SITE_KEY = "SITEKEYMOVEITTOconfig_user.php";

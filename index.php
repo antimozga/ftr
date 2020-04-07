@@ -1161,7 +1161,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			  " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
 			  " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
 	    $count_query = "SELECT COUNT(*)".
-			   " FROM ForumTopics WHERE 1 ";
+			   " FROM ForumTopics,ForumUsers WHERE ForumTopics.id_user=ForumUsers.id ";
 
 	    if ($id_grp == 0) {
 		if (!$show_trash_topics) {
@@ -1172,8 +1172,26 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		if (isset($FORUM_NEWSVTOMSKE_GID)) {
 		    $having_query = " ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID ";
 		    $having_query = " ($having_query OR (ForumTopics.id_grp=$FORUM_NEWSVTOMSKE_GID AND COUNT(*) > 1)) ";
-		    $count_query  = "$count_query AND id IN".
+		    $count_query  = "$count_query AND ForumTopics.id IN".
 " (select id_topic from ForumPosts group by id_topic having id_grp!=$FORUM_NEWSVTOMSKE_GID or (id_grp=$FORUM_NEWSVTOMSKE_GID and count(*) > 1))";
+		}
+
+		if (isset($FORUM_PURGATORIUM_GID)) {
+		    if ($having_query != "") {
+			$having_query = "$having_query AND";
+			$count_query  = "$count_query AND";
+		    }
+		    if (isset($FORUM_NEWSVTOMSKE_GID)) {
+		    $having_query = "$having_query ((ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID) OR (ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
+"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+		    $count_query  = "$count_query ((ForumTopics.id_grp = $FORUM_NEWSVTOMSKE_GID) OR (ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
+"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+		    } else {
+		    $having_query = "$having_query ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
+"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+		    $count_query  = "$count_query ((ForumTopics.id_user!=0 AND ForumTopics.nick=ForumUsers.login) OR ".
+"(SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) <= strftime('%s','now') - 60*60*24) ";
+		    }
 		}
 
 		$having_query = " HAVING $having_query";
@@ -1182,9 +1200,26 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    }
 
 	    if ($id_grp != 0) {
-		$base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
-		$count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
+		if ($id_grp === $FORUM_PURGATORIUM_GID) {
+		    if (isset($FORUM_TRASH_GID)) {
+			$base_query  = "$base_query AND ForumTopics.id_grp != $FORUM_TRASH_GID";
+			$count_query = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID";
+		    }
 
+		    if (isset($FORUM_NEWSVTOMSKE_GID)) {
+			$base_query  = "$base_query AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID";
+			$count_query = "$count_query AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID";
+		    }
+
+		    $base_query  = "$base_query  AND ForumUsers.id = ForumTopics.id_user ".
+"AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) ".
+"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24)";
+		    $count_query = "$count_query AND ((ForumTopics.id_user=0 OR ForumTopics.nick!=ForumUsers.login) ".
+"AND (SELECT time FROM ForumPosts WHERE id_topic=ForumTopics.id  ORDER BY time ASC LIMIT 1) > strftime('%s','now') - 60*60*24)";
+		} else {
+		    $base_query  = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user";
+		    $count_query = "$count_query AND ForumTopics.id_grp = $id_grp";
+		}
 //echo "<!-- 1count_query $count_query -->";
 
 		$posts = $database->query($count_query)->fetchColumn();
@@ -1263,6 +1298,8 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    }
 
 	    echo '<table class="themes">';
+
+//echo "<!-- 2view_query $view_query -->";
 
 	    foreach ($database->query($view_query) as $row) {
 		$timestamp = date('H:i d/m', $row['time']);
