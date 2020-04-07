@@ -598,12 +598,14 @@ if (!$database) {
 		}
 	    }
 	
-	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic, ForumGroups.grp AS grp FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
+	    $purgatory = 0;
+	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic, ForumTopics.purgatory AS purgatory, ForumGroups.grp AS grp FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
 	    foreach ($database->query($topic_query) as $row) {
 		$topic = $row['topic'];
 		$id_topic = $row['id_topic'];
 		$group = $row['grp'];
 		$id_group = $row['id_grp'];
+		$purgatory = $row['purgatory'];
 	    }
 	    if ($id_user != 0) {
 		if ($database->query("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;")->fetchColumn() == $id_user) {
@@ -613,7 +615,11 @@ if (!$database) {
 		}
 	    }
 
-	    $nav_path = "<a href=\"?g=".$id_group."\">".$group."</a> &nbsp;/&nbsp; <a href=\"?t=".$id_topic."\">".$topic."</a>";
+	    $nav_path = "<a href=\"?g=$id_group\">$group</a> &nbsp;/&nbsp; <a href=\"?t=$id_topic\">$topic</a>";
+	    if ($purgatory != 0) {
+		$nav_path = $nav_path."&nbsp[<a href=\"?g=$FORUM_PURGATORIUM_GID\">Чистилище</a>]";
+	    }
+	    unset($purgatory);
 	} else if (is_defined("reg")) {
 	    $reg_mode = $_REQUEST["reg"];
 	    if ($reg_mode == 3 && $id_user == 0) {
