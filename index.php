@@ -393,7 +393,7 @@ if (!$database) {
     print("<b>Ошибка базы данных.</b>");
 } else {
     $query = "CREATE TABLE IF NOT EXISTS ForumPosts " .
-	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR, attachment NVARCHAR, modtime INTEGER);";
+	     "(id INTEGER PRIMARY KEY, time DATE, id_grp INTEGER, id_topic INTEGER, id_user INTEGER, nick NVARCHAR, subj NVARCHAR, post NVARCHAR, id_session NVARCHAR, attachment NVARCHAR, modtime INTEGER, hidden INTEGER DEFAULT 0);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
@@ -427,6 +427,7 @@ if (!$database) {
 	$id_grp = 0;
 	$id_topic = 0;
 	$id_user = 0;
+	$id_topic_owner = 0;
 	$show_hot = 0;
 	$page = 1;
 	$topic = "ТОП ".$MAX_PAGE_ENTRIES." ГОРЯЧИХ ТЕМ";
@@ -590,7 +591,7 @@ if (!$database) {
 	} else if (is_defined("t")) {
 	    $id_topic = $_REQUEST["t"];
 	    $id_topic = ($id_topic * 10) / 10;
-	
+
 	    if ($id_user != 0 && is_defined("like")) {
 		$id_like = $_REQUEST["like"];
 		$id_like = ($id_like * 10) / 10;
@@ -605,14 +606,27 @@ if (!$database) {
 	    }
 	
 	    $purgatory = 0;
-	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic, ForumTopics.purgatory AS purgatory, ForumGroups.grp AS grp FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
+	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic, ForumTopics.purgatory AS purgatory, ForumTopics.id_user AS id_user, ForumGroups.grp AS grp FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
 	    foreach ($database->query($topic_query) as $row) {
 		$topic = $row['topic'];
 		$id_topic = $row['id_topic'];
 		$group = $row['grp'];
 		$id_group = $row['id_grp'];
 		$purgatory = $row['purgatory'];
+		$id_topic_owner = $row['id_user'];
 	    }
+
+	    if (is_defined("hide")) {
+		if ($id_topic_owner != 0 && $id_topic_owner == $id_user) {
+		    $id_post = $_REQUEST['hide'];
+		    if (is_numeric($id_post)) {
+			$database->exec("UPDATE ForumPosts SET hidden=1 WHERE id=$id_post AND id_topic=$id_topic");
+		    }
+		}
+		redirect_without('hide');
+	    }
+
+
 	    if ($id_user != 0) {
 		if ($database->query("SELECT id_user FROM ForumUserLike WHERE id_user = ".$id_user." AND id_like = ".$id_topic." AND type = 0;")->fetchColumn() == $id_user) {
 		    $ctrlink = '<a style="float: right" href="?t='.$id_topic.'&like=0">-</a>';
@@ -1416,7 +1430,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 //echo "<!-- ban_opts $ban_opts -->";
 
-	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic $ban_opts;")->fetchColumn();
+	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic $ban_opts;")->fetchColumn();
 
 	    $first_posts = 0;
 	    $post_id_req = "";
@@ -1424,7 +1438,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    if (is_defined('post') > 0) {
 		$post_id_req = $_REQUEST['post'];
 		if (is_numeric($post_id_req)) {
-		    $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE id_topic = $id_topic AND id >= $post_id_req $ban_opts;")->fetchColumn();
+		    $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic AND id >= $post_id_req $ban_opts;")->fetchColumn();
 
 		    if ($first_posts != "") {
 			$first_posts = $first_posts - 1;
@@ -1457,7 +1471,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 				" ForumPosts.id_session AS id_session, ForumPosts.attachment AS attachment".
 				" FROM ForumPosts, ForumTopics, ForumUsers".
 				" WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic".
-				" AND ForumUsers.id = ForumPosts.id_user $ban_opts".
+				" AND ForumUsers.id = ForumPosts.id_user AND ForumPosts.hidden = 0 $ban_opts".
 				" ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
 //echo "<!-- view_opt $view_query -->";
@@ -1500,6 +1514,15 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		$id_session = md5(session_id());
 
 		if ($id_session != $post_id_session) {
+		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+		}
+
+		if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
+		    $request = $_SERVER['REQUEST_URI'].'&hide='.$row['id_post'];
+		    $banned_text = '<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
+				   '<title>Удалить пост</title>'.
+				   '<path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>'.
+				   '</svg>';
 		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
 		}
 

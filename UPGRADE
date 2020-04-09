@@ -1,8 +1,12 @@
+- Hide posts:
+
+ALTER TABLE ForumPosts ADD COLUMN hidden INTEGER DEFAULT 0;
+
+History:
+
 - Post topics rating:
 
 ALTER TABLE ForumUsers ADD COLUMN topics_rate INTEGER DEFAULT 0;
-
-History:
 
 - Upgrade purgaritorium:
 
