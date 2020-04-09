@@ -1,11 +1,14 @@
-Upgrade purgaritorium:
+- Post topics rating:
 
-ALTER TABLE ForumTopics ADD COLUMN purgatory INTEGER DEFAULT 0;
-
+ALTER TABLE ForumUsers ADD COLUMN topics_rate INTEGER DEFAULT 0;
 
 History:
 
-Upgrade to encrypted chat:
+- Upgrade purgaritorium:
+
+ALTER TABLE ForumTopics ADD COLUMN purgatory INTEGER DEFAULT 0;
+
+- Upgrade to encrypted chat:
 
 ALTER TABLE ForumUsers ADD COLUMN pubkey NVARCHAR;
 ALTER TABLE ForumPager ADD COLUMN encrypted INTEGER;

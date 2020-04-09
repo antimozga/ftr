@@ -409,7 +409,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumUsers " .
-	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER, pubkey NVARCHAR);";
+	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER, pubkey NVARCHAR, topics_rate INTEGER DEFAULT 0);";
     $database->exec($query);
 
     $query = "REPLACE INTO ForumUsers (id, login) VALUES (0, 'Анонимно');";
@@ -477,20 +477,6 @@ if (!$database) {
 	    exit();
 	}
 
-	if (is_defined('sdel')) {
-	    if (is_forum_admin()) {
-		$session_id = addslashes($_REQUEST['sdel']);
-		if ($session_id != "") {
-		    $database->exec("DELETE FROM ForumPosts  WHERE id_topic IN (SELECT id FROM ForumTopics WHERE id_session = \"$session_id\")");
-		    $database->exec("DELETE FROM ForumTopics WHERE id_session = \"$session_id\"");
-		}
-	    }
-	    $uri = $_SERVER['REQUEST_URI'];
-	    $uri = substr($uri, 0, strpos($uri, '&sdel'));
-	    header("Location: $uri", true, 301);
-	    exit();
-	}
-
 	if (is_defined("logout")) {
 	    unset($_SESSION['myuser_name']);
 	    unset($_SESSION['myuser_password']);
@@ -519,6 +505,21 @@ if (!$database) {
 	}
 
 	if (is_forum_admin()) {
+	    if (is_defined('sdel')) {
+		$session_id = addslashes($_REQUEST['sdel']);
+		if ($session_id != "") {
+		    $database->exec("UPDATE ForumUsers ".
+"SET topics_rate=topics_rate-(SELECT count(id_user) FROM ForumTopics WHERE id_session=\"$session_id\" AND id_user!=0) ".
+"WHERE id IN (SELECT id_user FROM ForumTopics WHERE id_session=\"$session_id\" AND id_user!=0)");
+		    $database->exec("DELETE FROM ForumPosts  WHERE id_topic IN (SELECT id FROM ForumTopics WHERE id_session = \"$session_id\")");
+		    $database->exec("DELETE FROM ForumTopics WHERE id_session = \"$session_id\"");
+		}
+		$uri = $_SERVER['REQUEST_URI'];
+		$uri = substr($uri, 0, strpos($uri, '&sdel'));
+		header("Location: $uri", true, 301);
+		exit();
+	    }
+
 	    if (is_defined("dp")) {
 		$dp = $_REQUEST["dp"];
 		$dp = ($dp * 10) / 10;
@@ -538,6 +539,9 @@ if (!$database) {
 		    $query = "UPDATE ForumTopics SET id_grp = $FORUM_TRASH_GID, purgatory = 0 WHERE id = $dt;";
 		    $database->exec($query);
 		} else {
+		    $database->exec("UPDATE ForumUsers ".
+"SET topics_rate=topics_rate-1 ".
+"WHERE id=(SELECT id_user FROM ForumTopics WHERE id=$dt AND id_user!=0)");
 		    $query = "DELETE FROM ForumPosts WHERE id_topic = $dt;";
 		    $database->exec($query);
 		    $query = "DELETE FROM ForumTopics WHERE id = $dt;";
@@ -563,8 +567,10 @@ if (!$database) {
 		    $id_public = $_REQUEST['public'];
 		    $id_public = ($id_public * 10) / 10;
 		    if ($id_public > 0) {
-			$query = "UPDATE ForumTopics SET purgatory = 0 WHERE id = $id_public;";
-			$database->exec($query);
+			$database->exec("UPDATE ForumUsers ".
+"SET topics_rate = topics_rate + 1 ".
+"WHERE id = (SELECT id_user FROM ForumTopics WHERE id = $id_public AND id_user != 0 AND topics_rate < 0)");
+			$database->exec("UPDATE ForumTopics SET purgatory = 0 WHERE id = $id_public;");
 		    }
 		    redirect_without("public");
 		}
@@ -721,7 +727,10 @@ if (!$database) {
 			}
 
 			if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
-			    $purgatory = 0;
+			    $purgatory = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
+			    if ($purgatory >= 0) {
+				$purgatory = 0;
+			    }
 			}
 
 			if ($id_topic != 0) {
@@ -1364,10 +1373,15 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    } else {
 			$rmargs = 'dt='.$row['id_topic'];
 		    }
-		    echo '<a href="?'.$rmargs.'" class="remove">Удалить</a>';
-		    if ($id_grp != $FORUM_TRASH_GID) {
+
+		    if (!isset($FORUM_TRASH_GID) || (isset($FORUM_TRASH_GID) && $id_grp == $FORUM_TRASH_GID)) {
+			echo '<a href="?'.$rmargs.'" class="remove">Удалить</a>';
+		    }
+
+		    if (isset($FORUM_TRASH_GID) && $id_grp != $FORUM_TRASH_GID) {
 			echo '<a href="?'.$rmargs.'&trash=1" class="remove">Мусор</a>';
 		    }
+
 		    if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
 			echo '<a href="'.$_SERVER['REQUEST_URI'].'&public='.$row['id_topic'].'" class="remove">Показать</a>';
 		    }
