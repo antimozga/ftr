@@ -1228,7 +1228,8 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			  " ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick,".
 			  " ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
 			  " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
-			  " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp ";
+			  " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
+			  " AND ForumPosts.hidden = 0 ";
 	    $count_query = "SELECT COUNT(*)".
 			   " FROM ForumTopics,ForumUsers WHERE ForumTopics.id_user=ForumUsers.id ";
 
@@ -1615,9 +1616,9 @@ echo $post.'</div>
 	$topics = 0;
 	$users = 0;
 
-	$posts  = $database->query("SELECT COUNT(*) FROM ForumPosts;")->fetchColumn();
-	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics;")->fetchColumn();
-	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers;")->fetchColumn();
+	$posts  = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0")->fetchColumn();
+	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics")->fetchColumn();
+	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers")->fetchColumn();
 	$users = $users - 1; // minus super Anonymous
 
 	echo '
