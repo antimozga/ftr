@@ -520,7 +520,7 @@ const recordAudio = () =>
     resolve({ start, stop, status });
   });
 
-let myRecorder, myRecorderData = null, myRecorderTimeout, myRecorderInterval;
+let myRecorder, myRecorderData = null, myRecordedAudio = null, myRecorderTimeout, myRecorderInterval;
 
 let myRecorderStopCallback, myRecorderUpdateCallback;
 
@@ -562,7 +562,36 @@ const myRecorderStop = async() => {
 }
 
 const myRecorderPlay = async() => {
-    myRecorderData.play();
+    if (myRecordedAudio != null) {
+	myRecordedAudio.pause();
+	myRecordedAudio = null;
+	let actionButton = document.getElementById('action_playstart');
+	actionButton.hidden = false;
+	actionButton = document.getElementById('action_playstop');
+	actionButton.hidden = true;
+	actionButton = document.getElementById('action_recstart');
+	actionButton.hidden = false;
+	return;
+    }
+//    myRecorderData.play();
+    myRecordedAudio = new Audio(myRecorderData.audioUrl);
+    let actionButton = document.getElementById('action_playstart');
+    actionButton.hidden = true;
+    actionButton = document.getElementById('action_playstop');
+    actionButton.hidden = false;
+    actionButton = document.getElementById('action_recstart');
+    actionButton.hidden = true;
+    myRecordedAudio.onended = function() {
+	let actionButton = document.getElementById('action_playstart');
+	actionButton.hidden = false;
+	actionButton = document.getElementById('action_playstop');
+	actionButton.hidden = true;
+	actionButton = document.getElementById('action_recstart');
+	actionButton.hidden = false;
+	myRecordedAudio = null;
+//	console.log("ended");
+    }
+    myRecordedAudio.play();
 }
 
 function reControl(id) {

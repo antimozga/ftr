@@ -321,10 +321,18 @@ document.getElementById(\'attachFile\').onchange = function () {
 </svg>
 </button>
 	<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
+<span id="action_playstart">
 <svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
 <title>Воспроизвести запись аудио</title>
 <path d="M4 4l12 6-12 6z"/>
 </svg>
+</span>
+<span id="action_playstop" hidden>
+<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+<title>Воспроизвести запись аудио</title>
+<path d="M4 4l12 6-12 6z"/>
+</svg>
+</span>
 </button>
     </div>
 <script>
