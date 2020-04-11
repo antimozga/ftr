@@ -601,7 +601,8 @@ function formSubmit2(url, id) {
 	console.log("url   = " + data.url);
 	if (data.error != '') {
 	    document.getElementById('mess_post_error').innerHTML = data.error;
-	    document.getElementById('mess_submit').disabled = false;
+	    document.getElementById('mess_submit').hidden = false;
+	    document.getElementById('mess_submit_process').hidden = true;
 	} else {
 	    location.href = data.url;
 	}
@@ -609,7 +610,8 @@ function formSubmit2(url, id) {
 
     request.onerror = function() {
 	document.getElementById('mess_post_error').innerHTML = 'Ошибка передачи данных!';
-	document.getElementById('mess_submit').disabled = false;
+	document.getElementById('mess_submit').hidden = false;
+	document.getElementById('mess_submit_process').hidden = true;
     }
 
     request.send(formData);
