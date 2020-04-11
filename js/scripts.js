@@ -526,11 +526,11 @@ const myRecorderStart = async(callback = null) => {
     myRecorderStopCallback = callback;
     myRecorder = await recordAudio();
     let actionButton = document.getElementById('action_recstart');
-    actionButton.disabled = true;
+    actionButton.hidden = true;
     actionButton = document.getElementById('action_recstop');
-    actionButton.disabled = false;
+    actionButton.hidden = false;
     actionButton = document.getElementById('action_recplay');
-    actionButton.disabled = true;
+    actionButton.hidden = true;
     myRecorder.start();
     myRecorderTimeout = setTimeout(myRecorderStop, 5000);
 }
@@ -542,11 +542,11 @@ const myRecorderStop = async() => {
 	myRecorderStopCallback(myRecorderData.audioUrl);
     }
     let actionButton = document.getElementById('action_recstart');
-    actionButton.disabled = false;
+    actionButton.hidden = false;
     actionButton = document.getElementById('action_recstop');
-    actionButton.disabled = true;
+    actionButton.hidden = true;
     actionButton = document.getElementById('action_recplay');
-    actionButton.disabled = false;
+    actionButton.hidden = false;
 }
 
 const myRecorderPlay = async() => {
@@ -556,10 +556,10 @@ const myRecorderPlay = async() => {
 
 function reControl(id) {
     let el = document.getElementById(id);
-    if (el.style.display === "none") {
-	el.style.display = "block";
+    if (el.hidden) {
+	el.hidden = false;
     } else {
-	el.style.display = "none";
+	el.hidden = true;
     }
 }
 
@@ -571,18 +571,32 @@ function formSubmit2(url, id) {
     let formElement = document.getElementById(id);
     let formData = new FormData(formElement);
     let request = new XMLHttpRequest();
+    request.responseType = 'json';
     request.open("POST", url);
+
     if (myRecorderData != null) {
 	console.log("BLOB");
 	formData.append("image", myRecorderData.audioBlob, "myfile.mp4a");
     }
-    request.send(formData);
+
     request.onload = function() {
-	let url = request.response;
-	console.log("href = " + url);
-	location.href = url;
-	//location.reload();
+	let data = request.response;
+	console.log("error = " + data.error);
+	console.log("url   = " + data.url);
+	if (data.error != '') {
+	    document.getElementById('mess_post_error').innerHTML = data.error;
+	    document.getElementById('mess_submit').disabled = false;
+	} else {
+	    location.href = data.url;
+	}
     }
+
+    request.onerror = function() {
+	document.getElementById('mess_post_error').innerHTML = 'Ошибка передачи данных!';
+	document.getElementById('mess_submit').disabled = false;
+    }
+
+    request.send(formData);
 }
 
 /*

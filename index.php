@@ -241,7 +241,9 @@ function show_postbox($type) {
 echo '
 <script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
 <script>
-function formSubmit () {';
+function formSubmit () {
+    document.getElementById(\'mess_submit\').disabled = true;
+';
 
 if ($debug) {
     echo '    formSubmit2(\'\', \'formMessage\');';
@@ -280,7 +282,7 @@ echo '    return false;
 		</div>
 		<div>
 			<div class="form_box_btn">
-				<input class="btn_form" value="'.$b.'" type="submit">
+				<input class="btn_form" value="'.$b.'" type="submit" id="mess_submit">
 			</div>
 			<div class="format">
 				<div id="web"></div>
@@ -315,10 +317,22 @@ document.getElementById(\'attachFile\').onchange = function () {
 			<div>
 				<label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
 			</div>
-    <div id="recontrol" style="display: none">
-	<button id="action_recstart" onclick="myRecorderStart(updateUpload); return false;">Start recording...</button>
-	<button id="action_recstop" onclick="myRecorderStop(); return false;">Stop recording...</button>
-	<button id="action_recplay" onclick="myRecorderPlay(); return false;">Play...</button>
+    <div id="recontrol" hidden>
+	<button id="action_recstart" onclick="myRecorderStart(updateUpload); return false;">
+<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
+</svg>
+</button>
+	<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
+<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
+</svg>
+</button>
+	<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
+<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+<path d="M4 4l12 6-12 6z"/>
+</svg>
+</button>
     </div>
 <script>
 function updateUpload(url) {
@@ -334,7 +348,7 @@ function updateUpload(url) {
 	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
 '.$edit_info.'
 	</form>
-'.$error.'
+<span class="error1" id="mess_post_error">'.$error.'</span>
 </div>
 <script language="javascript" type="text/javascript">
 <!--var 
@@ -883,7 +897,17 @@ if (!$database) {
 		    }
 		}
 
-		echo $uri;
+		$myObj = [
+		    'error'	=> is_session('post_error_message')?$_SESSION['post_error_message']:'',
+		    'url'	=> $uri
+		];
+
+		echo json_encode($myObj);
+
+			    unset($_SESSION['user_temp_subj']);
+			    unset($_SESSION['user_temp_post']);
+			    unset($_SESSION['user_edit_post']);
+			    unset($_SESSION['post_error_message']);
 		exit();
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);

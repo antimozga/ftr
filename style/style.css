@@ -1291,6 +1291,14 @@ svg.svg_icon_error {
 	fill: #d63100;
 }
 
+svg.svg_icon_black {
+	fill: #000000;
+}
+
+svg.svg_icon_red {
+	fill: #FF0000;
+}
+
 /*
   SHARED POST
  */
