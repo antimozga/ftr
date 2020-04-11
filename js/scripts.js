@@ -515,15 +515,21 @@ const recordAudio = () =>
         mediaRecorder.stop();
       });
 
-    resolve({ start, stop });
+    const status = () => { return audioTime; }
+
+    resolve({ start, stop, status });
   });
 
-let myRecorder, myRecorderData = null, myRecorderTimeout;
+let myRecorder, myRecorderData = null, myRecorderTimeout, myRecorderInterval;
 
-let myRecorderStopCallback;
+let myRecorderStopCallback, myRecorderUpdateCallback;
 
-const myRecorderStart = async(callback = null) => {
-    myRecorderStopCallback = callback;
+const myRecorderMaxTime = 10000; // 10 s.
+
+const myRecorderStart = async(updateCallback = null, stopCallback = null) => {
+    myRecorderUpdateCallback = updateCallback;
+    myRecorderStopCallback = stopCallback;
+    myRecorderData = null;
     myRecorder = await recordAudio();
     let actionButton = document.getElementById('action_recstart');
     actionButton.hidden = true;
@@ -531,11 +537,17 @@ const myRecorderStart = async(callback = null) => {
     actionButton.hidden = false;
     actionButton = document.getElementById('action_recplay');
     actionButton.hidden = true;
+    myRecorderTimeout = setTimeout(myRecorderStop, myRecorderMaxTime);
     myRecorder.start();
-    myRecorderTimeout = setTimeout(myRecorderStop, 5000);
+    myRecorderInterval = setInterval(function() {
+	if (myRecorderUpdateCallback != null) {
+	    myRecorderUpdateCallback(myRecorderMaxTime, myRecorder.status());
+	}
+    }, 500);
 }
 
 const myRecorderStop = async() => {
+    clearInterval(myRecorderInterval);
     clearTimeout(myRecorderTimeout);
     myRecorderData = await myRecorder.stop();
     if (myRecorderStopCallback != null) {
@@ -550,7 +562,6 @@ const myRecorderStop = async() => {
 }
 
 const myRecorderPlay = async() => {
-    console.log("audio duration" + myRecorderData.duration());
     myRecorderData.play();
 }
 

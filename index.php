@@ -299,7 +299,7 @@ document.getElementById(\'attachFile\').onchange = function () {
 				<label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
 			</div>
     <div id="recontrol" hidden>
-	<button id="action_recstart" onclick="myRecorderStart(updateUpload); return false;">
+	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
 <svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
 <path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
 </svg>
@@ -316,9 +316,14 @@ document.getElementById(\'attachFile\').onchange = function () {
 </button>
     </div>
 <script>
+function updateRecord(maxt, curt) {
+//    console.log(\'time \' + maxt + \' \' + curt);
+    let secs = maxt / 1000 - curt;
+    document.getElementById(\'attachedFile\').innerHTML = secs + " с.";
+}
+
 function updateUpload(url) {
-    console.log(\'url \' + url);
-//    document.getElementById(\'attachFile\').value = url;
+//    console.log(\'url \' + url);
     document.getElementById(\'attachedFile\').innerHTML = url.replace(/^.*[\\\/]/, \'\');
 }
 </script>
