@@ -244,13 +244,13 @@ echo '
 function formSubmit () {';
 
 if ($debug) {
-    echo '    document.getElementById(\'formMessage\').submit();';
+    echo '    formSubmit2(\'\', \'formMessage\');';
 } else {
     echo '    grecaptcha.ready(function () {
 	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
 	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
 	    recaptchaResponse.value = token;
-	    document.getElementById(\'formMessage\').submit();
+	    formSubmit2(\'\', \'formMessage\');
 	});
     });';
 }
@@ -296,6 +296,9 @@ echo '    return false;
 
 			<div class="form_box_upload">
 			<div>
+<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl(\'recontrol\')">
+<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
+</svg>
 <svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
 <title>Прикрепить картинку или видео</title>
 <path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
@@ -312,6 +315,18 @@ document.getElementById(\'attachFile\').onchange = function () {
 			<div>
 				<label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
 			</div>
+    <div id="recontrol" style="display: none">
+	<button id="action_recstart" onclick="myRecorderStart(updateUpload); return false;">Start recording...</button>
+	<button id="action_recstop" onclick="myRecorderStop(); return false;">Stop recording...</button>
+	<button id="action_recplay" onclick="myRecorderPlay(); return false;">Play...</button>
+    </div>
+<script>
+function updateUpload(url) {
+    console.log(\'url \' + url);
+//    document.getElementById(\'attachFile\').value = url;
+    document.getElementById(\'attachedFile\').innerHTML = url.replace(/^.*[\\\/]/, \'\');
+}
+</script>
 			</div>
 		</div>
 
@@ -492,8 +507,10 @@ if (!$database) {
 	    $id_user = $_SESSION['myuser_id'];
 	}
 
-	unset($_SESSION['user_temp_subj']);
-	unset($_SESSION['user_temp_post']);
+	if (!is_session('post_error_message')) {
+	    unset($_SESSION['user_temp_subj']);
+	    unset($_SESSION['user_temp_post']);
+	}
 
 	if (is_defined("event")) {
 	    $cmd = $_REQUEST["event"];
@@ -703,6 +720,7 @@ if (!$database) {
 		$post_id = "";
 		$topic_id = "";
 		$id_session = md5(session_id());
+		$uri = "";
 
 		if (mb_strlen($post) > 16384) {
 		    $post = mb_substr($post, 0, 16383);
@@ -719,7 +737,7 @@ if (!$database) {
 		    $recaptcha = json_decode($recaptcha);
 
 		    // Take action based on the score returned:
-		    echo "<!-- recaptcha $recaptcha->success $recaptcha->score -->";
+		    //echo "<!-- recaptcha $recaptcha->success $recaptcha->score -->";
 
 		    if ($recaptcha->score >= 0.5 || $debug) {
 			if ($nick == "") {
@@ -822,6 +840,7 @@ if (!$database) {
 			    if ($post != "" && $post_id != "") {
 				if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
 				    $image_ext == 'webp' ||
+				    $image_ext == 'oga'  || $image_ext == 'mp4a' ||
 				    $image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
 				    $image_ext == 'webm') {
 
@@ -847,8 +866,8 @@ if (!$database) {
 			    } else {
 				$uri = "?t=$topic_id";
 			    }
-			    header("Location: $uri", true, 301);
-			    exit();
+//			    header("Location: $uri", true, 301);
+//			    exit();
 			}
 		    } else {
 			// Not verified - show form error
@@ -863,6 +882,9 @@ if (!$database) {
 			$_SESSION['post_error_message'] = "Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже.";
 		    }
 		}
+
+		echo $uri;
+		exit();
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);
 		$user_password		= convert_string($_REQUEST["user"]["user_password"]);
@@ -1557,6 +1579,10 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    echo '<a href="'.$UPLOAD_DIR.'/'.$attachment.'" class="highslide" onclick="return hs.expand(this)">';
 		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
 		    echo '</a>';
+		} else if ($image_ext == 'oga' || $image_ext == 'mp4a') {
+		    echo '<audio class="postvideo" controls>';
+		    echo "<source src=\"$UPLOAD_DIR/$attachment\">";
+		    echo '</audio>';
 		} else {
 		    echo '<video class="postvideo" controls>';
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {

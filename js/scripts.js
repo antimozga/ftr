@@ -484,6 +484,108 @@ function page_updater_stop() {
 }
 
 /*
+ * MediaRecorder
+ */
+
+const recordAudio = () =>
+  new Promise(async resolve => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    const audioChunks = [];
+    let audioTime = 0;
+
+    mediaRecorder.addEventListener("dataavailable", event => {
+      audioChunks.push(event.data);
+      audioTime++;
+    });
+
+    const start = () => mediaRecorder.start(1000);
+
+    const stop = () =>
+      new Promise(resolve => {
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          const play = () => audio.play();
+          const duration = () => {return audioTime;}
+          resolve({ audioBlob, audioUrl, play, duration });
+        });
+
+        mediaRecorder.stop();
+      });
+
+    resolve({ start, stop });
+  });
+
+let myRecorder, myRecorderData = null, myRecorderTimeout;
+
+let myRecorderStopCallback;
+
+const myRecorderStart = async(callback = null) => {
+    myRecorderStopCallback = callback;
+    myRecorder = await recordAudio();
+    let actionButton = document.getElementById('action_recstart');
+    actionButton.disabled = true;
+    actionButton = document.getElementById('action_recstop');
+    actionButton.disabled = false;
+    actionButton = document.getElementById('action_recplay');
+    actionButton.disabled = true;
+    myRecorder.start();
+    myRecorderTimeout = setTimeout(myRecorderStop, 5000);
+}
+
+const myRecorderStop = async() => {
+    clearTimeout(myRecorderTimeout);
+    myRecorderData = await myRecorder.stop();
+    if (myRecorderStopCallback != null) {
+	myRecorderStopCallback(myRecorderData.audioUrl);
+    }
+    let actionButton = document.getElementById('action_recstart');
+    actionButton.disabled = false;
+    actionButton = document.getElementById('action_recstop');
+    actionButton.disabled = true;
+    actionButton = document.getElementById('action_recplay');
+    actionButton.disabled = false;
+}
+
+const myRecorderPlay = async() => {
+    console.log("audio duration" + myRecorderData.duration());
+    myRecorderData.play();
+}
+
+function reControl(id) {
+    let el = document.getElementById(id);
+    if (el.style.display === "none") {
+	el.style.display = "block";
+    } else {
+	el.style.display = "none";
+    }
+}
+
+/*
+ *
+ */
+
+function formSubmit2(url, id) {
+    let formElement = document.getElementById(id);
+    let formData = new FormData(formElement);
+    let request = new XMLHttpRequest();
+    request.open("POST", url);
+    if (myRecorderData != null) {
+	console.log("BLOB");
+	formData.append("image", myRecorderData.audioBlob, "myfile.mp4a");
+    }
+    request.send(formData);
+    request.onload = function() {
+	let url = request.response;
+	console.log("href = " + url);
+	location.href = url;
+	//location.reload();
+    }
+}
+
+/*
  *
  */
 

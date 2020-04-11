@@ -216,6 +216,16 @@ video.postvideo {
 	background-color: black;
 }
 
+audio.postvideo {
+	float: left;
+	margin-right: 5px;
+/*	padding-left: 1em; */
+	width: 420px;
+	max-width: 100%;
+	max-height: 315px;
+/*	background-color: black; */
+}
+
 label.cloned {
 	color: red;
 	text-decoration: underline;
