@@ -310,16 +310,19 @@ document.getElementById(\'attachFile\').onchange = function () {
     <div id="recontrol" hidden>
 	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
 <svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+<title>Начать запись аудио</title>
 <path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
 </svg>
 </button>
 	<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
 <svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+<title>Остановить запись аудио</title>
 <path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
 </svg>
 </button>
 	<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
 <svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+<title>Воспроизвести запись аудио</title>
 <path d="M4 4l12 6-12 6z"/>
 </svg>
 </button>
