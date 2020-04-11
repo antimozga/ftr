@@ -846,7 +846,7 @@ if (!$database) {
 			    if ($post != "" && $post_id != "") {
 				if ($image_ext == 'jpg'  || $image_ext == 'jpeg' || $image_ext == 'gif'   || $image_ext == 'png' ||
 				    $image_ext == 'webp' ||
-				    $image_ext == 'oga'  || $image_ext == 'mp4a' ||
+				    $image_ext == 'oga'  || $image_ext == 'mp4a' || $image_ext == 'm4a'   ||
 				    $image_ext == 'mp4'  || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' ||
 				    $image_ext == 'webm') {
 
@@ -1581,7 +1581,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    echo '<a href="'.$UPLOAD_DIR.'/'.$attachment.'" class="highslide" onclick="return hs.expand(this)">';
 		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
 		    echo '</a>';
-		} else if ($image_ext == 'oga' || $image_ext == 'mp4a') {
+		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 		    echo '<audio class="postvideo" controls>';
 		    echo "<source src=\"$UPLOAD_DIR/$attachment\">";
 		    echo '</audio>';
