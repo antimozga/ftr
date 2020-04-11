@@ -524,7 +524,7 @@ let myRecorder, myRecorderData = null, myRecorderTimeout, myRecorderInterval;
 
 let myRecorderStopCallback, myRecorderUpdateCallback;
 
-const myRecorderMaxTime = 10000; // 10 s.
+const myRecorderMaxTime = 30000; // 30 s.
 
 const myRecorderStart = async(updateCallback = null, stopCallback = null) => {
     myRecorderUpdateCallback = updateCallback;

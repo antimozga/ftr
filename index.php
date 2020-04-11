@@ -288,10 +288,11 @@ echo '    return false;
 			<div class="form_box_upload">
 			<div>
 <svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl(\'recontrol\')">
+<title>Меню записи аудио</title>
 <path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>
+</svg>&nbsp;
 <svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
-<title>Прикрепить картинку или видео</title>
+<title>Прикрепить картинку, аудио или видео</title>
 <path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
 </svg>
 				<span id="attachedFile"></span>
@@ -304,7 +305,7 @@ document.getElementById(\'attachFile\').onchange = function () {
 </script>
 			</div>
 			<div>
-				<label class="upload_file" for="image" >Картинка JPG,PNG,GIF,WEBP/Видео MP4,OGV,WEBM (макс. размер 3МБ)</label>
+				<label class="upload_file" for="image" >JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 3МБ)</label>
 			</div>
     <div id="recontrol" hidden>
 	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
