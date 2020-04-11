@@ -566,6 +566,11 @@ const myRecorderPlay = async() => {
 }
 
 function reControl(id) {
+    if (typeof MediaRecorder === 'undefined') {
+        document.getElementById('mess_post_error').innerHTML = 'Для использования записи требуется Firefox 30+ или Chrome 47+.';
+	return;
+    }
+
     let el = document.getElementById(id);
     if (el.hidden) {
 	el.hidden = false;
