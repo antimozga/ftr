@@ -190,39 +190,21 @@ function show_postbox($type) {
 
 	$id_session = md5(session_id());
 
-//echo '<!-- SELECT id, time, nick, subj, post, mod_time FROM ForumPosts WHERE id_session="'.$id_session.'"; -->';
-
 	$sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
 				  " FROM ForumPosts".
 				  " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
 	$sth->execute();
 	$row = $sth->fetch();
 	if ($row['id'] != "") {
-//	    echo "-> ".$row['id']." ".$row['login']." ".$row['password']." <-\n";
-	    $_SESSION['user_temp_name'] = $row['nick'];
-	    $_SESSION['user_temp_subj'] = $row['subj'];
-	    $_SESSION['user_temp_post'] = reconvert_text($row['post']);
+	    $name = $row['nick'];
+	    $subj = $row['subj'];
+	    $post = reconvert_text($row['post']);
 	    $edit_info = '<input type="hidden" name="edit_post_info" value="'.$edit_post_id.'">';
 	}
-    } else if (is_session('user_edit_post')) {
-	$edit_info = '<input type="hidden" name="edit_post_info" value="'.$_SESSION['user_edit_post'].'">';
-    }
-
-    if (isset($_SESSION['user_temp_name'])) {
-	$name = $_SESSION['user_temp_name'];
-    }
-
-    if (isset($_SESSION['user_temp_subj'])) {
-	$subj = $_SESSION['user_temp_subj'];
-    }
-
-    if (isset($_SESSION['post_error_message'])) {
-	$error = "<div class=\"error1\">* ".$_SESSION['post_error_message']."</div>";
-	unset($_SESSION['post_error_message']);
-    }
-
-    if (isset($_SESSION['user_temp_post'])) {
-	$post = $_SESSION['user_temp_post'];
+    } else {
+	if (isset($_SESSION['user_temp_name'])) {
+	    $name = $_SESSION['user_temp_name'];
+	}
     }
 
     if ($type == 'topic') {
@@ -231,9 +213,8 @@ function show_postbox($type) {
     } else {
 	$h = 'Заголовок сообщения';
 
-	if (is_defined('editpost') || is_session('user_edit_post')) {
+	if (is_defined('editpost')) {
 	    $b = 'Исправить';
-	    unset($_SESSION['user_edit_post']);
 	} else {
 	    $b = 'Отправить';
 	}
@@ -348,7 +329,7 @@ function updateUpload(url) {
 	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
 '.$edit_info.'
 	</form>
-<span class="error1" id="mess_post_error">'.$error.'</span>
+<span class="error1" id="mess_post_error"></span>
 </div>
 <script language="javascript" type="text/javascript">
 <!--var 
@@ -519,11 +500,6 @@ if (!$database) {
 
 	if (isset($_SESSION['myuser_id'])) {
 	    $id_user = $_SESSION['myuser_id'];
-	}
-
-	if (!is_session('post_error_message')) {
-	    unset($_SESSION['user_temp_subj']);
-	    unset($_SESSION['user_temp_post']);
 	}
 
 	if (is_defined("event")) {
@@ -734,7 +710,8 @@ if (!$database) {
 		$post_id = "";
 		$topic_id = "";
 		$id_session = md5(session_id());
-		$uri = "";
+		$uri = '';
+		$post_error_message = '';
 
 		if (mb_strlen($post) > 16384) {
 		    $post = mb_substr($post, 0, 16383);
@@ -756,7 +733,7 @@ if (!$database) {
 		    if ($recaptcha->score >= 0.5 || $debug) {
 			if ($nick == "") {
 			    unset($_SESSION['user_temp_name']);
-			} else {
+			} else if (!isset($_POST['edit_post_info'])) {
 			    $_SESSION['user_temp_name'] = $nick;
 			}
 
@@ -825,27 +802,17 @@ if (!$database) {
 				    $database->exec($query);
 				    $post_id = $database->lastInsertId();
 				} else {
-				    $_SESSION['post_error_message'] = "Тема с таким заголовком уже существует!";
+				    $post_error_message = "Тема с таким заголовком уже существует!";
 				}
 			    } else {
 				if ($subj == "") {
-				    $_SESSION['post_error_message'] = "Заголовок темы не может быть пустым!";
+				    $post_error_message = "Заголовок темы не может быть пустым!";
 				}
 			    }
 			}
 
 			if ($post == "") {
-			    $_SESSION['post_error_message'] = "Сообщение не может быть пустым!";
-			}
-
-			if (is_session('post_error_message')) {
-			    $_SESSION['user_temp_name'] = $nick;
-			    $_SESSION['user_temp_subj'] = $subj;
-			    $_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
-
-			    if (isset($_POST['edit_post_info'])) {
-				$_SESSION['user_edit_post'] = $_POST['edit_post_info'];
-			    }
+			    $post_error_message = "Сообщение не может быть пустым!";
 			} else {
 			    $image = $_FILES['image']['name'];
 			    $image_tmp = $_FILES['image']['tmp_name'];
@@ -871,10 +838,6 @@ if (!$database) {
 				}
 			    }
 
-			    unset($_SESSION['user_temp_subj']);
-			    unset($_SESSION['user_temp_post']);
-			    unset($_SESSION['user_edit_post']);
-
 			    if ($id_topic != 0) {
 				$uri = $_SERVER['REQUEST_URI'];
 			    } else {
@@ -885,29 +848,19 @@ if (!$database) {
 			}
 		    } else {
 			// Not verified - show form error
-			$_SESSION['user_temp_name'] = $nick;
-			$_SESSION['user_temp_subj'] = $subj;
-			$_SESSION['user_temp_post'] = $_REQUEST["message"]["content"];
-
-			if (isset($_POST['edit_post_info'])) {
-			    $_SESSION['user_edit_post'] = $_POST['edit_post_info'];
-			}
-
-			$_SESSION['post_error_message'] = "Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже.";
+			$post_error_message = "Робот обнаружен? Попробуйте изменить текст или отправить его чуть позже.";
 		    }
+		} else {
+		    $post_error_message = "Робот обнаружен? Данные рекапчи не найдены.";
 		}
 
 		$myObj = [
-		    'error'	=> is_session('post_error_message')?$_SESSION['post_error_message']:'',
+		    'error'	=> $post_error_message,
 		    'url'	=> $uri
 		];
 
 		echo json_encode($myObj);
 
-			    unset($_SESSION['user_temp_subj']);
-			    unset($_SESSION['user_temp_post']);
-			    unset($_SESSION['user_edit_post']);
-			    unset($_SESSION['post_error_message']);
 		exit();
 	    } else if ($cmd == "createuser" || $cmd == "updateuser") {
 		$user_name		= convert_string($_REQUEST["user"]["user_name"]);
