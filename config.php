@@ -2,6 +2,8 @@
 
 define("DBASEFILE", "/var/lib/antimozg/fftc.sqlite");
 
+define("KEYLISTFILE", "uploads/LFKBv0.11prebeta.txt");
+
 $FORUM_TITLE = "ТОМСКИЙ ФОРУМ";
 
 $FORUM_NAME = "Томский форум";

@@ -57,6 +57,7 @@ require_once('config.php');
 require_once('config_user.php');
 
 include('funcs.php');
+include('automoderator.php');
 include('header.php');
 include('footer.php');
 
@@ -774,10 +775,17 @@ if (!$database) {
 			    $nick = "Анонимно";
 			}
 
+			$mymoder = new AutoModerator();
+			if ($mymoder->moderated($subj.' '.$nick)) {
+			    $purgatory = 0;
+			}
+
 			if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
 			    $purgatory = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
 			    if ($purgatory >= 0) {
 				$purgatory = 0;
+			    } else {
+				$purgatory = 1;
 			    }
 			}
 
