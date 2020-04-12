@@ -1,8 +1,8 @@
+History:
+
 - Hide posts:
 
 ALTER TABLE ForumPosts ADD COLUMN hidden INTEGER DEFAULT 0;
-
-History:
 
 - Post topics rating:
 
