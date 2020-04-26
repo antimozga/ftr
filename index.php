@@ -488,20 +488,7 @@ if (!$database) {
 	$user_description = '';
 	$user_pubkey = '';
 
-	if (is_defined('unban')) {
-	    $session_id = addslashes($_REQUEST['unban']);
-	    if (is_session('banlist')) {
-		$arr = $_SESSION['banlist'];
-		$pos = array_search($session_id, $arr);
-		unset($arr[$pos]);
-		$arr = array_values($arr);
-		$_SESSION['banlist'] = $arr;
-		$uri = $_SERVER['REQUEST_URI'];
-		$uri = substr($uri, 0, strpos($uri, '&unban'));
-		header("Location: $uri", true, 301);
-		exit();
-	    }
-	} elseif (is_defined('ban')) {
+	if (is_defined('ban')) {
 	    $session_id = addslashes($_REQUEST['ban']);
 	    if ($session_id != "") {
 		if (is_session('banlist')) {
@@ -706,12 +693,6 @@ if (!$database) {
 	    }
 
 	    $nav_path = "Поиск";
-	} else if (is_defined("banlist")) {
-	    $show_banlist = 1;
-
-	    $topic = "СКРЫТЫЕ";
-
-	    $nav_path = "Скрытые";
 	} else {
 	    if (is_defined("s")) {
 		$show_hot = 1;
@@ -1215,42 +1196,6 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		}
 		print "<div class=\"box1\"><a href=\"?g={$row['id']}\" class=\"title\">{$row['grp']}</a> {$row['note']}<br><span class=\"white\">Тем: <span class=\"bold\">".$topics."</span>&nbsp;|&nbsp;Обновление: <span class=\"bold\">".$updated."</span></span></div>";
 	    }
-	} else if ($show_banlist != 0) {
-	    $banned = 0;
-
-	    echo '<table class="userstable">';
-
-	    if (is_session('banlist')) {
-		foreach($_SESSION['banlist'] as $ban_id_session) {
-		    $bannick = "";
-		    foreach($database->query("SELECT DISTINCT nick, id_user FROM ForumPosts WHERE id_session = \"$ban_id_session\"") as $row) {
-			if ($row['id_user'] != 0) {
-			    $bannick = format_user_nick($row['nick'], $row['id_user'], $row['nick'], $row['id_user'])." $bannick";
-			} else {
-			    $bannick = $row['nick']." $bannick";
-			}
-			$banned++;
-		    }
-		    if ($bannick == "") {
-			$bannick = "Пользователь удален";
-		    }
-//echo "<!-- bannick $bannick -->";
-		    $request = $_SERVER['REQUEST_URI'].'&unban='.$ban_id_session;
-		    echo '<tr><td>'.$bannick.'</td><td class="tdu1"><a href="'.$request.'">'.
-			 '<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-			 '<title>Показать пользователя и его темы</title>'.
-			 '<path d="M.2 10a11 11 0 0 1 19.6 0A11 11 0 0 1 .2 10zm9.8 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-2a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>'.
-			 '</svg>'.
-			 '</a></td></tr>';
-		}
-	    }
-
-	    if ($banned == 0) {
-		echo '<tr><td colspan="2">Пока тут никого нет...</td></tr>';
-	    }
-
-	    echo '</table>';
-
 	} else if ($id_topic == 0) {
 	    $posts = 0;
 	    $pnext = "";
