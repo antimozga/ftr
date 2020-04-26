@@ -132,10 +132,10 @@ function convert_vkv($string) {
  */
 function convert_vkv($string) {
     return preg_replace(
-	"/\s*[a-zA-Z\/\/:\.]*vk.com\/([video|feed][a-zA-Z0-9\-]*\?z=video\-|video\-)([a-zA-Z0-9\-_]*)[a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*/i",
+	"/\s*[a-zA-Z\/\/:\.]*vk.com\/([video|feed][a-zA-Z0-9\-]*\?z=video|video)([a-zA-Z0-9\-_]*)[a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*/i",
 	"<div class=\"videobox\">".
-	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vk.com/video-$2\" title=\"https://vk.com/video-$2\" controls></video>".
-	"<a class=\"videolink\" target=\"_blank\" href=\"https://vk.com/video-$2\">vk.com/video-$2</a>".
+	"<video class=\"postvideo\" src=\"//video.vtomske.net/cache.php?url=https://vk.com/video$2\" title=\"https://vk.com/video$2\" controls></video>".
+	"<a class=\"videolink\" target=\"_blank\" href=\"https://vk.com/video$2\">vk.com/video$2</a>".
 	"</div>",
 	$string
     );
