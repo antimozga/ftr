@@ -1355,9 +1355,14 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
+		$topic_owner = '';
+		if ($id_user === $row['id_user']) {
+		    $topic_owner = 'owner';
+		}
+
 		print("<tr>" .
-		  "<td class='tdw1'>{$timestamp}</td>" .
-		  "<td class='tdw3'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
+		  "<td class='tdw1 $topic_owner'>{$timestamp}</td>" .
+		  "<td class='tdw3 $topic_owner'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
 		if (is_forum_admin()) {
 		    $rmargs = "";
 		    if ($id_grp != 0) {
@@ -1381,7 +1386,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    }
 		}
 		print("</td>".
-		  "<td class='tdw2'>".$name."</td>".
+		  "<td class='tdw2 $topic_owner'>".$name."</td>".
 		  "</tr>"
 		);
 

@@ -570,6 +570,10 @@ label.upload_file {
 	}
 }
 
+.themes td.owner {
+	background-color: #0f466a;
+}
+
 .userstable {
 	width: 100%;
 }
