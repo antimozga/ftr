@@ -284,7 +284,7 @@ echo '    return false;
 				</span>
 			</div>
 
-			<input type="hidden" name="MAX_FILE_SIZE" value="3145728">
+			<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
 
 			<div class="form_box_upload">
 			<div>
@@ -306,7 +306,7 @@ document.getElementById(\'attachFile\').onchange = function () {
 </script>
 			</div>
 			<div>
-				<label class="upload_file" for="image" >JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 3МБ)</label>
+				<label class="upload_file" for="image" >JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 6МБ)</label>
 			</div>
     <div id="recontrol" hidden>
 	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">

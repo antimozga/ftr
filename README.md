@@ -122,7 +122,7 @@ $SHOW_TRASH_TOPICS = true;
 исправьте размер для ```upload_max_filesize```
 
 ```
-upload_max_filesize = 3M
+upload_max_filesize = 6M
 ```
 
 ## Настройка сертификата Let's Encrypt
