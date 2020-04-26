@@ -1226,6 +1226,14 @@ label.l_inp_text_name span {
 }
 
 /*
+ *
+ */
+
+.banlist_window {
+    overflow: auto;
+}
+
+/*
   PAGER SHOW/HIDE SENDER PUBLIC KEY
  */
 

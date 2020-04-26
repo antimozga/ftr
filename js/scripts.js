@@ -319,6 +319,14 @@ function init_modal() {
 function modal_toggle() {
     let el = document.getElementById("modal-content");
 
+    let el_param = document.getElementById("modal-content-args");
+    if (el_param != null) {
+	if (el_param.getAttribute("reloadPageOnClose") != null) {
+	    console.log("reload document on modal close");
+	    location.reload();
+	}
+    }
+
     if (Array.isArray(modal_stack) && modal_stack.length) {
 	el.innerHTML = svg_loader;
 	modal_stack_last = modal_stack.pop();
@@ -376,6 +384,23 @@ function load_modal(url) {
     }
 
     modal_stack_last = url;
+
+    fetch(url).then(function(response) {
+	return response.text().then(function(text) {
+	    let el = document.getElementById("modal-content");
+	    el.innerHTML = text;
+	    page_updater_onload(el);
+	});
+    });
+}
+
+function update_modal(url) {
+    let el = document.getElementById("modal-content");
+    el.innerHTML = svg_loader;
+
+    if (modal_in_use == 0) {
+	return;
+    }
 
     fetch(url).then(function(response) {
 	return response.text().then(function(text) {

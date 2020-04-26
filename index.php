@@ -83,7 +83,7 @@ function start_page($title) {
     }
 
     echo '<div class="sep"><div></div></div>
-	<a href="?users">Пользователи</a><a href="./?banlist">(Скрытые)</a>
+	<a href="?users">Пользователи</a><a href="#" onclick="load_modal(\'showbanlist.php\'); return false;">(Скрытые)</a>
 	<div class="sep"><div></div></div>
 	<a href="'.$FORUM_RULES_LINK.'">Правила</a>';
 
@@ -454,6 +454,8 @@ if (!$database) {
     $query = "CREATE TABLE IF NOT EXISTS ForumPager " .
 	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR, encrypted INTEGER);";
     $database->exec($query);
+
+    unset($_SESSION['reloadpage']);
 
     check_login();
 
