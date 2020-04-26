@@ -990,11 +990,11 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    function lower_ru($str) {
 		return mb_strtolower($str, 'utf-8');
 	    }
-	    function mb_str_split( $string ) {
+	    function mb_str_split_compat( $string ) {
         	return preg_split('/(?<!^)(?!$)/u', $string );
 	    }
 	    function show_letters_links($str) {
-		foreach (mb_str_split($str) as $letter) {
+		foreach (mb_str_split_compat($str) as $letter) {
 		    echo '<a href="?users='.$letter.'">'.$letter.'</a> ';
 		}
 	    }
@@ -1256,7 +1256,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    $having_query = "";
 
 	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
-			  " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, ForumPosts.time AS time,".
+			  " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, MAX(ForumPosts.time) AS time,".
 			  " ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick,".
 			  " ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
 			  " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
