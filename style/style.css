@@ -148,6 +148,19 @@ a.ban, a.ban:hover, a.ban:visited {
 	text-decoration: underline;
 }
 
+a.remove_left, a.remove_left:hover, a.remove_left:visited {
+	font-size: 11px;
+	float: left;
+	color: red;
+	margin: 0px 5px 0px 0px;
+}
+
+span.ban_left, span.ban_left:hover, span.ban_left:visited {
+	font-size: 11px;
+	float: left;
+	margin: 0px 5px 0px 0px;
+}
+
 a.title {
 	font-size: 18px;
 }

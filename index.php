@@ -1400,6 +1400,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		if ($id_user === $row['id_user']) {
 		    $topic_owner = 'owner';
 		    $topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php?t='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<title>Настройка доступа к теме</title>
 <path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
 </svg></a>';
 		} else {
@@ -1520,6 +1521,20 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
+		if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
+		    if ($topic_private) {
+			$name_ban_title = 'Закрыть тему для пользователя';
+		    } else {
+			$name_ban_title = 'Запретить пользователю писать в теме';
+		    }
+		    $name_ban = '<a href="" class="remove_left"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<title>'.$name_ban_title.'</title>
+<path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34 8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83-1.41 1.41L10 11.41l-2.83 2.83-1.41-1.41L8.59 10 5.76 7.17l1.41-1.41L10 8.59l2.83-2.83 1.41 1.41z"/>
+</svg></a>';
+		} else {
+		    $name_ban = '';
+		}
+
 		$tmp_post = $row['post'];
 		if (mb_strlen($tmp_post) > 16384) {
 		    $tmp_post = mb_substr($tmp_post, 0, 16383);
@@ -1541,7 +1556,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 				'<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>'.
 				'</svg>';
 
-		echo $timestamp.' | <span class="name1">'.$name.'</span> -&gt;
+		echo '<span class="ban_left">'.$timestamp.' | <span class="name1">'.$name.'</span></span>'.$name_ban.' -&gt;
 <span class="white1">'.$row['subj'].'</span>';
 
 		$id_session = md5(session_id());
