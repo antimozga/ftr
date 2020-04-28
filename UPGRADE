@@ -1,3 +1,8 @@
+- Topics settings:
+
+ALTER TABLE ForumTopics ADD COLUMN private  INTEGER DEFAULT 0;
+ALTER TABLE ForumTopics ADD COLUMN readonly INTEGER DEFAULT 0;
+
 History:
 
 - Hide posts:

@@ -433,7 +433,7 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumTopics " .
-	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0, id_session NVARCHAR, purgatory INTEGER DEFAULT 0);";
+	     "(id INTEGER PRIMARY KEY, id_grp INTEGER, id_user INTEGER, nick VARCHAR, topic VARCHAR, view INTEGER DEFAULT 0, id_session NVARCHAR, purgatory INTEGER DEFAULT 0, private INTEGER DEFAULT 0, readonly INTEGER DEFAULT 0);";
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumGroups " .
@@ -455,6 +455,10 @@ if (!$database) {
 	     "(id INTEGER PRIMARY KEY, id_user INTEGER,  id_from_user INTEGER, new INTEGER, time INTEGER, subj VARCHAR, post VARCHAR, encrypted INTEGER);";
     $database->exec($query);
 
+    $query = "CREATE TABLE IF NOT EXISTS ForumTopicUsers " .
+	     "(id_topic INTEGER, id_user INTEGER, id_session NVARCHAR, readonly INTEGER DEFAULT 0);";
+    $database->exec($query);
+
     unset($_SESSION['reloadpage']);
 
     check_login();
@@ -466,6 +470,9 @@ if (!$database) {
 	$id_topic = 0;
 	$id_user = 0;
 	$id_topic_owner = 0;
+	$topic_private = 0;
+	$topic_readonly = 0;
+
 	$show_hot = 0;
 	$page = 1;
 	$topic = "ТОП ".$MAX_PAGE_ENTRIES." ГОРЯЧИХ ТЕМ";
@@ -628,7 +635,10 @@ if (!$database) {
 	    }
 	
 	    $purgatory = 0;
-	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic, ForumTopics.purgatory AS purgatory, ForumTopics.id_user AS id_user, ForumGroups.grp AS grp FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
+	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic,".
+			   " ForumTopics.purgatory AS purgatory, ForumTopics.id_user AS id_user, ForumGroups.grp AS grp,".
+			   " ForumTopics.private AS private, ForumTopics.readonly AS readonly".
+			   " FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
 	    foreach ($database->query($topic_query) as $row) {
 		$topic = $row['topic'];
 		$id_topic = $row['id_topic'];
@@ -636,6 +646,8 @@ if (!$database) {
 		$id_group = $row['id_grp'];
 		$purgatory = $row['purgatory'];
 		$id_topic_owner = $row['id_user'];
+		$topic_private = $row['private'];
+		$topic_readonly = $row['readonly'];
 	    }
 
 	    if (is_defined("hide")) {
@@ -713,6 +725,36 @@ if (!$database) {
 	if (is_defined("event")) {
 	    $cmd = $_REQUEST["event"];
 	    if ($cmd == "forumcreatesubj") {
+		if ($id_topic != 0 && $topic_readonly && $id_topic_owner != $id_user) {
+		    $myObj = [
+			'error'	=> "Тема закрыта для сообщений...",
+			'url'	=> "?t=$topic_id"
+		    ];
+
+		    echo json_encode($myObj);
+
+		    exit();
+		}
+
+		$is_readonly = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user AND id_session=''")->fetchColumn();
+		if ($is_readonly == 1) {
+		    if ($id_user != 0) {
+			$myObj = [
+			    'error'	=> "Тема закрыта для ваших сообщений.",
+			    'url'	=> "?t=$topic_id"
+			];
+		    } else {
+			$myObj = [
+			    'error'	=> "Тема закрыта для анонимных сообщений.",
+			    'url'	=> "?t=$topic_id"
+			];
+		    }
+
+		    echo json_encode($myObj);
+
+		    exit();
+		}
+
 		$nick = convert_string($_REQUEST["message"]["author"]);
 		$subj = convert_string($_REQUEST["message"]["caption"]);
 		$post = convert_text($_REQUEST["message"]["content"]);
@@ -1355,13 +1397,18 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
-		$topic_owner = '';
 		if ($id_user === $row['id_user']) {
 		    $topic_owner = 'owner';
+		    $topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php?t='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+</svg></a>';
+		} else {
+		    $topic_owner = '';
+		    $topic_settings = '';
 		}
 
-		print("<tr>" .
-		  "<td class='tdw1 $topic_owner'>{$timestamp}</td>" .
+		print("<tr>".
+		  "<td class='tdw1 $topic_owner'>{$timestamp}</td>".
 		  "<td class='tdw3 $topic_owner'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
 		if (is_forum_admin()) {
 		    $rmargs = "";
@@ -1385,6 +1432,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			echo '<a href="'.$_SERVER['REQUEST_URI'].'&public='.$row['id_topic'].'" class="remove">Показать</a>';
 		    }
 		}
+		echo "$topic_settings";
 		print("</td>".
 		  "<td class='tdw2 $topic_owner'>".$name."</td>".
 		  "</tr>"
