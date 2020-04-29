@@ -19,12 +19,13 @@ $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
     echo '<p>Ошибка базы данных.</p>';
 } else {
-    if (is_defined('t')) {
-	$id_topic = addslashes($_REQUEST['t']);
-	if (check_login()) {
-	    if (is_defined("event")) {
-		$cmd = $_REQUEST["event"];
-		if ($cmd == "topicsettings") {
+    if (is_defined('id_topic')) {
+	$id_topic = $_REQUEST['id_topic'];
+	$id_topic = ($id_topic * 10) / 10;
+	if (is_defined('event')) {
+	    $cmd = $_REQUEST['event'];
+	    if ($cmd == 'topicsettings') {
+		if (check_login()) {
 		    $en_private  = getCheckboxVal('topic', 'private');
 		    $en_noanon   = getCheckboxVal('topic', 'noanon');
 		    $en_readonly = getCheckboxVal('topic', 'readonly');
@@ -45,19 +46,20 @@ if (!$database) {
 		    exit();
 		}
 	    }
+	}
 
-	    echo '<div class="refreshnow" src="topicsettings.js"></div>';
+	echo '<div class="refreshnow" src="topicsettings.js"></div>';
 
-	    $sth = $database->prepare("SELECT private,readonly FROM ForumTopics WHERE id=$id_topic AND id_user={$_SESSION['myuser_id']}");
-	    $sth->execute();
-	    $row = $sth->fetch();
-	    $anon_ro = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0")->fetchColumn();
+	$sth = $database->prepare("SELECT private,readonly FROM ForumTopics WHERE id=$id_topic AND id_user={$_SESSION['myuser_id']}");
+	$sth->execute();
+	$row = $sth->fetch();
+	$anon_ro = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session=''")->fetchColumn();
 
-	    $en_private = ($row['private'] == 1) ? 'checked' : '';
-	    $en_noanon = ($anon_ro == 1) ? 'checked' : '';
-	    $en_readonly = ($row['readonly'] == 1) ? 'checked' : '';
+	$en_private = ($row['private'] == 1) ? 'checked' : '';
+	$en_noanon = ($anon_ro == 1) ? 'checked' : '';
+	$en_readonly = ($row['readonly'] == 1) ? 'checked' : '';
 
-	    echo '
+	echo '
 <div class="modal-content-window" style="display:table;">
 <h1>Настройки темы</h1>
 
@@ -80,6 +82,47 @@ if (!$database) {
 </form>
 
 </div>';
+    } else if (is_defined('id_post')) {
+	$id_post = $_REQUEST['id_post'];
+	$id_post = ($id_post * 10) / 10;
+	if (is_defined('event')) {
+	    $cmd = $_REQUEST['event'];
+	    if ($cmd == 'ban') {
+error_log($cmd);
+error_log($id_post);
+		if (check_login()) {
+		    $sth = $database->prepare("SELECT ForumTopics.private AS private, ForumPosts.id_topic AS id_topic,".
+			" ForumPosts.id_user AS id_user, ForumPosts.id_session AS id_session".
+			" FROM ForumTopics, ForumPosts".
+			" WHERE ForumPosts.id=$id_post AND ForumTopics.id=ForumPosts.id_topic".
+			" AND ForumTopics.id_user={$_SESSION['myuser_id']}");
+		    $sth->execute();
+		    $row = $sth->fetch();
+		    if ($row != null) {
+			if ($row['private']) {
+			    if ($row['id_user'] == 0) {
+				$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic={$row['id_topic']} AND id_user=0 AND id_session='{$row['id_session']}'");
+			    } else {
+				$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic={$row['id_topic']} AND id_user={$row['id_user']}");
+			    }
+			} else {
+			    if ($row['id_user'] == 0) {
+				$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, 0, '{$row['id_session']}', 1)");
+			    } else {
+				$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, {$row['id_user']}, '', 1)");
+			    }
+			}
+
+			$myObj = [
+			    'status' => 'ok',
+			];
+
+			echo json_encode($myObj);
+
+			exit();
+		    }
+		}
+	    }
 	}
     } else {
 	echo '<p>Доступ запрещен.</p>';

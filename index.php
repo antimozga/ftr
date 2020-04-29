@@ -175,10 +175,11 @@ function show_nav_path($topic, $ctrlink="") {
     echo '</tr></table></div></div>';
 }
 
-function show_postbox($type) {
+function show_postbox($type, $id_session) {
     global $database;
     global $debug;
     global $RECAPTCHA_SITE_KEY;
+
     $error = "";
     $name = "";
     $subj = "";
@@ -188,8 +189,6 @@ function show_postbox($type) {
     if (is_defined('editpost')) {
 	$edit_post_id = $_REQUEST['editpost'];
 	$edit_post_id = ($edit_post_id * 10) / 10;
-
-	$id_session = md5(session_id());
 
 	$sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
 				  " FROM ForumPosts".
@@ -462,6 +461,8 @@ if (!$database) {
     unset($_SESSION['reloadpage']);
 
     check_login();
+
+    $id_session = md5(session_id());
 
     {
 	$ctrlink = "";
@@ -736,23 +737,28 @@ if (!$database) {
 		    exit();
 		}
 
-		$is_readonly = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user AND id_session=''")->fetchColumn();
-		if ($is_readonly == 1) {
-		    if ($id_user != 0) {
-			$myObj = [
-			    'error'	=> "Тема закрыта для ваших сообщений.",
-			    'url'	=> "?t=$topic_id"
-			];
-		    } else {
-			$myObj = [
-			    'error'	=> "Тема закрыта для анонимных сообщений.",
-			    'url'	=> "?t=$topic_id"
-			];
+		$sth = $database->prepare("SELECT readonly, id_session FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user AND (id_session='' OR id_session='$id_session')");
+		$sth->execute();
+		$row = $sth->fetch();
+
+		if ($row != null) {
+		    if ($row['readonly'] == 1) {
+			if ($id_user != 0 || ($id_user == 0 AND $row['id_session'] != '')) {
+			    $myObj = [
+				'error'	=> "Тема закрыта для ваших сообщений.",
+				'url'	=> "?t=$id_topic"
+			    ];
+			} else {
+			    $myObj = [
+				'error'	=> "Тема закрыта для анонимных сообщений.",
+				'url'	=> "?t=$id_topic"
+			    ];
+			}
+
+			echo json_encode($myObj);
+
+			exit();
 		    }
-
-		    echo json_encode($myObj);
-
-		    exit();
 		}
 
 		$nick = convert_string($_REQUEST["message"]["author"]);
@@ -760,7 +766,6 @@ if (!$database) {
 		$post = convert_text($_REQUEST["message"]["content"]);
 		$post_id = "";
 		$topic_id = "";
-		$id_session = md5(session_id());
 		$uri = '';
 		$post_error_message = '';
 
@@ -998,10 +1003,10 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    if (!(isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) &&
 		!(isset($FORUM_NEWSVTOMSKE_GID) && $id_grp == $FORUM_NEWSVTOMSKE_GID) &&
 		!(isset($FORUM_TRASH_GID)       && $id_grp == $FORUM_TRASH_GID)) {
-		show_postbox('topic');
+		show_postbox('topic', $id_session);
 	    }
 	} else if ($id_topic != 0) {
-	    show_postbox('post');
+	    show_postbox('post', $id_session);
 	}
 
 	if ($show_search == 1) {
@@ -1399,7 +1404,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 		if ($id_user === $row['id_user']) {
 		    $topic_owner = 'owner';
-		    $topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php?t='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+		    $topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php?id_topic='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Настройка доступа к теме</title>
 <path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
 </svg></a>';
@@ -1522,16 +1527,29 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
 		if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
-		    if ($topic_private) {
-			$name_ban_title = 'Закрыть тему для пользователя';
+
+		    $is_readonly = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user={$row['id_user']} AND (id_session='' OR id_session='{$row['id_session']}')")->fetchColumn();
+		    if ($topic_private && $is_readonly == null) {
+			$class_strike = 'strike';
+			$name_ban = '';
+		    } else if ($topic_private == 0 && $is_readonly == 1) {
+			$class_strike = 'strike';
+			$name_ban = '';
 		    } else {
-			$name_ban_title = 'Запретить пользователю писать в теме';
-		    }
-		    $name_ban = '<a href="" class="remove_left"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+			$class_strike = '';
+
+			if ($topic_private) {
+			    $name_ban_title = 'Закрыть тему для пользователя';
+			} else {
+			    $name_ban_title = 'Запретить пользователю писать в теме';
+			}
+			$name_ban = '<a href="" onclick="return banSubmit('.$row['id_post'].')" class="remove_left"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>'.$name_ban_title.'</title>
 <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34 8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83-1.41 1.41L10 11.41l-2.83 2.83-1.41-1.41L8.59 10 5.76 7.17l1.41-1.41L10 8.59l2.83-2.83 1.41 1.41z"/>
 </svg></a>';
+		    }
 		} else {
+		    $class_strike = '';
 		    $name_ban = '';
 		}
 
@@ -1556,10 +1574,8 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 				'<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>'.
 				'</svg>';
 
-		echo '<span class="ban_left">'.$timestamp.' | <span class="name1">'.$name.'</span></span>'.$name_ban.' -&gt;
+		echo '<span class="ban_left">'.$timestamp.' | <span class="name1 '.$class_strike.'">'.$name.'</span></span>'.$name_ban.' -&gt;
 <span class="white1">'.$row['subj'].'</span>';
-
-		$id_session = md5(session_id());
 
 		if ($id_session != $post_id_session) {
 		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';

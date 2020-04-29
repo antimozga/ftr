@@ -672,6 +672,51 @@ function formSubmit2(url, id) {
 }
 
 /*
+ * BAN SUBMIT
+ */
+
+function banSubmit(id_post) {
+    let formData = new FormData();
+    formData.append("event", "ban");
+    formData.append("id_post", id_post);
+
+    let request = new XMLHttpRequest();
+    let url = 'topicsettings.php';
+
+    console.log("url " + url);
+
+    request.responseType = 'json';
+    request.open("POST", url);
+
+//    document.getElementById('ts_submit').hidden = true;
+//    document.getElementById('ts_submit_process').hidden = false;
+
+    request.onload = function() {
+	let data = request.response;
+	console.log("error = " + data.status);
+	if (data.status != 'ok') {
+//	    document.getElementById('topic_settings_error').innerHTML = "Ошибка сервера.";
+//	    document.getElementById('ts_submit').hidden = false;
+//	    document.getElementById('ts_submit_process').hidden = true;
+	} else {
+//	    location.href = data.url;
+	    location.reload();
+	}
+    }
+
+    request.onerror = function() {
+	console.log("error");
+//	document.getElementById('topic_settings_error').innerHTML = "Ошибка сети.";
+//	document.getElementById('ts_submit').hidden = false;
+//	document.getElementById('ts_submit_process').hidden = true;
+    }
+
+    request.send(formData);
+
+    return false;
+}
+
+/*
  *
  */
 

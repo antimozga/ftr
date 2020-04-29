@@ -161,6 +161,10 @@ span.ban_left, span.ban_left:hover, span.ban_left:visited {
 	margin: 0px 5px 0px 0px;
 }
 
+span.strike {
+	text-decoration: line-through;
+}
+
 a.title {
 	font-size: 18px;
 }

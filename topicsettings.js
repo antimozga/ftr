@@ -1,8 +1,10 @@
 function TopicSettingsSubmit(id_topic) {
     let formElement = document.getElementById('topic_settings_form');
     let formData = new FormData(formElement);
+    formData.append("id_topic", id_topic);
+
     let request = new XMLHttpRequest();
-    let url = 'topicsettings.php?t=' + id_topic;
+    let url = 'topicsettings.php';
 
     console.log("url " + url);
 
