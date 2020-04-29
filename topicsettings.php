@@ -6,6 +6,16 @@ session_start();
 
 include('funcs.php');
 
+function exitstatus($msg)
+{
+    $myObj = [
+	'status' => $msg,
+    ];
+
+    echo json_encode($myObj);
+    exit();
+}
+
 function getCheckboxVal($name1, $name2)
 {
     if (isset($_POST[$name1][$name2]) && $_POST[$name1][$name2] == '1') {
@@ -17,11 +27,17 @@ function getCheckboxVal($name1, $name2)
 
 $database = new PDO("sqlite:" . DBASEFILE);
 if (!$database) {
-    echo '<p>Ошибка базы данных.</p>';
+    exitstatus('Ошибка базы данных');
 } else {
     if (is_defined('id_topic')) {
 	$id_topic = $_REQUEST['id_topic'];
 	$id_topic = ($id_topic * 10) / 10;
+
+	$id_topic_owner = $database->query("SELECT id_user FROM ForumTopics WHERE id=$id_topic")->fetchColumn();
+	if ($id_topic_owner != $_SESSION['myuser_id']) {
+	    exitstatus('Доступ запрещен');
+	}
+
 	if (is_defined('event')) {
 	    $cmd = $_REQUEST['event'];
 	    if ($cmd == 'topicsettings') {
@@ -30,21 +46,37 @@ if (!$database) {
 		    $en_noanon   = getCheckboxVal('topic', 'noanon');
 		    $en_readonly = getCheckboxVal('topic', 'readonly');
 
-		    $database->exec("UPDATE ForumTopics SET private=$en_private, readonly=$en_readonly WHERE id=$id_topic AND id_user={$_SESSION['myuser_id']}");
+		    $database->exec("UPDATE ForumTopics SET private=$en_private, readonly=$en_readonly WHERE id=$id_topic");
 		    if ($en_noanon == 1) {
 			$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES($id_topic, 0, '', 1)");
 		    } else {
 			$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session=''");
 		    }
 
-		    $myObj = [
-			'status' => 'ok',
-		    ];
-
-		    echo json_encode($myObj);
-
-		    exit();
+		    exitstatus('ok');
 		}
+		exitstatus('Доступ запрещен');
+	    } else if ($cmd == 'unban') {
+		if (check_login()) {
+		    $id_topic = $_REQUEST['id_topic'];
+		    $id_user = $_REQUEST['id_user'];
+		    $id_session = $_REQUEST['id_session'];
+
+error_log('---');
+error_log($id_topic);
+error_log($id_user);
+error_log($id_session);
+error_log('---');
+
+		    if ($id_user == 0) {
+			$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session='$id_session'");
+		    } else {
+			$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user");
+		    }
+
+		    exitstatus('ok');
+		}
+		exitstatus('Доступ запрещен');
 	    }
 	}
 
@@ -60,7 +92,7 @@ if (!$database) {
 	$en_readonly = ($row['readonly'] == 1) ? 'checked' : '';
 
 	echo '
-<div class="modal-content-window" style="display:table;">
+<div class="modal-content-window topicsettings_window">
 <h1>Настройки темы</h1>
 
 <form action="" id="topic_settings_form" onsubmit="return TopicSettingsSubmit('.$id_topic.')">
@@ -79,17 +111,48 @@ if (!$database) {
 </path>
 </svg>
 </span>
-</form>
+</form>';
 
-</div>';
+	$is_private = $row['private'];
+	echo '<h2>Участники</h2>';
+
+	echo '<table class="userstable">';
+	echo '<tr><th>Пользователь</th><th>Чтец</th><th></th></tr>';
+	foreach ($database->query("SELECT ForumTopicUsers.id_user AS id_user, ForumTopicUsers.id_session AS id_session,".
+			" ForumTopicUsers.readonly AS readonly, ForumUsers.login AS login".
+			" FROM ForumTopicUsers,ForumUsers".
+			" WHERE ForumTopicUsers.id_topic=$id_topic AND ForumUsers.id=ForumTopicUsers.id_user") as $row) {
+	    if ($anon_ro == 1 && $row['id_user'] == 0 && ($row['id_session'] == '' || $row['readonly'] == 1)) {
+		continue;
+	    }
+
+	    $button = '<a href="" onclick="return UnbanSubmit('.$id_topic.','.$row['id_user'].',\''.$row['id_session'].'\')"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+<title>Удалить</title>
+<path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34 8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83-1.41 1.41L10 11.41l-2.83 2.83-1.41-1.41L8.59 10 5.76 7.17l1.41-1.41L10 8.59l2.83-2.83 1.41 1.41z"/>
+</svg></a>';
+
+	    echo '<tr>';
+	    if ($row['id_user'] == 0) {
+		echo '<td>'.$row['login'].' '.$row['id_session'].'</td>';
+	    } else {
+		echo '<td>'.format_user_nick($row['login'], $row['id_user'], $row['login'], $row['id_user']).'</td>';
+	    }
+	    if ($row['readonly'] == 1) {
+		echo '<td>Да</td>';
+	    } else {
+		echo '<td>Нет</td>';
+	    }
+	    echo '<td>'.$button.'</td>';
+	    echo '</tr>';
+	}
+	echo '</table>';
+	echo '</div>';
     } else if (is_defined('id_post')) {
 	$id_post = $_REQUEST['id_post'];
 	$id_post = ($id_post * 10) / 10;
 	if (is_defined('event')) {
 	    $cmd = $_REQUEST['event'];
 	    if ($cmd == 'ban') {
-error_log($cmd);
-error_log($id_post);
 		if (check_login()) {
 		    $sth = $database->prepare("SELECT ForumTopics.private AS private, ForumPosts.id_topic AS id_topic,".
 			" ForumPosts.id_user AS id_user, ForumPosts.id_session AS id_session".
@@ -113,19 +176,14 @@ error_log($id_post);
 			    }
 			}
 
-			$myObj = [
-			    'status' => 'ok',
-			];
-
-			echo json_encode($myObj);
-
-			exit();
+			exitstatus('ok');
 		    }
 		}
 	    }
 	}
+	exitstatus('Доступ запрещен');
     } else {
-	echo '<p>Доступ запрещен.</p>';
+	exitstatus('Доступ запрещен');
     }
 }
 

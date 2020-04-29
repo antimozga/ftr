@@ -1247,10 +1247,18 @@ label.l_inp_text_name span {
 }
 
 /*
- *
+ * BANLIST
  */
 
 .banlist_window {
+    overflow: auto;
+}
+
+/*
+ * TOPIC SETTINGS
+ */
+
+.topicsettings_window {
     overflow: auto;
 }
 
