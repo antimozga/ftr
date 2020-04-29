@@ -34,11 +34,12 @@ if (!$database) {
 	$id_topic = ($id_topic * 10) / 10;
 
 	$id_topic_owner = $database->query("SELECT id_user FROM ForumTopics WHERE id=$id_topic")->fetchColumn();
-	if ($id_topic_owner != $_SESSION['myuser_id']) {
-	    exitstatus('Доступ запрещен');
-	}
 
 	if (is_defined('event')) {
+	    if ($id_topic_owner != $_SESSION['myuser_id']) {
+		exitstatus('Доступ запрещен');
+	    }
+
 	    $cmd = $_REQUEST['event'];
 	    if ($cmd == 'topicsettings') {
 		if (check_login()) {
@@ -58,16 +59,9 @@ if (!$database) {
 		exitstatus('Доступ запрещен');
 	    } else if ($cmd == 'unban') {
 		if (check_login()) {
-		    $id_topic = $_REQUEST['id_topic'];
 		    $id_user = $_REQUEST['id_user'];
-		    $id_session = $_REQUEST['id_session'];
-
-error_log('---');
-error_log($id_topic);
-error_log($id_user);
-error_log($id_session);
-error_log('---');
-
+		    $id_user = ($id_user * 10) / 10;
+		    $id_session = addslashes($_REQUEST['id_session']);
 		    if ($id_user == 0) {
 			$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session='$id_session'");
 		    } else {
@@ -77,7 +71,77 @@ error_log('---');
 		    exitstatus('ok');
 		}
 		exitstatus('Доступ запрещен');
+	    } else if ($cmd == 'add') {
+		if (check_login()) {
+		    $id_user = $_REQUEST['id_user'];
+		    $id_user = ($id_user * 10) / 10;
+		    $id_session = addslashes($_REQUEST['id_session']);
+		    if ($id_user != 0) {
+			$id_session = '';
+		    }
+
+		    $database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user");
+		    $database->exec("INSERT INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES($id_topic, $id_user, '$id_session', 0)");
+
+		    exitstatus('ok');
+		}
+		exitstatus('Доступ запрещен');
 	    }
+	} else if (is_defined('invite')) {
+	    if ($id_topic_owner != $_SESSION['myuser_id']) {
+		echo '<h1>Доступ запрещен</h1>';
+		exit();
+	    }
+	    if (check_login()) {
+		$invite_id_user = $_REQUEST['invite'];
+		$invite_id_user = ($invite_id_user * 10) / 10;
+		if (is_defined('id_session')) {
+		    $invite_id_session = addslashes($_REQUEST['id_session']);
+		} else {
+		    $invite_id_session = '';
+		}
+
+		$invite_login = $database->query("SELECT login FROM ForumUsers WHERE id=$invite_id_user")->fetchColumn();
+		$topic = $database->query("SELECT topic FROM ForumTopics WHERE id=$id_topic")->fetchColumn();
+
+		echo '<div class="refreshnow" src="topicsettings.js"></div>';
+		echo '<div class="modal-content-window topicsettings_window">';
+
+		if ($invite_id_user == 0) {
+		    $anon_session = " ($invite_id_session) ";
+		} else {
+		    $anon_session = '';
+		}
+
+		echo '<h1>Запрос от пользователя</h1>';
+
+		if ($database->query("SELECT id_topic FROM ForumTopicUsers WHERE id_user=$invite_id_user AND id_topic=$id_topic AND id_session='$invite_id_session'")->fetchColumn() == $id_topic) {
+		    echo 'Пользователь '.format_user_nick($invite_login, $invite_id_user, $invite_login, $invite_id_user).$anon_session.
+" уже добавлен в список доступа темы <a href=\"?t=$id_topic\" target=\"_blank\">$topic</a>. Удалить пользователя можно в настройках темы.";
+		} else {
+		    echo 'Пользователь '.format_user_nick($invite_login, $invite_id_user, $invite_login, $invite_id_user).$anon_session.
+" просит доступ к теме <a href=\"?t=$id_topic\" target=\"_blank\">$topic</a><br><br>";
+		    echo "<button type=\"button\" id=\"add_submit\" onclick=\"return AddSubmit($id_topic, $invite_id_user, $invite_id_session)\">Разрешить</button>";
+		    echo '
+<span class="error1" id="add_settings_error"></span><span id="add_submit_process" hidden>
+<svg width="19px" height="19px" viewBox="0 0 50 50">
+<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
+<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/>
+</path>
+</svg>
+</span>';
+		    echo '<br><br>Если вы не хотите разрешать доступ в тему, просто закройте это окно.';
+		}
+		echo '</div>';
+	    } else {
+		echo "<h1>Доступ запрещен</h1>";
+	    }
+	    exit();
+	}
+
+	if ($id_topic_owner != $_SESSION['myuser_id']) {
+	    echo '<h1>Доступ запрещен</h1>';
+	    exit();
 	}
 
 	echo '<div class="refreshnow" src="topicsettings.js"></div>';
@@ -183,7 +247,8 @@ error_log('---');
 	}
 	exitstatus('Доступ запрещен');
     } else {
-	exitstatus('Доступ запрещен');
+	echo '<h1>Доступ запрещен</h1>';
+	exit();
     }
 }
 

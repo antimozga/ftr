@@ -4,12 +4,12 @@ var pagerHistoryFirstTime = 0;
 
 function convert_invitation1(text) {
     var exp = /\binvite:\/\/([0-9]*)\@([0-9]*)/i;
-    return text.replace(exp,"<button type=\"button\" onclick=\"return AddPrivateUser($1, $2)\">Добавить</button>"); 
+    return text.replace(exp,"Запрос для доступа к теме <button type=\"button\" onclick=\"load_modal(\'topicsettings.php/?invite=$1&id_topic=$2\'); return false;\">Управление</button>");
 }
 
 function convert_invitation(text) {
     var exp = /\binvite:\/\/:([0-9]*)\@([0-9]*)/i;
-    return convert_invitation1(text).replace(exp,"<button type=\"button\" onclick=\"return AddPrivateUser(0, $2, '$1')\">Добавить</button>"); 
+    return convert_invitation1(text).replace(exp,"Запрос для доступа к теме <button type=\"button\" onclick=\"load_modal(\'topicsettings.php/?invite=0&id_topic=$2&id_session=$1\'); return false;\">Управление</button>");
 }
 
 function pagerInsertPost(el, data)

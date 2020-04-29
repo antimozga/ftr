@@ -1417,7 +1417,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
-		if ($id_user === $row['id_user']) {
+		if ($id_user === $row['id_user'] && $show_mytopics) {
 		    $topic_owner = 'owner';
 		    $topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php?id_topic='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Настройка доступа к теме</title>
@@ -1464,7 +1464,7 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 	} else if ($topic_private && $topic_private_access == 0) {
-	    echo '<div>';
+	    echo '<div class="block2">';
 	    echo '<h1>Закрытая тема</h1>';
 	    echo 'Для доступа необходимо разрешение создателя темы.<br>';
 	    if ($id_user == 0) {
@@ -1476,7 +1476,7 @@ invite://:$id_session@$id_topic</a><span class=\"popup\"><span class=\"popuptext
  Зарегистрированные пользователи не имеют подобных ограничений.';
 	    } else {
 		echo "Чтобы запросить разрешение, скопируйте ссылку 
-<a href=\"invite://$id_user@$id_topic\" onclick=\"copyStringToClipboard('Запрос для доступа в тему \'$topic\' invite://$id_user@$id_topic'); popup_copy('pop$id_topic'); return false;\">
+<a href=\"invite://$id_user@$id_topic\" onclick=\"copyStringToClipboard('invite://$id_user@$id_topic'); popup_copy('pop$id_topic'); return false;\">
 invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
 (нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner).
 " (<a href=\"#\" onclick=\"load_modal('pagerchat.php/?new=$id_topic_owner'); return false;\">Написать сообщение</a>)";
