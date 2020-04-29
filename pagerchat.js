@@ -2,6 +2,16 @@ var pagerReadyFlag = 0;
 var pagerHistoryLastTime = 0;
 var pagerHistoryFirstTime = 0;
 
+function convert_invitation1(text) {
+    var exp = /\binvite:\/\/([0-9]*)\@([0-9]*)/i;
+    return text.replace(exp,"<button type=\"button\" onclick=\"return AddPrivateUser($1, $2)\">Добавить</button>"); 
+}
+
+function convert_invitation(text) {
+    var exp = /\binvite:\/\/:([0-9]*)\@([0-9]*)/i;
+    return convert_invitation1(text).replace(exp,"<button type=\"button\" onclick=\"return AddPrivateUser(0, $2, '$1')\">Добавить</button>"); 
+}
+
 function pagerInsertPost(el, data)
 {
     let lock = '';
@@ -62,7 +72,7 @@ function pagerInsertPost(el, data)
 
 		let text = '<div class="text_box_1_dialog"><div class="box_user"><span class="name">'
 			+ data.l + lock + '</span> -&gt; <span>' + data.d + " " + newm + '</span></div></div>';
-		text = text + '<div class="text_box_2_dialog">' + linkify(convert_text(decrypted), linkify_options) + '</div>';
+		text = text + '<div class="text_box_2_dialog">' + linkify(convert_invitation(convert_text(decrypted)), linkify_options) + '</div>';
 
 		el.innerHTML = text;
 	    } catch(err) {
@@ -77,7 +87,7 @@ function pagerInsertPost(el, data)
     } else {
 	let text = '<div class="text_box_1_dialog"><div class="box_user"><span class="name">'
 		+ data.l + lock + '</span> -&gt; <span>' + data.d + " " + newm + '</span></div></div>';
-	text = text + '<div class="text_box_2_dialog">' + data.p + '</div>';
+	text = text + '<div class="text_box_2_dialog">' + linkify(convert_invitation(data.p), linkify_options) + '</div>';
 
 	el.innerHTML = text;
     }

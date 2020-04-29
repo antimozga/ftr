@@ -471,7 +471,9 @@ if (!$database) {
 	$id_topic = 0;
 	$id_user = 0;
 	$id_topic_owner = 0;
+	$id_topic_owner_login = '';
 	$topic_private = 0;
+	$topic_private_access = 0;
 	$topic_readonly = 0;
 
 	$show_hot = 0;
@@ -638,8 +640,10 @@ if (!$database) {
 	    $purgatory = 0;
 	    $topic_query = "SELECT ForumTopics.id_grp AS id_grp, ForumTopics.topic AS topic, ForumTopics.id AS id_topic,".
 			   " ForumTopics.purgatory AS purgatory, ForumTopics.id_user AS id_user, ForumGroups.grp AS grp,".
-			   " ForumTopics.private AS private, ForumTopics.readonly AS readonly".
-			   " FROM ForumTopics, ForumGroups WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id;";
+			   " ForumTopics.private AS private, ForumTopics.readonly AS readonly, ForumUsers.login AS login".
+			   " FROM ForumTopics, ForumGroups, ForumUsers".
+			   " WHERE ForumTopics.id = $id_topic AND ForumTopics.id_grp = ForumGroups.id".
+			   " AND ForumUsers.id = ForumTopics.id_user";
 	    foreach ($database->query($topic_query) as $row) {
 		$topic = $row['topic'];
 		$id_topic = $row['id_topic'];
@@ -647,6 +651,7 @@ if (!$database) {
 		$id_group = $row['id_grp'];
 		$purgatory = $row['purgatory'];
 		$id_topic_owner = $row['id_user'];
+		$topic_owner_login = $row['login'];
 		$topic_private = $row['private'];
 		$topic_readonly = $row['readonly'];
 	    }
@@ -1006,7 +1011,17 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		show_postbox('topic', $id_session);
 	    }
 	} else if ($id_topic != 0) {
-	    show_postbox('post', $id_session);
+	    if ($topic_private) {
+		if ($id_topic_owner === $id_user) {
+		    $topic_private_access = 1;
+		} else if (is_numeric($database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user")->fetchColumn())) {
+			$topic_private_access = 1;
+		}
+	    }
+
+	    if ($topic_private == 0 || ($topic_private && $topic_private_access)) {
+		show_postbox('post', $id_session);
+	    }
 	}
 
 	if ($show_search == 1) {
@@ -1448,6 +1463,26 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    echo '</table>';
 
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
+	} else if ($topic_private && $topic_private_access == 0) {
+	    echo '<div>';
+	    echo '<h1>Закрытая тема</h1>';
+	    echo 'Для доступа необходимо разрешение создателя темы.<br>';
+	    if ($id_user == 0) {
+		echo "Чтобы запросить разрешение, скопируйте ссылку 
+<a href=\"invite://:$id_session@$id_topic\" onclick=\"copyStringToClipboard('invite://:$id_session@$id_topic'); popup_copy('pop$id_topic'); return false;\">
+invite://:$id_session@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
+(нажмите на ссылку для копирования) и попросите зарегистрированного пользователя отправить ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner);
+	    echo '<br>Если ваш запрос будет одобрен, то вы сможете писать анонимно с текущей сессии используемого в данный момент браузера.
+ Зарегистрированные пользователи не имеют подобных ограничений.';
+	    } else {
+		echo "Чтобы запросить разрешение, скопируйте ссылку 
+<a href=\"invite://$id_user@$id_topic\" onclick=\"copyStringToClipboard('Запрос для доступа в тему \'$topic\' invite://$id_user@$id_topic'); popup_copy('pop$id_topic'); return false;\">
+invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
+(нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner).
+" (<a href=\"#\" onclick=\"load_modal('pagerchat.php/?new=$id_topic_owner'); return false;\">Написать сообщение</a>)";
+	    }
+	    echo '<br><br>Внимание! Разрешать или запрещать доступ в тему - личное право создателя темы.';
+	    echo '</div>';
 	} else {
 	    $posts = 0;
 	    $pnext = "";
