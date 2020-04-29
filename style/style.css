@@ -591,6 +591,11 @@ label.upload_file {
 	background-color: #0f4367;
 }
 
+.topic_control_panel {
+	display: inline-block;
+	float: right;
+}
+
 .userstable {
 	width: 100%;
 }

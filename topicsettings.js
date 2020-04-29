@@ -39,7 +39,13 @@ function TopicSettingsSubmit(id_topic) {
     return false;
 }
 
-function UnbanSubmit(id_topic, id_user, id_session) {
+var busy_animation = `<svg width="19px" height="19px" viewBox="0 0 50 50">
+<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
+<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/>
+</path>
+</svg>`;
+
+function UnbanSubmit(id_topic, id_user, id_session, el_id) {
     let formData = new FormData();
     formData.append("event", "unban");
     formData.append("id_topic", id_topic);
@@ -54,16 +60,17 @@ function UnbanSubmit(id_topic, id_user, id_session) {
     request.responseType = 'json';
     request.open("POST", url);
 
-//    document.getElementById('ts_submit').hidden = true;
-    document.getElementById('ts_submit_process').hidden = false;
+    document.getElementById('unban_submit_process' + el_id).innerHTML = busy_animation;
+    document.getElementById('unban_submit' + el_id).hidden = true;
+    document.getElementById('unban_submit_process' + el_id).hidden = false;
 
     request.onload = function() {
 	let data = request.response;
 	console.log("error = " + data.status);
 	if (data.status != 'ok') {
-	    document.getElementById('topic_settings_error').innerHTML = "Ошибка сервера.";
-//	    document.getElementById('ts_submit').hidden = false;
-	    document.getElementById('ts_submit_process').hidden = true;
+////	    document.getElementById('topic_settings_error').innerHTML = "Ошибка сервера.";
+	    document.getElementById('unban_submit' + el_id).hidden = false;
+	    document.getElementById('unban_submit_process' + el_id).hidden = true;
 	} else {
 //	    location.href = data.url;
 	    modal_reload();
@@ -72,9 +79,9 @@ function UnbanSubmit(id_topic, id_user, id_session) {
 
     request.onerror = function() {
 	console.log("error");
-	document.getElementById('topic_settings_error').innerHTML = "Ошибка сети.";
-//	document.getElementById('ts_submit').hidden = false;
-	document.getElementById('ts_submit_process').hidden = true;
+////	document.getElementById('topic_settings_error').innerHTML = "Ошибка сети.";
+	document.getElementById('unban_submit' + el_id).hidden = false;
+	document.getElementById('unban_submit_process' + el_id).hidden = true;
     }
 
     request.send(formData);

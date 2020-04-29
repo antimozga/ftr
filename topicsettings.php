@@ -121,7 +121,7 @@ if (!$database) {
 		} else {
 		    echo 'Пользователь '.format_user_nick($invite_login, $invite_id_user, $invite_login, $invite_id_user).$anon_session.
 " просит доступ к теме <a href=\"?t=$id_topic\" target=\"_blank\">$topic</a><br><br>";
-		    echo "<button type=\"button\" id=\"add_submit\" onclick=\"return AddSubmit($id_topic, $invite_id_user, $invite_id_session)\">Разрешить</button>";
+		    echo "<button type=\"button\" id=\"add_submit\" onclick=\"return AddSubmit($id_topic, $invite_id_user, '$invite_id_session')\">Разрешить</button>";
 		    echo '
 <span class="error1" id="add_settings_error"></span><span id="add_submit_process" hidden>
 <svg width="19px" height="19px" viewBox="0 0 50 50">
@@ -145,19 +145,20 @@ if (!$database) {
 	}
 
 	echo '<div class="refreshnow" src="topicsettings.js"></div>';
+	echo '<div class="modal-content-window topicsettings_window">';
 
-	$sth = $database->prepare("SELECT private,readonly FROM ForumTopics WHERE id=$id_topic AND id_user={$_SESSION['myuser_id']}");
-	$sth->execute();
-	$row = $sth->fetch();
 	$anon_ro = $database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session=''")->fetchColumn();
 
-	$en_private = ($row['private'] == 1) ? 'checked' : '';
-	$en_noanon = ($anon_ro == 1) ? 'checked' : '';
-	$en_readonly = ($row['readonly'] == 1) ? 'checked' : '';
+	if (!is_defined('show_users')) {
+	    $sth = $database->prepare("SELECT private,readonly FROM ForumTopics WHERE id=$id_topic AND id_user={$_SESSION['myuser_id']}");
+	    $sth->execute();
+	    $row = $sth->fetch();
 
-	echo '
-<div class="modal-content-window topicsettings_window">
-<h1>Настройки темы</h1>
+	    $en_private = ($row['private'] == 1) ? 'checked' : '';
+	    $en_noanon = ($anon_ro == 1) ? 'checked' : '';
+	    $en_readonly = ($row['readonly'] == 1) ? 'checked' : '';
+
+	    echo '<h1>Настройки темы</h1>
 
 <form action="" id="topic_settings_form" onsubmit="return TopicSettingsSubmit('.$id_topic.')">
   <input type="hidden" name="event" value="topicsettings">
@@ -176,40 +177,44 @@ if (!$database) {
 </svg>
 </span>
 </form>';
+	} else {
+	    //$is_private = $row['private'];
+	    $cnt = 0;
 
-	$is_private = $row['private'];
-	echo '<h2>Участники</h2>';
+	    echo '<h1>Участники</h1>';
 
-	echo '<table class="userstable">';
-	echo '<tr><th>Пользователь</th><th>Чтец</th><th></th></tr>';
-	foreach ($database->query("SELECT ForumTopicUsers.id_user AS id_user, ForumTopicUsers.id_session AS id_session,".
+	    echo '<table class="userstable">';
+	    echo '<tr><th>Пользователь</th><th>Чтец</th><th></th></tr>';
+	    foreach ($database->query("SELECT ForumTopicUsers.id_user AS id_user, ForumTopicUsers.id_session AS id_session,".
 			" ForumTopicUsers.readonly AS readonly, ForumUsers.login AS login".
 			" FROM ForumTopicUsers,ForumUsers".
 			" WHERE ForumTopicUsers.id_topic=$id_topic AND ForumUsers.id=ForumTopicUsers.id_user") as $row) {
-	    if ($anon_ro == 1 && $row['id_user'] == 0 && ($row['id_session'] == '' || $row['readonly'] == 1)) {
-		continue;
-	    }
+		if ($anon_ro == 1 && $row['id_user'] == 0 && ($row['id_session'] == '' || $row['readonly'] == 1)) {
+		    continue;
+		}
 
-	    $button = '<a href="" onclick="return UnbanSubmit('.$id_topic.','.$row['id_user'].',\''.$row['id_session'].'\')"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
+		$button = '<a id="unban_submit'.$cnt.'" href="" onclick="return UnbanSubmit('.$id_topic.','.$row['id_user'].',\''.$row['id_session'].'\','.$cnt.')"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
 <title>Удалить</title>
 <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34 8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83-1.41 1.41L10 11.41l-2.83 2.83-1.41-1.41L8.59 10 5.76 7.17l1.41-1.41L10 8.59l2.83-2.83 1.41 1.41z"/>
 </svg></a>';
 
-	    echo '<tr>';
-	    if ($row['id_user'] == 0) {
-		echo '<td>'.$row['login'].' '.$row['id_session'].'</td>';
-	    } else {
-		echo '<td>'.format_user_nick($row['login'], $row['id_user'], $row['login'], $row['id_user']).'</td>';
+		echo '<tr>';
+		if ($row['id_user'] == 0) {
+		    echo '<td>'.$row['login'].' '.$row['id_session'].'</td>';
+		} else {
+		    echo '<td>'.format_user_nick($row['login'], $row['id_user'], $row['login'], $row['id_user']).'</td>';
+		}
+		if ($row['readonly'] == 1) {
+		    echo '<td>Да</td>';
+		} else {
+		    echo '<td>Нет</td>';
+		}
+		echo '<td>'.$button.'<span id="unban_submit_process'.$cnt.'" hidden></span></td>';
+		echo '</tr>';
+		$cnt++;
 	    }
-	    if ($row['readonly'] == 1) {
-		echo '<td>Да</td>';
-	    } else {
-		echo '<td>Нет</td>';
-	    }
-	    echo '<td>'.$button.'</td>';
-	    echo '</tr>';
+	    echo '</table>';
 	}
-	echo '</table>';
 	echo '</div>';
     } else if (is_defined('id_post')) {
 	$id_post = $_REQUEST['id_post'];

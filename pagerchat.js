@@ -8,7 +8,7 @@ function convert_invitation1(text) {
 }
 
 function convert_invitation(text) {
-    var exp = /\binvite:\/\/:([0-9]*)\@([0-9]*)/i;
+    var exp = /\binvite:\/\/:([a-fA-F0-9]*)\@([0-9]*)/i;
     return convert_invitation1(text).replace(exp,"Запрос для доступа к теме <button type=\"button\" onclick=\"load_modal(\'topicsettings.php/?invite=0&id_topic=$2&id_session=$1\'); return false;\">Управление</button>");
 }
 
