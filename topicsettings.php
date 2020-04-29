@@ -49,7 +49,7 @@ if (!$database) {
 
 		    $database->exec("UPDATE ForumTopics SET private=$en_private, readonly=$en_readonly WHERE id=$id_topic");
 		    if ($en_noanon == 1) {
-			$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES($id_topic, 0, '', 1)");
+			$database->exec("INSERT INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES($id_topic, 0, '', 1)");
 		    } else {
 			$database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=0 AND id_session=''");
 		    }
@@ -80,7 +80,7 @@ if (!$database) {
 			$id_session = '';
 		    }
 
-		    $database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user");
+		    $database->exec("DELETE FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user AND (id_user!=0 OR (id_user=0 AND id_session='$id_session'))");
 		    $database->exec("INSERT INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES($id_topic, $id_user, '$id_session', 0)");
 
 		    exitstatus('ok');
@@ -239,9 +239,9 @@ if (!$database) {
 			    }
 			} else {
 			    if ($row['id_user'] == 0) {
-				$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, 0, '{$row['id_session']}', 1)");
+				$database->exec("INSERT INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, 0, '{$row['id_session']}', 1)");
 			    } else {
-				$database->exec("REPLACE INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, {$row['id_user']}, '', 1)");
+				$database->exec("INSERT INTO ForumTopicUsers(id_topic, id_user, id_session, readonly) VALUES({$row['id_topic']}, {$row['id_user']}, '', 1)");
 			    }
 			}
 

@@ -734,7 +734,7 @@ if (!$database) {
 		if ($id_topic != 0 && $topic_readonly && $id_topic_owner != $id_user) {
 		    $myObj = [
 			'error'	=> "Тема закрыта для сообщений...",
-			'url'	=> "?t=$topic_id"
+			'url'	=> "?t=$id_topic"
 		    ];
 
 		    echo json_encode($myObj);
@@ -1014,7 +1014,8 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    if ($topic_private) {
 		if ($id_topic_owner === $id_user) {
 		    $topic_private_access = 1;
-		} else if (is_numeric($database->query("SELECT readonly FROM ForumTopicUsers WHERE id_topic=$id_topic AND id_user=$id_user")->fetchColumn())) {
+		} else if (is_numeric($database->query("SELECT readonly FROM ForumTopicUsers".
+			    " WHERE id_topic=$id_topic AND id_user=$id_user AND (id_user!=0 OR (id_user=0 AND id_session='$id_session'))")->fetchColumn())) {
 			$topic_private_access = 1;
 		}
 	    }
