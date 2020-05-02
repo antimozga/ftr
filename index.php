@@ -813,14 +813,12 @@ if (!$database) {
 			$mymoder = new AutoModerator();
 			if ($mymoder->moderated($subj.' '.$nick)) {
 			    $purgatory = 0;
-			}
 
-			if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
-			    $purgatory = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
-			    if ($purgatory >= 0) {
-				$purgatory = 0;
-			    } else {
-				$purgatory = 1;
+			    if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
+				$topics_rate = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
+				if ($topics_rate < 0) {
+				    $purgatory = 1;
+				}
 			    }
 			}
 
