@@ -1,19 +1,24 @@
 <?php
-
-require_once('config.php');
+require_once ('config.php');
 
 session_start();
 
-include('funcs.php');
+include ('funcs.php');
 
 $database = new PDO("sqlite:" . DBASEFILE);
-if (!$database) {
+if (! $database) {
     echo '<p>Ошибка базы данных.</p>';
 } else {
     if (check_login()) {
-	echo '<div class="modal-content-window pagerchat_window autorefresh refreshnow" src="showpager-refr.php"></div>';
+        ?>
+<div
+	class="modal-content-window pagerchat_window autorefresh refreshnow"
+	src="showpager-refr.php"></div>
+<?php
     } else {
-	echo '<p>Доступ запрещен.</p>';
+        ?>
+<p>Доступ запрещен.</p>
+<?php
     }
 }
 ?>

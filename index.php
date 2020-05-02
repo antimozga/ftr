@@ -2,21 +2,21 @@
 
 function microtime_float()
 {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
+    list ($usec, $sec) = explode(" ", microtime());
+    return ((float) $usec + (float) $sec);
 }
 
 session_start();
 
-setcookie ('PHPSESSID', session_id(), time() + 60 * 60 * 24 * 7, '/');
+setcookie('PHPSESSID', session_id(), time() + 60 * 60 * 24 * 7, '/');
 
 if (isset($_SESSION['ajsner'])) {
     if ($_SESSION['ajsner'] > 100) {
-	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
-	$retryAfterSeconds = 240;
-	header('Retry-After: ' . $retryAfterSeconds);
-	echo '<h1>503 Service Temporarily Unavailable</h1>';
-	exit;
+        header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
+        $retryAfterSeconds = 240;
+        header('Retry-After: ' . $retryAfterSeconds);
+        echo '<h1>503 Service Temporarily Unavailable</h1>';
+        exit();
     }
 }
 
@@ -28,151 +28,213 @@ if (isset($_SESSION['lkasdas'])) {
     $time_diff = $time_now - $_SESSION['lkasdas'];
 }
 
-//error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
-//error_log("time diff ".$time_diff);
+// error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
+// error_log("time diff ".$time_diff);
 
 $_SESSION['lkasdas'] = $time_now;
 
 if ($time_diff < 1) {
-    if (!isset($_SESSION['ajsner'])) {
-	$_SESSION['ajsner'] = 1;
+    if (! isset($_SESSION['ajsner'])) {
+        $_SESSION['ajsner'] = 1;
     } else {
-	$_SESSION['ajsner']++;
+        $_SESSION['ajsner'] ++;
     }
 
     if ($_SESSION['ajsner'] > 1) {
-	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
-	$retryAfterSeconds = 240;
-	header('Retry-After: ' . $retryAfterSeconds);
-	echo '<h1>503 Service Temporarily Unavailable</h1>';
-	exit;
+        header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
+        $retryAfterSeconds = 240;
+        header('Retry-After: ' . $retryAfterSeconds);
+        echo '<h1>503 Service Temporarily Unavailable</h1>';
+        exit();
     }
 } else {
-	$_SESSION['ajsner'] = 0;
+    $_SESSION['ajsner'] = 0;
 }
 
 $debug = false;
 
-require_once('config.php');
-require_once('config_user.php');
+require_once ('config.php');
+require_once ('config_user.php');
 
-include('funcs.php');
-include('automoderator.php');
-include('header.php');
-include('footer.php');
+include ('funcs.php');
+include ('automoderator.php');
+include ('header.php');
+include ('footer.php');
 
-function start_page($title) {
+function start_page($title)
+{
     global $FORUM_RULES_LINK;
     global $database;
 
     show_header($title);
-    echo
-'<div class="block_menu">
-    <div class="menu" id="mobMenu">';
-
-    if (!is_logged()) {
-	echo '<a href="" onclick="load_modal(\'login.php\'); return false;">Вход</a>
-	<div class="sep"><div></div></div>
-	<a href="?reg=1">Регистрация</a>';
+    ?>
+<div class="block_menu">
+	<div class="menu" id="mobMenu">
+    
+<?php
+    if (! is_logged()) {
+        ?>        
+		<a href="" onclick="load_modal('login.php'); return false;">Вход</a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="?reg=1">Регистрация</a>
+<?php
     } else {
-	$pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
-	$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
-	echo '<a href="?reg=3" class="session_ctl">'.$_SESSION['myuser_name'].'</a>
-	<div class="sep"><div></div></div>
-	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>';
+        ?>	
+		<a href="?reg=3" class="session_ctl"><?php echo $_SESSION['myuser_name']; ?></a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="#" id="pagerlink"
+			onclick="load_modal('showpager.php'); return false;">Пейджер (<span
+			class="autorefresh refreshnow" src="pagerstatus.php"></span>)
+		</a>
+<?php
     }
-
-    echo '<div class="sep"><div></div></div>
-	<a href="?users">Пользователи</a><a href="#" onclick="load_modal(\'showbanlist.php\'); return false;">(Скрытые)</a>
-	<div class="sep"><div></div></div>
-	<a href="'.$FORUM_RULES_LINK.'">Правила</a>';
-
+    ?>
+    	<div class="sep">
+			<div></div>
+		</div>
+		<a href="?users">Пользователи</a><a href="#"
+			onclick="load_modal('showbanlist.php'); return false;">(Скрытые)</a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="<?php echo $FORUM_RULES_LINK; ?>">Правила</a>
+<?php
     if (is_logged()) {
-	$logout_uri = $_SERVER['REQUEST_URI'];
-	if ($logout_uri === '/') {
-	    $logout_uri = '?logout';
-	} else {
-	    $logout_uri = $logout_uri.'&logout';
-	}
-
-	echo '<div class="sep"><div></div></div>
-	<a href="'.$logout_uri.'" class="session_ctl">Выход</a>';
-
+        $logout_uri = $_SERVER['REQUEST_URI'];
+        if ($logout_uri === '/') {
+            $logout_uri = '?logout';
+        } else {
+            $logout_uri = $logout_uri . '&logout';
+        }
+        ?>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="<?php echo $logout_uri; ?>" class="session_ctl">Выход</a>
+<?php
     }
 
     if (is_forum_admin()) {
-	echo '<div class="sep"><div></div></div><a href="groups.php">Редактор групп тем</a>';
+        ?>        
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="groups.php">Редактор групп тем</a>
+<?php
     }
-
-    echo '<a href="javascript:void(0);" class="mobicon" onclick="mobileMenu(\'mobMenu\',\'menu\')">&#9776;</a>
-    </div>
-</div>';
-
+    ?>
+    <a href="javascript:void(0);" class="mobicon"
+			onclick="mobileMenu('mobMenu','menu')">&#9776;</a>
+	</div>
+</div>
+<?php
 }
 
-function show_menu($database) {
-    echo '<div class="block_menu_m">
-<form class="group_sel" action="">
-<select onchange="document.location=\'?g=\'+this.value;" name="g">
-<option value="0" selected="selected">Группы тем:</option>
-<option value="0">-----------------------</option>
-    ';
-
+function show_menu($database)
+{
+    ?>
+<div class="block_menu_m">
+	<form class="group_sel" action="">
+		<select onchange="document.location='?g='+this.value;" name="g">
+			<option value="0" selected="selected">Группы тем:</option>
+			<option value="0">-----------------------</option>
+<?php
     $group_query = "SELECT * FROM ForumGroups ORDER BY grp ASC;";
     foreach ($database->query($group_query) as $row) {
-	print ("<option value='{$row['id']}'>{$row['grp']}</option>");
+        ?>
+			<option value="<?php echo $row['id']; ?>"><?php echo $row['grp']; ?></option>
+<?php
     }
-
-    echo '</select>
-</form>
-<div class="menu">
-<div><a href="./?g=0">Группы<span class="view-desk"> тем</span></a></div>
-<div class="sep"><div></div></div>
-<div><a href="./">Горячее</a></div>
-<div class="sep"><div></div></div>
-<div><a href="./?s=1">Топ<span class="view-desk"> общения</span></a></div>';
+    ?>
+	</select>
+	</form>
+	<div class="menu">
+		<div>
+			<a href="./?g=0">Группы<span class="view-desk"> тем</span></a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./">Горячее</a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?s=1">Топ<span class="view-desk"> общения</span></a>
+		</div>
+<?php
     if (is_logged()) {
-	echo '<div class="sep"><div></div></div>
-<div><a href="./?m=1">Избранное</a></div>';
-	echo '<div class="sep"><div></div></div>
-<div><a href="./?o=1">Моё</a></div>';
+        ?>       
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?m=1">Избранное</a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?o=1">Моё</a>
+		</div>
+<?php
     }
-echo '<div><a style="float:right;" href="#" onclick="load_modal(\'searchtopic.php\'); return false;">
-<svg viewBox="0 0 20 20" width="16px">
-<title>Поиск по темам</title>
-<path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
-</svg>
-</a></div>
-</div></div>';
-
-//<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
-
+    ?>    
+		<div>
+			<a style="float: right;" href="#"
+				onclick="load_modal('searchtopic.php'); return false;">
+				<svg viewBox="0 0 20 20" width="16px">
+					<title>Поиск по темам</title>
+					<path
+						d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+				</svg>
+			</a>
+		</div>
+	</div>
+</div>
+<?php
 }
 
 function show_banner()
 {
-
-    echo '<div class="block1">';
-
-    echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
-//    echo '<div class="logo"><a href="./"><img src="images/logo.png"></a></div>';
-
-    echo '<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>';
-    echo '<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>';
-
-    echo '</div>';
+?>
+<div class="block1">
+	<div class="logo">
+		<a href="./"><img src="images/ftrclogo.png"></a>
+	</div>
+	<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>
+	<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>
+</div>
+<?php
 }
 
-function show_nav_path($topic, $ctrlink="") {
+function show_nav_path($topic, $ctrlink = "")
+{
     global $FORUM_NAME;
-    echo '<div class="navigation">
-    <div class="box_path">
-    <table><tr>
-    <td class="tdw1">:: <a href="./">'.$FORUM_NAME.'</a> &nbsp;/&nbsp; '.$topic.'</td>';
+    ?>
+<div class="navigation">
+	<div class="box_path">
+		<table>
+			<tr>
+				<td class="tdw1">:: <a href="./"><?php echo $FORUM_NAME; ?></a> &nbsp;/&nbsp; <?php echo $topic; ?></td>
+<?php
     if ($ctrlink != "") {
-	echo '<td class="tdw2">'.$ctrlink.'</td>';
+        ?>
+				<td class="tdw2"><?php echo $ctrlink; ?></td>
+<?php
     }
-    echo '</tr></table></div></div>';
+    ?>    
+    		</tr>
+		</table>
+	</div>
+</div>
+<?php
 }
 
 function show_postbox($type, $id_session) {
@@ -373,53 +435,82 @@ fombj = document.getElementById("formMessage");
 
 function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic = 0, $id_grp = 0)
 {
-    echo '<div class="paging">
-    <form class="paging_sel" action="" method="get">';
+    ?>
+<div class="paging">
+	<form class="paging_sel" action="" method="get">
+<?php
     if ($id_topic != 0) {
-	echo '<input type="hidden" name="t" value="'.$id_topic.'">';
+        ?>        
+		<input type="hidden" name="t" value="<?php echo $id_topic; ?>">
+<?php
     }
     if ($id_grp != 0) {
-	echo '<input type="hidden" name="g" value="'.$id_grp.'">';
+        ?>        
+		<input type="hidden" name="g" value="<?php echo $id_grp; ?>">
+<?php
     }
-    echo '<b>Страница: </b>&nbsp;
-	<select class="pagsel" name="p">';
+    ?>    
+    	<b>Страница: </b>&nbsp;
+    	<select class="pagsel" name="p">
+<?php
     if ($pages > 0) {
-	$cnt = 1;
-	$total = $pages;
-	while ($total > 0) {
-	    if ($page == $cnt) {
-		echo '<option selected value="'.$cnt.'">';
-	    } else {
-		echo '<option value="'.$cnt.'">';
-	    }
-	    echo $total.'</option>';
-	    $cnt = $cnt + 1;
-	    $total = $total - 1;
-	}
+        $cnt = 1;
+        $total = $pages;
+        while ($total > 0) {
+            if ($page == $cnt) {
+                ?>
+			<option selected value="<?php echo $cnt; ?>"><?php
+            } else {
+                ?>
+			<option value="<?php echo $cnt; ?>"><?php
+            }
+            echo $total;
+            ?></option>
+<?php
+            $cnt = $cnt + 1;
+            $total = $total - 1;
+        }
     }
-    echo '
-	</select>
-	<input class="btn_paging_sel" value="&nbsp;" type="submit">
-	&nbsp;из '.$pages.'
-    </form>';
+    ?>
+		</select>
+		<input class="btn_paging_sel" value="&nbsp;" type="submit">
+	&nbsp;из <?php echo $pages; ?>
+    </form>
+<?php
     if ($pagenext != "") {
-	echo '<span class="prev"><a href="'.$pagenext.'"><span class="no-mob-view">Назад </span>»</a></span>';
+        ?>
+	<span class="prev">
+		<a href="<?php echo $pagenext; ?>"><span class="no-mob-view">Назад </span>»</a>
+	</span>
+<?php
     } else {
-	echo '<span class="prev"><span class="no-mob-view">Назад </span>»</span>';
+        ?>        
+	<span class="prev"><span class="no-mob-view">Назад </span>»</span>
+<?php
     }
     if ($pageprev != "") {
-	echo '<span class="next"><a href="'.$pageprev.'">«<span class="no-mob-view"> Вперед</span></a></span>';
+        ?>
+	<span class="next">
+		<a href="<?php echo $pageprev; ?>">«<span class="no-mob-view"> Вперед</span></a>
+	</span>
+<?php
     } else {
-	echo '<span class="next">«<span class="no-mob-view"> Вперед</span></span>';
+        ?>
+	<span class="next">«<span class="no-mob-view"> Вперед</span></span>
+<?php
     }
     if ($type == 'down') {
-	echo '<a name="ftop"></a><span class="up_down">';
-	echo '<a href="#bottom">Вниз</a></span>';
+        ?>
+	<a name="ftop"></a><span class="up_down"> <a href="#bottom">Вниз</a></span>
+<?php
     } else {
-	echo '<a name="bottom"></a><span class="up_down">';
-	echo '<a href="#ftop">Вверх</a></span>';
+        ?>
+	<a name="bottom"></a><span class="up_down"> <a href="#ftop">Вверх</a></span>
+<?php
     }
-echo '</div>';
+    ?>
+</div>
+<?php
 }
 
 $database = new PDO("sqlite:" . DBASEFILE);
@@ -813,14 +904,12 @@ if (!$database) {
 			$mymoder = new AutoModerator();
 			if ($mymoder->moderated($subj.' '.$nick)) {
 			    $purgatory = 0;
-			}
 
-			if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
-			    $purgatory = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
-			    if ($purgatory >= 0) {
-				$purgatory = 0;
-			    } else {
-				$purgatory = 1;
+			    if ($id_user != 0 && $nick === $_SESSION['myuser_name']) {
+				$topics_rate = $database->query("SELECT topics_rate FROM ForumUsers WHERE id=$id_user")->fetchColumn();
+				if ($topics_rate < 0) {
+				    $purgatory = 1;
+				}
 			    }
 			}
 
