@@ -237,200 +237,204 @@ function show_nav_path($topic, $ctrlink = "")
 <?php
 }
 
-function show_postbox($type, $id_session) {
+function show_postbox($type, $id_session)
+{
     global $database;
     global $debug;
     global $RECAPTCHA_SITE_KEY;
 
-    $error = "";
     $name = "";
     $subj = "";
     $post = "";
     $edit_info = "";
 
     if (is_defined('editpost')) {
-	$edit_post_id = $_REQUEST['editpost'];
-	$edit_post_id = ($edit_post_id * 10) / 10;
+        $edit_post_id = $_REQUEST['editpost'];
+        $edit_post_id = ($edit_post_id * 10) / 10;
 
-	$sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
-				  " FROM ForumPosts".
-				  " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
-	$sth->execute();
-	$row = $sth->fetch();
-	if ($row['id'] != "") {
-	    $name = $row['nick'];
-	    $subj = $row['subj'];
-	    $post = reconvert_text($row['post']);
-	    $edit_info = '<input type="hidden" name="edit_post_info" value="'.$edit_post_id.'">';
-	}
+        $sth = $database->prepare("SELECT id, time, nick, subj, post, modtime" . " FROM ForumPosts" . " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
+        $sth->execute();
+        $row = $sth->fetch();
+        if ($row['id'] != "") {
+            $name = $row['nick'];
+            $subj = $row['subj'];
+            $post = reconvert_text($row['post']);
+            $edit_info = '<input type="hidden" name="edit_post_info" value="' . $edit_post_id . '">';
+        }
     } else {
-	if (isset($_SESSION['user_temp_name'])) {
-	    $name = $_SESSION['user_temp_name'];
-	}
+        if (isset($_SESSION['user_temp_name'])) {
+            $name = $_SESSION['user_temp_name'];
+        }
     }
 
     if ($type == 'topic') {
-	$h = 'Заголовок темы';
-	$b = 'Создать';
+        $h = 'Заголовок темы';
+        $b = 'Создать';
     } else {
-	$h = 'Заголовок сообщения';
+        $h = 'Заголовок сообщения';
 
-	if (is_defined('editpost')) {
-	    $b = 'Исправить';
-	} else {
-	    $b = 'Отправить';
-	}
+        if (is_defined('editpost')) {
+            $b = 'Исправить';
+        } else {
+            $b = 'Отправить';
+        }
     }
-echo '
-<script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
+    ?>
+<script	src="https://www.google.com/recaptcha/api.js?render=<?php echo $RECAPTCHA_SITE_KEY; ?>"></script>
 <script>
 function formSubmit () {
-    document.getElementById(\'mess_submit\').hidden = true;
-    document.getElementById(\'mess_submit_process\').hidden = false;
-';
-
-if ($debug) {
-    echo '    formSubmit2(\'\', \'formMessage\');';
-} else {
-    echo '    grecaptcha.ready(function () {
-	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
-	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
-	    recaptchaResponse.value = token;
-	    formSubmit2(\'\', \'formMessage\');
-	});
-    });';
-}
-
-echo '    return false;
+    document.getElementById('mess_submit').hidden = true;
+    document.getElementById('mess_submit_process').hidden = false;
+<?php
+    if ($debug) {
+        ?>
+    	formSubmit2('', 'formMessage');
+<?php
+    } else {
+        ?>
+    	grecaptcha.ready(function () {
+			grecaptcha.execute('<?php echo $RECAPTCHA_SITE_KEY; ?>', { action: 'post' }).then(function (token) {
+	    		var recaptchaResponse = document.getElementById('recaptchaResponse');
+	    		recaptchaResponse.value = token;
+	    		formSubmit2('', 'formMessage');
+			});
+    	});
+<?php
+    }
+    ?>
+    return false;
 }
 </script>
 <div class="line1"></div>
 <div>
-	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data" onsubmit="return formSubmit()">
-	<input type="hidden" name="event" value="forumcreatesubj">
-	<div class="form_box">
-	    <table>
-	    <tr>
-	    <td class="form_box_name">
-			<label for="name" class="l_inp_text_name"> Ваше имя:</label>
-			<input class="inp_text_name" id="name" maxlength="25" name="message[author]" value="'.$name.'" type="text">
-	    </td>
-	    <td class="form_box_title">
-		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
-		    <input class="inp_text_name" id="heading" maxlength="100" name="message[caption]" value="'.$subj.'" type="text">
-	    </td>
-	    </tr>
-	    </table>
-		<div class="form_box_mess">
-			<textarea maxlength="16384" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
-		</div>
-		<div>
-			<div class="form_box_btn">
-				<input class="btn_form" value="'.$b.'" type="submit" id="mess_submit">
-				<span id="mess_submit_process" hidden>
-<svg width="19px" height="19px" viewBox="0 0 50 50">
-<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
-<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/>
-</path>
-</svg>
-				</span>
+	<form action="" method="post" class="form_mess" name="formMessage"
+		id="formMessage" enctype="multipart/form-data"
+		onsubmit="return formSubmit()">
+		<input type="hidden" name="event" value="forumcreatesubj">
+		<div class="form_box">
+			<table>
+				<tr>
+					<td class="form_box_name">
+						<label for="name" class="l_inp_text_name">Ваше имя:</label>
+						<input class="inp_text_name" id="name"
+						maxlength="25" name="message[author]" value="<?php echo $name; ?>"
+						type="text">
+					</td>
+					<td class="form_box_title">
+						<label for="heading" class="l_inp_text_name"><?php echo $h; ?>:</label>
+						<input class="inp_text_name" id="heading" maxlength="100"
+						name="message[caption]" value="<?php echo $subj; ?>" type="text">
+					</td>
+				</tr>
+			</table>
+			<div class="form_box_mess">
+				<textarea maxlength="16384" class="area_text" id="mess_text"
+					name="message[content]" onFocus="javascript: textFocus = true;"
+					onBlur="javascript: textFocus = false;"><?php echo $post; ?></textarea>
 			</div>
-			<div class="format">
-				<div id="web"></div>
-				<span id="mess_emo">
-					&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3"><span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2"><span class="view-desk">Курсив</span><span class="view-mob">К</span></a>
-				</span>
-			</div>
-
-			<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
-
-			<div class="form_box_upload">
 			<div>
-<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl(\'recontrol\')">
-<title>Меню записи аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>&nbsp;
-<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
-<title>Прикрепить картинку, аудио или видео</title>
-<path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
-</svg>
-				<span id="attachedFile"></span>
-				<input name="image" type="file" style="display:none;" id="attachFile">
-<script>
-document.getElementById(\'attachFile\').onchange = function () {
-    document.getElementById(\'attachedFile\').innerHTML = this.value.replace(/^.*[\\\/]/, \'\');
+				<div class="form_box_btn">
+					<input class="btn_form" value="<?php echo $b; ?>" type="submit" id="mess_submit">
+					<span id="mess_submit_process" hidden>
+						<svg width="19px" height="19px" viewBox="0 0 50 50">
+							<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
+								<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite" />
+							</path>
+						</svg>
+					</span>
+				</div>
+				<div class="format">
+					<div id="web"></div>
+					<span id="mess_emo"> &nbsp;-&nbsp; <a href="" onclick="doInsert('[re]','[/re]', false); return false;" class="for3">
+					<span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>
+					&nbsp;-&nbsp;
+					<a href="" onclick="doInsert('[b]', '[/b]',  true);  return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>
+					&nbsp;-&nbsp;
+					<a href="" onclick="doInsert('[i]', '[/i]',  false); return false;"	class="for2"><span class="view-desk">Курсив</span><span	class="view-mob">К</span></a></span>
+				</div>
+				<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
+				<div class="form_box_upload">
+					<div>
+						<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl('recontrol')">
+							<title>Меню записи аудио</title>
+							<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+						</svg>
+						&nbsp;
+						<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById('attachFile').click()">
+							<title>Прикрепить картинку, аудио или видео</title>
+							<path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z" />
+						</svg>
+						<span id="attachedFile"></span>
+						<input name="image" type="file" style="display: none;" id="attachFile">
+						<script>
+document.getElementById('attachFile').onchange = function () {
+    document.getElementById('attachedFile').innerHTML = this.value.replace(/^.*[\\\/]/, '');
 /*  alert(\'Selected file: \' + this.value.replace(/^.*[\\\/]/, \'\')); */
 };
-</script>
-			</div>
-			<div>
-				<label class="upload_file" for="image" >JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 6МБ)</label>
-			</div>
-    <div id="recontrol" hidden>
-	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
-<title>Начать запись аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>
-</button>
-	<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
-<title>Остановить запись аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>
-</button>
-	<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
-<span id="action_playstart">
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
-<title>Воспроизвести запись аудио</title>
-<path d="M4 4l12 6-12 6z"/>
-</svg>
-</span>
-<span id="action_playstop" hidden>
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
-<title>Воспроизвести запись аудио</title>
-<path d="M4 4l12 6-12 6z"/>
-</svg>
-</span>
-</button>
-    </div>
-<script>
+						</script>
+					</div>
+					<div>
+						<label class="upload_file" for="image">JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 6МБ)</label>
+					</div>
+					<div id="recontrol" hidden>
+						<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
+							<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+								<title>Начать запись аудио</title>
+								<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+							</svg>
+						</button>
+						<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
+							<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+								<title>Остановить запись аудио</title>
+									<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+							</svg>
+						</button>
+						<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
+							<span id="action_playstart">
+								<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+									<title>Воспроизвести запись аудио</title>
+									<path d="M4 4l12 6-12 6z" />
+								</svg>
+							</span>
+							<span id="action_playstop" hidden>
+								<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+									<title>Воспроизвести запись аудио</title>
+									<path d="M4 4l12 6-12 6z" />
+								</svg>
+							</span>
+						</button>
+					</div>
+					<script>
 function updateRecord(maxt, curt) {
 //    console.log(\'time \' + maxt + \' \' + curt);
     let secs = maxt / 1000 - curt;
-    document.getElementById(\'attachedFile\').innerHTML = secs + " с.";
+    document.getElementById('attachedFile').innerHTML = secs + " с.";
 }
 
 function updateUpload(url) {
 //    console.log(\'url \' + url);
-    document.getElementById(\'attachedFile\').innerHTML = url.replace(/^.*[\\\/]/, \'\');
+    document.getElementById('attachedFile').innerHTML = url.replace(/^.*[\\\/]/, '');
 }
-</script>
+					</script>
+				</div>
 			</div>
 		</div>
-
-	</div>
-	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
-'.$edit_info.'
+		<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
+<?php echo $edit_info; ?>
 	</form>
-<span class="error1" id="mess_post_error"></span>
+	<span class="error1" id="mess_post_error"></span>
 </div>
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 <!--var 
 fombj = document.getElementById("formMessage");
 //-->
-</script>
 
-<script>
     (() => {
-      new EmojiPicker(document.getElementById(\'mess_text\'), document.getElementById(\'mess_emo\'))
+      new EmojiPicker(document.getElementById('mess_text'), document.getElementById('mess_emo'))
     })()
 </script>
 <div class="line1"></div>
-';
+<?php
 }
 
 function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic = 0, $id_grp = 0)
