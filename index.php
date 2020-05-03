@@ -1849,45 +1849,36 @@ if (!$database) {
 		if ($banned_session == 0) {
 ?>
 <div class="text_box_2">
-	<div id="message_<?php echo $row['id_post']; ?>" class="text_box_2_mess">
-<?php
+	<div id="message_<?php echo $row['id_post']; ?>" class="text_box_2_mess"><?php
 	    $attachment = $row['attachment'];
 	    if ($attachment != "") {
 		$image_ext = substr(strrchr($attachment, '.'), 1);
 		if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
 		    $image_ext == 'webp') {
-?>
-		<a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)">
+?>		<a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)">
 			<img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/>
-		</a>
-<?php
+		</a><?php
 		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 ?>
 		<audio class="postvideo" controls>
 			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>">
-		</audio>
-<?php
+		</audio><?php
 		} else {
 ?>
-		<video class="postvideo" controls>
-<?php
+		<video class="postvideo" controls><?php
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
 ?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4">
-<?php
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
 		    } else if ($image_ext == 'ogv') {
 ?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg">
-<?php
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg"><?php
 		    } else if ($image_ext == 'webm') {
 ?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm">";
-<?php
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
 		    }
 ?>
 			Your browser does not support the video tag.
-		</video>
-<?php
+		</video><?php
 		}
 	    } else {
 		$post_img = "img".$row['id_post'].".jpg";
@@ -1895,8 +1886,7 @@ if (!$database) {
 ?>
 		<a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)">
 			<img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/>
-		</a>
-<?php
+		</a><?php
 		}
 	    }
         echo $post;
