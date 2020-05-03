@@ -1389,7 +1389,17 @@ if (!$database) {
 			$updated = date('d.m.Y H:i', $updated);
 		    }
 		}
-		print "<div class=\"box1\"><a href=\"?g={$row['id']}\" class=\"title\">{$row['grp']}</a> {$row['note']}<br><span class=\"white\">Тем: <span class=\"bold\">".$topics."</span>&nbsp;|&nbsp;Обновление: <span class=\"bold\">".$updated."</span></span></div>";
+?>
+<div class="box1">
+	<a href="?g=<?php echo $row['id']; ?>" class="title"><?php echo $row['grp']; ?></a>
+	<?php echo $row['note']; ?><br>
+	<span class="white">
+		Тем: <span class="bold"><?php echo $topics; ?></span>
+		&nbsp;|&nbsp;
+		Обновление: <span class="bold"><?php echo $updated; ?></span>
+	</span>
+</div>
+<?php
 	    }
 	} else if ($id_topic == 0) {
 	    $posts = 0;
