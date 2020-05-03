@@ -1550,9 +1550,9 @@ if (!$database) {
 		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY posts DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		}
 	    }
-
-	    echo '<table class="themes">';
-
+?>
+<table class="themes">
+<?php
 //echo "<!-- 2view_query $view_query -->";
 
 	    foreach ($database->query($view_query) as $row) {
@@ -1562,30 +1562,17 @@ if (!$database) {
 
 		if ($id_user === $row['id_user']) {
 		    $topic_owner = 'owner';
-		    if ($show_mytopics) {
-			$topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php/?id_topic='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Настройка доступа к теме</title>
-<path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-</svg></a>';
-			$topic_users = '<a href="" onclick="load_modal(\'topicsettings.php/?id_topic='.$row['id_topic'].'&show_users=1\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Участники темы</title>
-<path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z"/>
-</svg></a>';
-		    } else {
-			$topic_settings = '';
-			$topic_users = '';
-		    }
 		} else {
 		    $topic_owner = '';
-		    $topic_settings = '';
-		    $topic_users = '';
 		}
-
-		print("<tr>".
-		  "<td class='tdw1 $topic_owner'>{$timestamp}</td>".
-		  "<td class='tdw3 $topic_owner'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
-
-		echo '<div class="topic_control_panel">';
+?>
+	<tr>
+		<td class="tdw1 <?php echo $topic_owner; ?>"><?php echo $timestamp; ?></td>
+		<td class="tdw3 <?php echo $topic_owner; ?>">
+			<a href="?t=<?php echo $row['id_topic']; ?>" title="<?php echo $row['grp']; ?>"><?php echo $row['topic']; ?></a>
+			&nbsp;[<?php echo $row['view']; ?>/<?php echo $row['posts']; ?> - <?php echo $row['last_nick']; ?>]
+			<div class="topic_control_panel">
+<?php
 		if (is_forum_admin()) {
 		    $rmargs = "";
 		    if ($id_grp != 0) {
@@ -1597,26 +1584,52 @@ if (!$database) {
 		    }
 
 		    if (!isset($FORUM_TRASH_GID) || (isset($FORUM_TRASH_GID) && $id_grp == $FORUM_TRASH_GID)) {
-			echo '<a href="?'.$rmargs.'" class="remove">Удалить</a>';
+?>
+				<a href="?<?php echo $rmargs; ?>" class="remove">Удалить</a>
+<?php
 		    }
 
 		    if (isset($FORUM_TRASH_GID) && $id_grp != $FORUM_TRASH_GID) {
-			echo '<a href="?'.$rmargs.'&trash=1" class="remove">Мусор</a>';
+?>
+				<a href="?<?php echo $rmargs; ?>&trash=1" class="remove">Мусор</a>
+<?php
 		    }
 
 		    if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
-			echo '<a href="'.$_SERVER['REQUEST_URI'].'&public='.$row['id_topic'].'" class="remove">Показать</a>';
+?>
+				<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&public=<?php echo $row['id_topic']; ?>" class="remove">Показать</a>
+<?php
 		    }
 		}
-		echo "$topic_settings$topic_users</div>";
-		print("</td>".
-		  "<td class='tdw2 $topic_owner'>".$name."</td>".
-		  "</tr>"
-		);
-
+		
+		if ($id_user === $row['id_user']) {
+		    if ($show_mytopics) {
+?>
+				<a href="" onclick="load_modal('topicsettings.php/?id_topic=<?php echo $row['id_topic']; ?>'); return false;" class="remove">
+					<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+						<title>Настройка доступа к теме</title>
+						<path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+					</svg>
+				</a>
+		        <a href="" onclick="load_modal('topicsettings.php/?id_topic=<?php echo $row['id_topic'];?>&show_users=1'); return false;" class="remove">
+		        	<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+						<title>Участники темы</title>
+						<path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z"/>
+					</svg>
+				</a>
+<?php
+		    }
+		}
+?>
+			</div>
+		</td>
+		<td class="tdw2 <?php echo $topic_owner; ?>"><?php echo $name; ?></td>
+	</tr>
+<?php
 	    }
-	    echo '</table>';
-
+?>
+</table>
+<?php
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 	} else if ($topic_private && $topic_private_access == 0) {
 	    echo '<div class="block2">';
