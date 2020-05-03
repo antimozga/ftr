@@ -1738,13 +1738,11 @@ if (!$database) {
 //echo "<!-- view_opt $view_query -->";
 
 	    foreach ($database->query($view_query) as $row) {
-		if ($row['id_post'] == $post_id_req) {
-		    echo '<div class="shared_post">';
-		} else {
-		    echo '<div>';
-		}
-		echo '<div class="text_box_1"><a id="post'.$row['id_post'].'"></a>
-<div class="box_user">';
+?>
+	<div <?php echo ($row['id_post'] == $post_id_req)? 'class="shared_post"' : ''; ?>>
+	<div class="text_box_1"><a id="post<?php echo $row['id_post']; ?>"></a>
+	<div class="box_user">
+<?php
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
@@ -1789,112 +1787,145 @@ if (!$database) {
 
 		$post = remove_iframes($post);
 
-		$request = $_SERVER['REQUEST_URI'].'&ban='.$post_id_session;
 		$banned_session = 0;
-		$banned_text =	'<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-				'<title>Скрыть пользователя и его темы</title>'.
-				'<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>'.
-				'</svg>';
-
-		echo '<span class="ban_left">'.$timestamp.' | <span class="name1 '.$class_strike.'">'.$name.'</span></span>'.$name_ban.' -&gt;
-<span class="white1">'.$row['subj'].'</span>';
-
+?>
+		<span class="ban_left"><?php echo $timestamp; ?>&nbsp;|&nbsp;
+			<span class="name1 <?php echo $class_strike; ?>"><?php echo $name; ?></span>
+		</span>
+		<?php echo $name_ban; ?>&nbsp;-&gt;&nbsp;
+		<span class="white1"><?php echo $row['subj']; ?></span>
+<?php
 		if ($id_session != $post_id_session) {
-		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+?>
+		<a class="ban" href="<?php echo $_SERVER['REQUEST_URI']; ?>&ban=<?php echo $post_id_session; ?>">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Скрыть пользователя и его темы</title>
+				<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>
+			</svg>
+		</a>
+<?php
 		}
 
 		if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
-		    $request = $_SERVER['REQUEST_URI'].'&hide='.$row['id_post'];
-		    $banned_text = '<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-				   '<title>Удалить пост</title>'.
-				   '<path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>'.
-				   '</svg>';
-		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+?>
+		<a class="ban" href="<?php echo $_SERVER['REQUEST_URI']; ?>&hide=<?php echo $row['id_post']; ?>">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Удалить пост</title>
+				<path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>
+			</svg>
+		</a>
+<?php
 		}
 
 //		if (is_logged()) {
 		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 60 * 1) {
-//			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
-			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
-'<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-'<title>Редактировать сообщение</title>'.
-'<path d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>'.
-'</svg>'.
-'</a>';
+?>
+		<a class="ban" href="" onclick="post('<?php echo $_SERVER['REQUEST_URI']; ?>',{'editpost':<?php echo $row['id_post']; ?>}); return false;">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Редактировать сообщение</title>
+				<path d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>
+			</svg>
+		</a>
+<?php
 		    }
 //		}
 
 		if (is_forum_admin()) {
-		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
-		    echo '<a href="'.$_SERVER['REQUEST_URI'].'&sdel='.$post_id_session.'" class="remove">Удалить сессию</a>';
+?>
+		<a href="?t=<?php echo $id_topic; ?>&dp=<?php echo $row['id_post']; ?>" class="remove">Удалить</a>
+		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&sdel=<?php echo $post_id_session; ?>" class="remove">Удалить сессию</a>
+<?php
 		}
-		echo '</div>
-</div>';
+?>
+	</div>
+</div>
+<?php
 		if ($banned_session == 0) {
-		echo '<div class="text_box_2">
-<div id="message_'.$row['id_post'].'" class="text_box_2_mess">';
-
+?>
+<div class="text_box_2">
+	<div id="message_<?php echo $row['id_post']; ?>" class="text_box_2_mess">
+<?php
 	    $attachment = $row['attachment'];
 	    if ($attachment != "") {
 		$image_ext = substr(strrchr($attachment, '.'), 1);
 		if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
 		    $image_ext == 'webp') {
-		    echo '<a href="'.$UPLOAD_DIR.'/'.$attachment.'" class="highslide" onclick="return hs.expand(this)">';
-		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
-		    echo '</a>';
+?>
+		<a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)">
+			<img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/>
+		</a>
+<?php
 		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
-		    echo '<audio class="postvideo" controls>';
-		    echo "<source src=\"$UPLOAD_DIR/$attachment\">";
-		    echo '</audio>';
+?>
+		<audio class="postvideo" controls>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>">
+		</audio>
+<?php
 		} else {
-		    echo '<video class="postvideo" controls>';
+?>
+		<video class="postvideo" controls>
+<?php
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/mp4\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4">
+<?php
 		    } else if ($image_ext == 'ogv') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/ogg\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg">
+<?php
 		    } else if ($image_ext == 'webm') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/webm\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm">";
+<?php
 		    }
-		    echo 'Your browser does not support the video tag.';
-		    echo '</video>';
+?>
+			Your browser does not support the video tag.
+		</video>
+<?php
 		}
 	    } else {
 		$post_img = "img".$row['id_post'].".jpg";
 		if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-		    echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this)">';
-		    echo '<img src="'.$UPLOAD_DIR."/small-".$post_img.'" alt="" class="postimage"/>';
-		    echo '</a>';
+?>
+		<a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)">
+			<img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/>
+		</a>
+<?php
 		}
 	    }
-
-//$post_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-//    'https' : 'http').'://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['REQUEST_URI'].'#post'.$msg_count;
-
-echo $post.'</div>
+        echo $post;
+?>
+</div>
 	<div class="answer_bar">
-<!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Ответить</title>
-<path d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
-</svg>
-</a>
-<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Цитировать</title>
-<path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
-</svg>
-</a>
-<a href="/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'\'); popup_copy(\'pop'.$row['id_post'].'\'); return false;" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Ссылка на это сообщение</title>
-<path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
-</svg>
-</a><span class="popup"><span class="popuptext" id="pop'.$row['id_post'].'"></span></span>
+		<a href="#" onclick="reply('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Ответить</title>
+				<path d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
+			</svg>
+		</a>
+		<a href="#" onclick="reply_cite('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Цитировать</title>
+				<path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
+			</svg>
+		</a>
+		<a href="/?t=<?php echo $id_topic; ?>&post=<?php echo $row['id_post']; ?>#post<?php echo $row['id_post']; ?>"
+			onclick="copyStringToClipboard('https://<?php echo $_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post']; ?>'); popup_copy('pop<?php echo $row['id_post']; ?>'); return false;" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Ссылка на это сообщение</title>
+				<path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
+			</svg>
+		</a>
+		<span class="popup">
+			<span class="popuptext" id="pop<?php echo $row['id_post']; ?>"></span>
+		</span>
 	</div>
-</div>';
+</div>
+<?php
 		}
-		echo '</div>';
+?>
+</div>
+<?php
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, $id_topic);
 	}
