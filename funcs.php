@@ -26,7 +26,7 @@ function check_login()
         $sth->execute();
         $row = $sth->fetch();
 
-        if ($_SESSION['myuser_password'] == md5($row['password']) && ($row['id'] != 0)) {
+        if ($_SESSION['myuser_password'] == $row['password'] && ($row['id'] != 0)) {
             $_SESSION['myuser_id'] = $row['id'];
             $_SESSION['myuser_pubkey'] = stripslashes($row['pubkey']);
 

@@ -1038,21 +1038,27 @@ if (!$database) {
 		$user_pubkey		= addslashes($_REQUEST["user"]["pubkey"]);
 		if ($user_name == "") {
 		    $user_name_warning = '<div class="error">Имя пользователя не может быть пустым.</div>';
-		} else if ($user_password == "") {
+		} else if ($user_password == "" && $cmd != "updateuser") {
 		    $user_password_warning = '<div class="error">Пароль не может быть пустым.</div>';
 		    $user_password = "";
-		    $user_password_config = "";
+		    $user_password_confirm = "";
 		} else if ($user_password != $user_password_confirm) {
 		    $user_password_warning = '<div class="error">Пароль и его подтверждение не совпадают.</div>';
 		    $user_password = "";
-		    $user_password_config = "";
+		    $user_password_confirm = "";
 		} else if ($user_email == "") {
 		    $user_email_warning = '<div class="error">E-mail не может быть пустым.</div>';
 		} else if ($cmd == "updateuser") {
+			if ($user_password != "") {
+			    $user_password = md5($user_password);
+			} else {
+			    $user_password = $_SESSION['myuser_password'];
+			}
 			$query = "UPDATE ForumUsers SET login = '$user_name', password = '$user_password', email = '$user_email', fio = '$user_fio', gender = '$user_gender', description = '$user_description', pubkey = '$user_pubkey' WHERE id = $id_user;";
 			$database->exec($query);
 			$reg_mode = 4;
 		} else {
+		    $user_password = md5($user_password);
 		    $view_query = "SELECT login FROM ForumUsers WHERE login LIKE '$user_name' ;";
 		    foreach ($database->query($view_query) as $row) {
 			$login = $row['login'];
@@ -1238,10 +1244,10 @@ if (!$database) {
 			<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
 <?php
 	    } else {
-		$user_query = "SELECT login, password, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
+		$user_query = "SELECT login, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
 		foreach ($database->query($user_query) as $row) {
 		    $user_name = $row['login'];
-		    $user_password = $row['password'];
+		    $user_password = '';
 		    $user_email = $row['email'];
 		    $user_fio = $row['fio'];
 		    $user_gender = $row['gender'];
