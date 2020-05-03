@@ -1075,26 +1075,34 @@ if (!$database) {
 		    }
 		}
 
-		$image = $_FILES['image']['name'];
-		$image_tmp = $_FILES['image']['tmp_name'];
-		$image_ext = strtolower(substr(strrchr($image, '.'), 1));
+		if ($user_name_warning == '') {
+			$image = $_FILES['image']['name'];
+			$image_tmp = $_FILES['image']['tmp_name'];
+			$image_ext = strtolower(substr(strrchr($image, '.'), 1));
+			if ($reg_mode == 2 || $reg_mode == 4) {
+				if ($image_ext == "jpg" || $image_ext == "jpeg" || $image_ext == "gif" || $image_ext == "png") {
+					$image_id = $database->query("SELECT id FROM ForumUsers WHERE login LIKE '$user_name'")->fetchColumn();
 
-		if ($reg_mode == 2 || $reg_mode == 4) {
-		    if ($image_ext == "jpg" || $image_ext == "jpeg" || $image_ext == "gif" || $image_ext == "png") {
-			$view_query = "SELECT id FROM ForumUsers WHERE login LIKE '$user_name' ;";
-			foreach ($database->query($view_query) as $row) {
-			    $image_id = $row['id'];
+					// FIXME: add image to user record
+					$img_file = 'id'.$image_id;
+					if (file_exists($UPLOAD_DIR.'/'.$img_file.'.jpg')) {
+						unlink($UPLOAD_DIR.'/'.$img_file.'.jpg');
+						unlink($UPLOAD_DIR.'/small-'.$img_file.'.jpg');
+					} else if (file_exists($UPLOAD_DIR.'/'.$img_file.'.png')) {
+						unlink($UPLOAD_DIR.'/'.$img_file.'.png');
+						unlink($UPLOAD_DIR.'/small-'.$img_file.'.png');
+					} else if (file_exists($UPLOAD_DIR.'/'.$img_file.'.gif')) {
+						unlink($UPLOAD_DIR.'/'.$img_file.'.gif');
+						unlink($UPLOAD_DIR.'/small-'.$img_file.'.gif');
+					}
+
+					$img_file = 'id'.$image_id.'.'.$image_ext;
+					if (is_uploaded_file($image_tmp)) {
+						system('convert -resize 640x640\> -quality 85 '.$image_tmp.' '.$UPLOAD_DIR.'/'.$img_file);
+						system('convert -resize 70x70\>   -quality 85 '.$image_tmp.' '.$UPLOAD_DIR.'/small-'.$img_file);
+					}
+				}
 			}
-			$img_file = "id".$image_id.".".$image_ext;
-			if (is_uploaded_file($image_tmp)) {
-			    copy($image_tmp, $UPLOAD_DIR."/".$img_file);
-			    $tmpimg = tempnam("/tmp", "MKUP");
-			    system("convert ".$image_tmp." pnm:".$tmpimg);
-			    system("pnmscale -xy 70 70 ".$tmpimg." | cjpeg -qual 85 >".$image_tmp);
-			    copy($image_tmp, $UPLOAD_DIR."/small-".$img_file);
-			    unlink($tmpimg);
-			}
-		    }
 		}
 	    }
 	}

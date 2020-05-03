@@ -24,10 +24,19 @@ function show_user_info($name, $email, $fio, $gender, $description, $last_login,
 <div class="pasport1">
 <?php
 
-    $avatar = $UPLOAD_DIR . "/small-id" . $id_to . ".jpg";
-    if (file_exists($avatar)) {
+    $avatar = $UPLOAD_DIR . "/small-id" . $id_to;
+    $img_ext = '';
+    if (file_exists($avatar.'.jpg')) {
+        $img_ext = '.jpg';
+    } else if (file_exists($avatar.'.png')) {
+        $img_ext = '.png';
+    } else if (file_exists($avatar.'.gif')) {
+        $img_ext = '.gif';
+    }
+
+    if ($img_ext != '') {
         ?>
-	<img src="<?php echo $avatar; ?>" class="user_info_img" alt="">
+	<img src="<?php echo $avatar.$img_ext; ?>" class="user_info_img" alt="">
 	<div class="clear"></div>
 <?php
     }
