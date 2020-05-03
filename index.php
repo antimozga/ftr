@@ -1855,43 +1855,28 @@ if (!$database) {
 		$image_ext = substr(strrchr($attachment, '.'), 1);
 		if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
 		    $image_ext == 'webp') {
-?>		<a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)">
-			<img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/>
-		</a><?php
+?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/></a><?php
 		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
-?>
-		<audio class="postvideo" controls>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>">
-		</audio><?php
+?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
 		} else {
-?>
-		<video class="postvideo" controls><?php
+?><video class="postvideo" controls><?php
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
-?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
+?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
 		    } else if ($image_ext == 'ogv') {
-?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg"><?php
+?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg"><?php
 		    } else if ($image_ext == 'webm') {
-?>
-			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
+?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
 		    }
-?>
-			Your browser does not support the video tag.
-		</video><?php
+?>Your browser does not support the video tag.</video><?php
 		}
 	    } else {
 		$post_img = "img".$row['id_post'].".jpg";
 		if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-?>
-		<a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)">
-			<img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/>
-		</a><?php
+?><a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/></a><?php
 		}
 	    }
         echo $post;
-?>
-</div>
+?></div>
 	<div class="answer_bar">
 		<a href="#" onclick="reply('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
 			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
