@@ -1632,25 +1632,44 @@ if (!$database) {
 <?php
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 	} else if ($topic_private && $topic_private_access == 0) {
-	    echo '<div class="block2">';
-	    echo '<h1>Закрытая тема</h1>';
-	    echo 'Для доступа необходимо разрешение создателя темы.<br>';
+?>
+<div class="block2">
+	<h1>Закрытая тема</h1>
+	Для доступа необходимо разрешение создателя темы.<br>
+<?php
 	    if ($id_user == 0) {
-		echo "Чтобы запросить разрешение, скопируйте ссылку 
-<a href=\"invite://:$id_session@$id_topic\" onclick=\"copyStringToClipboard('invite://:$id_session@$id_topic'); popup_copy('pop$id_topic'); return false;\">
-invite://:$id_session@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
-(нажмите на ссылку для копирования) и попросите зарегистрированного пользователя отправить ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner);
-	    echo '<br>Если ваш запрос будет одобрен, то вы сможете писать анонимно с текущей сессии используемого в данный момент браузера.
- Зарегистрированные пользователи не имеют подобных ограничений.';
+?>
+	Чтобы запросить разрешение, скопируйте ссылку 
+	<a href="invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>" onclick="copyStringToClipboard('invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>'); popup_copy('pop<?php echo $id_topic; ?>'); return false;">
+		invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>
+	</a>
+	<span class="popup">
+		<span class="popuptext" id="pop<?php echo $id_topic; ?>"></span>
+	</span>
+	(нажмите на ссылку для копирования) и попросите зарегистрированного пользователя отправить ее в личное сообщение пользователю
+	<?php echo format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner); ?>
+	<br>Если ваш запрос будет одобрен, то вы сможете писать анонимно с текущей сессии используемого в данный момент браузера.
+	Зарегистрированные пользователи не имеют подобных ограничений.
+ <?php
 	    } else {
-		echo "Чтобы запросить разрешение, скопируйте ссылку 
-<a href=\"invite://$id_user@$id_topic\" onclick=\"copyStringToClipboard('invite://$id_user@$id_topic'); popup_copy('pop$id_topic'); return false;\">
-invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
-(нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner).
-" (<a href=\"#\" onclick=\"load_modal('pagerchat.php/?new=$id_topic_owner'); return false;\">Написать сообщение</a>)";
+?>
+	Чтобы запросить разрешение, скопируйте ссылку 
+	<a href="invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>" onclick="copyStringToClipboard('invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>'); popup_copy('pop<?php echo $id_topic; ?>'); return false;">
+		invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>
+	</a>
+	<span class="popup">
+		<span class="popuptext" id="pop<?php echo $id_topic; ?>"></span>
+	</span>
+	(нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю
+	<?php echo format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner); ?>
+	(<a href="#" onclick="load_modal('pagerchat.php/?new=<?php echo $id_topic_owner; ?>'); return false;">Написать сообщение</a>)
+<?php
 	    }
-	    echo '<br><br>Внимание! Разрешать или запрещать доступ в тему - личное право создателя темы.';
-	    echo '</div>';
+?>
+	<br>
+	<br>Внимание! Разрешать или запрещать доступ в тему - личное право создателя темы.
+</div>
+<?php
 	} else {
 	    $posts = 0;
 	    $pnext = "";
