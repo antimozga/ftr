@@ -1221,22 +1221,22 @@ if (!$database) {
 </table>
 <?php
 	} else if ($reg_mode == 1 || $reg_mode == 3) {
-	    echo '
+?>
 <div class="box_pasport">
-	<div class="box_pasport_bg">';
-
+	<div class="box_pasport_bg">
+<?php
 	    $user_password = "";
 
 	    if ($reg_mode == 1) {
-		echo '
+?>
 		<h3>Регистрация пользователя</h3>
 		<h4>Для регистрации на Форуме Вам необходимо заполнить форму. Поля, обязательные для заполнения, обозначены значком (*).</h4>
-	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
-	<input type="hidden" name="event" value="createuser">
-	<label for="login">* Имя пользователя (login) '.$user_name_warning.'</label>
-	<input type="text" autocomplete="username" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'">
-	<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
-		';
+		<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
+			<input type="hidden" name="event" value="createuser">
+			<label for="login">* Имя пользователя (login) <?php echo $user_name_warning; ?></label>
+			<input type="text" autocomplete="username" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="<?php echo $user_name; ?>">
+			<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
+<?php
 	    } else {
 		$user_query = "SELECT login, password, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
 		foreach ($database->query($user_query) as $row) {
@@ -1247,112 +1247,126 @@ if (!$database) {
 		    $user_gender = $row['gender'];
 		    $user_description = reconvert_text($row['description']);
 		}
-
-		echo '
+?>
 		<h3>Настройки пользователя</h3>
 		<h4>Изменение личных настроек пользователя.</h4>
-	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data" id="regeditform">
-	<input type="hidden" name="event" value="updateuser">
-	<label for="login">* Имя пользователя </label>
-	<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'" readonly="readonly">
-	<div class="box_small_text">Вы не можете изменить имя пользователя.</div>
-		';
+		<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data" id="regeditform">
+			<input type="hidden" name="event" value="updateuser">
+			<label for="login">* Имя пользователя </label>
+			<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="<?php echo $user_name; ?>" readonly="readonly">
+			<div class="box_small_text">Вы не можете изменить имя пользователя.</div>
+<?php
 	    }
-	    echo '
-	<div class="line2"><div></div></div>
-	<label for="password1">* Пароль '.$user_password_warning.'</label>
-	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="'.$user_password.'">
-	<label for="password2">* Подтверждение пароля </label>
-	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="'.$user_password.'">
-	<div class="box_small_text">При наборе пароля допускаются любые буквы (как русские, так и латинские) и символы. Пароль регистрозависим (советуем перед набором глянуть на Caps Lock)</div>
-	<div class="line2"><div></div></div>
-	<label for="email">* Ваш e-mail '.$user_email_warning.'</label>
-	<input type="text" class="inp_text_reg" name="user[user_email]" id="email"  value="'.$user_email.'">
-	<div class="line2"><div></div></div>
-	<label for="fio">Имя Фамилия Отчество</label>
-	<input type="text" class="inp_text_reg" name="user[user_fio]" id="fio"  value="'.$user_fio.'">
-	<label>Ваш пол</label>';
+?>
+			<div class="line2"><div></div></div>
+			<label for="password1">* Пароль <?php echo $user_password_warning; ?></label>
+			<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="<?php echo $user_password; ?>">
+			<label for="password2">* Подтверждение пароля </label>
+			<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="<?php echo $user_password; ?>">
+			<div class="box_small_text">При наборе пароля допускаются любые буквы (как русские, так и латинские) и символы. Пароль регистрозависим (советуем перед набором глянуть на Caps Lock)</div>
+			<div class="line2"><div></div></div>
+			<label for="email">* Ваш e-mail <?php echo $user_email_warning; ?></label>
+			<input type="text" class="inp_text_reg" name="user[user_email]" id="email"  value="<?php echo $user_email; ?>">
+			<div class="line2"><div></div></div>
+			<label for="fio">Имя Фамилия Отчество</label>
+			<input type="text" class="inp_text_reg" name="user[user_fio]" id="fio"  value="<?php echo $user_fio; ?>">
+			<label>Ваш пол</label>
+<?php
 	$cnt = 1;
 	foreach(array('Не имеет значения','Мужской','Женский','Средний') as $name) {
 	    if ($cnt == $user_gender) {
-		echo '<input type="radio" name="user[user_gender]" value="'.$cnt.'" id="'.$cnt.'" class="radioinput" checked="checked" >';
+?>
+			<input type="radio" name="user[user_gender]" value="<?php echo $cnt; ?>" id="<?php echo $cnt; ?>" class="radioinput" checked="checked" >
+<?php
 	    } else {
-		echo '<input type="radio" name="user[user_gender]" value="'.$cnt.'" id="'.$cnt.'" class="radioinput" >';
+?>
+			<input type="radio" name="user[user_gender]" value="<?php echo $cnt; ?>" id="<?php echo $cnt; ?>" class="radioinput" >
+<?php
 	    }
-	    echo '<label for="'.$cnt.'" class="radiolab">'.$name.'</label><br>';
+?>
+			<label for="<?php echo $cnt; ?>" class="radiolab"><?php echo $name; ?></label><br>
+<?php
 	    $cnt = $cnt + 1;
 	}
-	echo '
-	<label for="addition">Дополнительно</label>
-	<textarea maxlength="4096" name="user[description]" id="addition" class="area_text_reg">'.$user_description.'</textarea>
-	<input type="hidden" name="MAX_FILE_SIZE" value="500000">
-	<label for="image">Аватар:</label><input name="image" type="file">
-	<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
-	<textarea name="user[pubkey]" id="pubkey" style="display:none;"></textarea>
-	<div class="line2"><div></div></div>
-	<div class="box_small_text">Если вся информация верна - нажмите кнопку (достаточно одного раза):</div>';
+?>
+			<label for="addition">Дополнительно</label>
+			<textarea maxlength="4096" name="user[description]" id="addition" class="area_text_reg"><?php echo $user_description; ?></textarea>
+			<input type="hidden" name="MAX_FILE_SIZE" value="500000">
+			<label for="image">Аватар:</label><input name="image" type="file">
+			<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
+			<textarea name="user[pubkey]" id="pubkey" style="display:none;"></textarea>
+			<div class="line2"><div></div></div>
+			<div class="box_small_text">Если вся информация верна - нажмите кнопку (достаточно одного раза):</div>
+<?php
 	    if ($reg_mode == 1) {
-		echo '<input type="submit" class="btn_reg" value="Зарегистрироваться">';
+?>
+			<input type="submit" class="btn_reg" value="Зарегистрироваться">
+<?php
 	    } else {
-		echo '<input type="submit" class="btn_reg" value="Сохранить">';
+?>
+			<input type="submit" class="btn_reg" value="Сохранить">
+<?php
 	    }
-	echo '
-	</form>';
-
+?>
+		</form>
+<?php
 	if ($reg_mode == 3) {
-
-	    echo'
-	<script src="js/pgphelp.js"></script>
-	<a name="pager"></a>
-	<h3>Настройка пейджера</h3>
-	<div><span class="warning" id="pgpregwarn"></span></div>
-	<div><span class="error" id="pgpregerror"></span></div>
-	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
-	<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
-	<textarea maxlength="4096" id="privkey" class="area_text_reg"
-	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
-	<div class="box_small_text">Скопируйте и храните закрытый ключ в надежном месте, недоступном для посторонних</div>
-	<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
-	<input type="text" class="inp_text_reg" id="passphrase" value="">
-	<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
-	<label for="x_pubkey">Открытый PGP ключ</label>
-	<textarea readonly id="x_pubkey" class="area_text_reg"></textarea>
-	<div class="line2"><div></div></div>
-	<div class="btn_reg_key">';
+?>
+		<script src="js/pgphelp.js"></script>
+		<a name="pager"></a>
+		<h3>Настройка пейджера</h3>
+		<div><span class="warning" id="pgpregwarn"></span></div>
+		<div><span class="error" id="pgpregerror"></span></div>
+		<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
+		<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
+		<textarea maxlength="4096" id="privkey" class="area_text_reg" placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
+		<div class="box_small_text">Скопируйте и храните закрытый ключ в надежном месте, недоступном для посторонних</div>
+		<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
+		<input type="text" class="inp_text_reg" id="passphrase" value="">
+		<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
+		<label for="x_pubkey">Открытый PGP ключ</label>
+		<textarea readonly id="x_pubkey" class="area_text_reg"></textarea>
+		<div class="line2"><div></div></div>
+		<div class="btn_reg_key">
+<?php
 	    if ($_SESSION['myuser_pubkey'] !== "") {
-		echo '<textarea readonly style="display:none;" id="active_pubkey">'.$_SESSION['myuser_pubkey'].'</textarea>';
-		echo '<button type="button" class="btn_reg_left" onclick="return pgpRegResetKey();">Запретить</button>';
+?>
+			<textarea readonly style="display:none;" id="active_pubkey"><?php echo $_SESSION['myuser_pubkey']; ?></textarea>
+			<button type="button" class="btn_reg_left" onclick="return pgpRegResetKey();">Запретить</button>
+<?php
 	    } else {
-		echo '<textarea readonly style="display:none;" id="active_pubkey"></textarea>';
-		echo '<button type="button" class="btn_reg_left" onclick="return pgpRegSetKey(1);">Разрешить</button>';
+?>
+			<textarea readonly style="display:none;" id="active_pubkey"></textarea>
+			<button type="button" class="btn_reg_left" onclick="return pgpRegSetKey(1);">Разрешить</button>
+<?php
 	    }
-	    echo '<span id="addremove_key_button"></span>';
-	    echo '
-	</div>';
+?>
+			<span id="addremove_key_button"></span>
+		</div>
+<?php
 	}
-
-	echo '
+?>
 	</div>
 </div>
-';
+<?php
 	} else if ($reg_mode == 2) {
-	    echo '
+?>
 <div class="box_pasport">
-<div class="box_pasport_bg">
-<h3>Регистрация пользователя завершена!</h3>
-Теперь вы можете войти на форум под своим именем пользователя.
+	<div class="box_pasport_bg">
+		<h3>Регистрация пользователя завершена!</h3>
+		Теперь вы можете войти на форум под своим именем пользователя.
+	</div>
 </div>
-</div>
-';
+<?php
 	} else if ($reg_mode == 4) {
-	    echo '
+?>
 <div class="box_pasport">
-<div class="box_pasport_bg">
-<h3>Настройки пользователя изменены!</h3>
-Вы всегда можете изменить свои личные настройки.
+	<div class="box_pasport_bg">
+		<h3>Настройки пользователя изменены!</h3>
+		Вы всегда можете изменить свои личные настройки.
+	</div>
 </div>
-</div>
-';
+<?php
 	} else if ($show_groups != 0) {
 	    $group_query = "SELECT id, grp, note FROM ForumGroups ORDER BY grp ASC ;";
 	    foreach ($database->query($group_query) as $row) {
