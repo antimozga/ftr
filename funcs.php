@@ -3,7 +3,7 @@
 function is_defined($name)
 {
     if (isset($_REQUEST[$name])) {
-	return true;
+        return true;
     }
     return false;
 }
@@ -11,9 +11,9 @@ function is_defined($name)
 function is_session($var)
 {
     if (isset($_SESSION[$var])) {
-	return true;
+        return true;
     } else {
-	return false;
+        return false;
     }
 }
 
@@ -22,19 +22,19 @@ function check_login()
     global $database;
 
     if (is_session('myuser_name')) {
-	$sth = $database->prepare('SELECT id, login, password, pubkey FROM ForumUsers WHERE login="'.$_SESSION['myuser_name'].'"');
-	$sth->execute();
-	$row = $sth->fetch();
+        $sth = $database->prepare('SELECT id, login, password, pubkey FROM ForumUsers WHERE login="' . $_SESSION['myuser_name'] . '"');
+        $sth->execute();
+        $row = $sth->fetch();
 
-	if ($_SESSION['myuser_password'] == md5($row['password']) && ($row['id'] != 0)) {
-	    $_SESSION['myuser_id'] = $row['id'];
-	    $_SESSION['myuser_pubkey'] = stripslashes($row['pubkey']);
+        if ($_SESSION['myuser_password'] == $row['password'] && ($row['id'] != 0)) {
+            $_SESSION['myuser_id'] = $row['id'];
+            $_SESSION['myuser_pubkey'] = stripslashes($row['pubkey']);
 
-	    $tim = time();
-	    $database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = ".$row['id'].";");
+            $tim = time();
+            $database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = " . $row['id'] . ";");
 
-	    return 1;
-	}
+            return 1;
+        }
     }
 
     unset($_SESSION['myuser_name']);
@@ -47,16 +47,14 @@ function check_login()
 
 function user_login($name, $password)
 {
-    global $database;
-
     $_SESSION['myuser_name'] = $name;
     $_SESSION['myuser_password'] = md5($password);
 
     if (check_login()) {
-	unset($_SESSION['user_temp_name']);
-	$uri = $_SERVER['REQUEST_URI'];
-	header("Location: $uri", true, 301);
-	exit();
+        unset($_SESSION['user_temp_name']);
+        $uri = $_SERVER['REQUEST_URI'];
+        header("Location: $uri", true, 301);
+        exit();
     }
 
     // can't login
@@ -67,12 +65,13 @@ function is_logged()
     return is_session('myuser_name');
 }
 
-function is_forum_admin() {
+function is_forum_admin()
+{
     global $FORUM_ADMIN;
     if (is_logged()) {
-	if ($_SESSION['myuser_name'] == $FORUM_ADMIN) {
-	    return true;
-	}
+        if ($_SESSION['myuser_name'] == $FORUM_ADMIN) {
+            return true;
+        }
     }
     return false;
 }
@@ -204,14 +203,14 @@ function strip_tags_content($text, $tags = '', $invert = FALSE)
     preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
     $tags = array_unique($tags[1]);
 
-    if(is_array($tags) AND count($tags) > 0) {
-	if($invert == FALSE) {
-	    return preg_replace('@<(?!(?:'. implode('|', $tags) .')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
-	} else {
-	    return preg_replace('@<('. implode('|', $tags) .')\b.*?>.*?</\1>@si', '', $text);
-	}
+    if (is_array($tags) and count($tags) > 0) {
+        if ($invert == FALSE) {
+            return preg_replace('@<(?!(?:' . implode('|', $tags) . ')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
+        } else {
+            return preg_replace('@<(' . implode('|', $tags) . ')\b.*?>.*?</\1>@si', '', $text);
+        }
     } elseif ($invert == FALSE) {
-	return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $text);
+        return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $text);
     }
 
     return $text;
@@ -221,17 +220,18 @@ function remove_iframes($line)
 {
     $endiframe = strpos($line, "</iframe>");
     if ($endiframe != FALSE) {
-	$line1 = substr($line, $endiframe + 9);
-	$line = substr($line, 0, $endiframe + 9);
-	$line = $line.strip_tags_content($line1, "<b><i><cite><br>");
+        $line1 = substr($line, $endiframe + 9);
+        $line = substr($line, 0, $endiframe + 9);
+        $line = $line . strip_tags_content($line1, "<b><i><cite><br>");
     }
 
     $line = preg_replace('#(<br\s?/?>){2,}#', '<br/><br/>', $line);
     return $line;
 }
 
-function clon_detector($str) {
-    $arr1 = str_split($str,1);
+function clon_detector($str)
+{
+    $arr1 = str_split($str, 1);
 
     $u = 0;
     $c = 0;
@@ -240,44 +240,43 @@ function clon_detector($str) {
     $s = 0;
     $sp = 0;
 
-    if ((ord($arr1[0]) == 32) ||
-	(ord($arr1[sizeof($arr1) - 1]) == 32)) {
-	return true;
+    if ((ord($arr1[0]) == 32) || (ord($arr1[sizeof($arr1) - 1]) == 32)) {
+        return true;
     }
 
     foreach ($arr1 as $letter) {
-	$v = ord($letter);
+        $v = ord($letter);
 
-	if ($sp == 1) {
-	    //skip any char, but correct to skip 0x80-0xbf
-	    $sp = 0;
-	    continue;
-	}
+        if ($sp == 1) {
+            // skip any char, but correct to skip 0x80-0xbf
+            $sp = 0;
+            continue;
+        }
 
-	if ($v == 0xc2 || $v == 0xc3) {
-	    $sp = 1;
-	    $s = $s + 1;
-	}
+        if ($v == 0xc2 || $v == 0xc3) {
+            $sp = 1;
+            $s = $s + 1;
+        }
 
-	if ($v >= 0xd0 && $v <= 0xd3 && $u == 0) {
-	    $u = 1;
-	    continue;
-	}
+        if ($v >= 0xd0 && $v <= 0xd3 && $u == 0) {
+            $u = 1;
+            continue;
+        }
 
-	if ($v >= 0x80 && $v <= 0xbf && $u == 1) {
-	    $c = $c + 1;
-	} else {
-	    if (($v >= 0x41 && $v <= 0x5a) || ($v >= 0x61 && $v <= 0x7a)) {
-		$l = $l + 1;
-	    } else {
-		$o = $o + 1;
-	    }
-	}
-	$u = 0;
+        if ($v >= 0x80 && $v <= 0xbf && $u == 1) {
+            $c = $c + 1;
+        } else {
+            if (($v >= 0x41 && $v <= 0x5a) || ($v >= 0x61 && $v <= 0x7a)) {
+                $l = $l + 1;
+            } else {
+                $o = $o + 1;
+            }
+        }
+        $u = 0;
     }
 
     if (($l && $c) || $s) {
-	return true;
+        return true;
     }
 
     return false;
@@ -286,11 +285,11 @@ function clon_detector($str) {
 function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
 {
     if (($post_nick == $user_login) && ($post_nick_id == $user_id) && ($user_id != 0)) {
-	$clon = "";
-	if (clon_detector($post_nick)) {
-	    $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
-	}
-	return '<a href="#" onclick="load_modal(\'userinfo.php?id='.$user_id.'\'); return false;">'.$post_nick.'</a>'.$clon;
+        $clon = "";
+        if (clon_detector($post_nick)) {
+            $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
+        }
+        return '<a href="#" onclick="load_modal(\'userinfo.php?id=' . $user_id . '\'); return false;">' . $post_nick . '</a>' . $clon;
     }
 
     return $post_nick;

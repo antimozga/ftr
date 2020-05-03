@@ -1,28 +1,49 @@
 <?php
-
-require_once('config.php');
+require_once ('config.php');
 
 $database = new PDO("sqlite:" . DBASEFILE);
 
-if (!$database) {
-    printf("DataBase error\n");
-    exit;
+if (! $database) {
+    ?>
+<h1>DataBase error</h1>
+<?php
+    exit();
 }
 
-$days = array('воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота');
-$months = array('января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря');
+$days = array(
+    'воскресенье',
+    'понедельник',
+    'вторник',
+    'среда',
+    'четверг',
+    'пятница',
+    'суббота'
+);
+$months = array(
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря'
+);
 
-$query = "CREATE TABLE IF NOT EXISTS GisMeteoTable ".
-	 "(id INTEGER PRIMARY KEY,".
-	 " time INTEGER,".
-	 " temp REAL,".
-	 " temp_feel REAL,".
-	 " desc NVARCHAR,".
-	 " wind INTEGER,".
-	 " wind_desc NVARCHAR,".
-	 " pressure INTEGER,".
-	 " humidity INTEGER,".
-	 " icon NVARCHAR)";
+$query = "CREATE TABLE IF NOT EXISTS GisMeteoTable " . 
+            "(id INTEGER PRIMARY KEY," . 
+            " time INTEGER," . " temp REAL," . 
+            " temp_feel REAL," . 
+            " desc NVARCHAR," . 
+            " wind INTEGER," . 
+            " wind_desc NVARCHAR," . 
+            " pressure INTEGER," . 
+            " humidity INTEGER," . 
+            " icon NVARCHAR)";
 $database->exec($query);
 
 $sth = $database->prepare("SELECT * FROM GisMeteoTable ORDER BY id DESC LIMIT 1");
@@ -35,22 +56,26 @@ $month = date('n') - 1;
 $year = date('Y');
 
 if ($row) {
-    echo '<div class="weather">';
-    echo '<div style="float: left;">';
-    if (file_exists('images/gismeteo/'.$row['icon'])) {
-include ('images/gismeteo/'.$row['icon']);
+    ?>
+<div class="weather">
+	<div style="float: left;">
+<?php
+    if (file_exists('images/gismeteo/' . $row['icon'])) {
+        include ('images/gismeteo/' . $row['icon']);
     }
-//  <img src="images/gismeteo/'.md5($row['desc']).'.svg" alt="'.$row['desc'].'"/>
-    echo '</div>';
-    echo '<div style="float: right;">';
-    echo '<span class="w_title">Погода</span>
-<a class="w_temp" href="https://www.gismeteo.ru/weather-tomsk-4652/now/" target="_blank">
-'.round($row['temp'], 1).' &#176;C</a><br/>
-<span id="w_sign">По ощущению '.round($row['temp_feel'], 1).' &#176;C<br/>'.$row['desc'].'</span><br/>
-<span id="w_wind">Ветер '.$row['wind'].' м/с, '.$row['wind_desc'].'</span><br/>
-<span id="w_press">
-<svg viewBox="0 0 30 30" width="16px" style="vertical-align: text-bottom;" class="svg_button">
-<path d="M7.69,13.2c0-0.99,0.19-1.94,0.58-2.85c0.39-0.91,0.91-1.68,1.57-2.33s1.44-1.17,2.34-1.56c0.9-0.39,1.85-0.58,2.84-0.58
+    ?>
+	</div>
+	<div style="float: right;">
+		<span class="w_title">Погода</span> <a class="w_temp"
+			href="https://www.gismeteo.ru/weather-tomsk-4652/now/"
+			target="_blank">
+<?php echo  round($row['temp'], 1); ?> &#176;C</a><br /> <span
+			id="w_sign">По ощущению <?php echo round($row['temp_feel'], 1); ?> &#176;C<br /><?php echo $row['desc']; ?></span><br />
+		<span id="w_wind">Ветер <?php echo $row['wind']; ?> м/с, <?php echo $row['wind_desc']; ?></span><br />
+		<span id="w_press">
+			<svg viewBox="0 0 30 30" width="16px" style="vertical-align: text-bottom;" class="svg_button">
+				<path
+					d="M7.69,13.2c0-0.99,0.19-1.94,0.58-2.85c0.39-0.91,0.91-1.68,1.57-2.33s1.44-1.17,2.34-1.56c0.9-0.39,1.85-0.58,2.84-0.58
 	c0.99,0,1.94,0.19,2.85,0.58c0.9,0.39,1.68,0.91,2.33,1.56c0.65,0.65,1.17,1.43,1.56,2.33s0.58,1.85,0.58,2.85
 	c0,1.62-0.48,3.06-1.44,4.34c-0.96,1.27-2.2,2.14-3.71,2.61v3.29h-4.24v-3.25c-1.54-0.45-2.81-1.32-3.79-2.61S7.69,14.83,7.69,13.2z
 	 M9.3,13.2c0,1.55,0.56,2.88,1.69,3.99c1.11,1.12,2.45,1.68,4.02,1.68c1.03,0,1.99-0.25,2.86-0.76c0.88-0.51,1.57-1.2,2.09-2.07
@@ -59,11 +84,13 @@ include ('images/gismeteo/'.$row['icon']);
 	C9.45,11.7,9.3,12.43,9.3,13.2z M9.88,13.56v-0.72h2.17v0.72H9.88z M10.97,10.02l0.52-0.52l1.52,1.52l-0.52,0.53L10.97,10.02z
 	 M13.5,14.95c0-0.42,0.15-0.78,0.44-1.09c0.29-0.31,0.65-0.47,1.06-0.48l2.73-4.49l0.66,0.35l-2.02,4.83
 	c0.18,0.25,0.26,0.54,0.26,0.88c0,0.44-0.15,0.81-0.46,1.11c-0.31,0.3-0.68,0.45-1.12,0.45c-0.43,0-0.8-0.15-1.1-0.45
-	C13.65,15.76,13.5,15.39,13.5,14.95z M14.81,10.28V8.12h0.69v2.17H14.81z M17.75,13.55v-0.74h2.17v0.74H17.75z"/>
-</svg>'.$row['pressure'].' мм рт. ст</span>
-<span id="w_humid">
-<svg viewBox="0 0 30 30" width="16px" style="vertical-align: text-bottom;" class="svg_button">
-<path d="M7.56,17.19c0-0.88,0.24-1.89,0.72-3.03s1.1-2.25,1.86-3.31c1.56-2.06,2.92-3.62,4.06-4.67l0.75-0.72
+	C13.65,15.76,13.5,15.39,13.5,14.95z M14.81,10.28V8.12h0.69v2.17H14.81z M17.75,13.55v-0.74h2.17v0.74H17.75z" />
+			</svg><?php echo $row['pressure']; ?> мм рт. ст
+		</span>
+		<span id="w_humid">
+			<svg viewBox="0 0 30 30" width="16px" style="vertical-align: text-bottom;" class="svg_button">
+				<path
+					d="M7.56,17.19c0-0.88,0.24-1.89,0.72-3.03s1.1-2.25,1.86-3.31c1.56-2.06,2.92-3.62,4.06-4.67l0.75-0.72
 	c0.25,0.26,0.53,0.5,0.83,0.72c0.41,0.42,1.04,1.11,1.88,2.09s1.57,1.85,2.17,2.65c0.71,1.01,1.32,2.1,1.81,3.25
 	s0.74,2.16,0.74,3.03c0,1-0.19,1.95-0.58,2.86c-0.39,0.91-0.91,1.7-1.57,2.36c-0.66,0.66-1.45,1.19-2.37,1.58
 	c-0.92,0.39-1.89,0.59-2.91,0.59c-1,0-1.95-0.19-2.86-0.57c-0.91-0.38-1.7-0.89-2.36-1.55c-0.66-0.65-1.19-1.44-1.58-2.35
@@ -80,12 +107,17 @@ include ('images/gismeteo/'.$row['icon']);
 	c0.01-0.12,0.03-0.27,0.06-0.45s0.09-0.3,0.17-0.38s0.19-0.12,0.33-0.12c0.09,0,0.17,0.02,0.24,0.06c0.07,0.04,0.12,0.1,0.16,0.19
 	c0.04,0.09,0.07,0.17,0.1,0.24s0.04,0.18,0.05,0.32l0.01,0.32l0,0.34c0,0.16,0,0.28,0,0.35l-0.01,0.32l-0.05,0.32l-0.1,0.24
 	l-0.16,0.19l-0.24,0.06c-0.14,0-0.25-0.04-0.33-0.12s-0.14-0.21-0.17-0.38c-0.03-0.18-0.05-0.33-0.06-0.45S17.85,19.25,17.85,19.02z
-	"/>
-</svg>'.$row['humidity'].'&#37;</span><br/><br/>
-<b id="curr_day">'.$days[$mday].'</b><br/>
-<span id="curr_date">'.$day.' '.$months[$month].' '.$year.'</span>';
-    echo '</div>';
-    echo '</div>';
+	" />
+			</svg><?php echo $row['humidity']; ?>&#37;
+		</span>
+		<br>
+		<br>
+		<b id="curr_day"><?php echo $days[$mday]; ?></b>
+		<br>
+		<span id="curr_date"><?php echo $day; ?> <?php echo $months[$month]; ?> <?php echo $year; ?></span>
+	</div>
+</div>
+<?php
 }
 
 ?>

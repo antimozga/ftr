@@ -2,21 +2,23 @@
 
 function microtime_float()
 {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
+    list ($usec, $sec) = explode(" ", microtime());
+    return ((float) $usec + (float) $sec);
 }
 
 session_start();
 
-setcookie ('PHPSESSID', session_id(), time() + 60 * 60 * 24 * 7, '/');
+setcookie('PHPSESSID', session_id(), time() + 60 * 60 * 24 * 7, '/');
 
 if (isset($_SESSION['ajsner'])) {
     if ($_SESSION['ajsner'] > 100) {
-	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
-	$retryAfterSeconds = 240;
-	header('Retry-After: ' . $retryAfterSeconds);
-	echo '<h1>503 Service Temporarily Unavailable</h1>';
-	exit;
+        header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
+        $retryAfterSeconds = 240;
+        header('Retry-After: ' . $retryAfterSeconds);
+?>
+<h1>503 Service Temporarily Unavailable</h1>
+<?php
+        exit();
     }
 }
 
@@ -28,398 +30,495 @@ if (isset($_SESSION['lkasdas'])) {
     $time_diff = $time_now - $_SESSION['lkasdas'];
 }
 
-//error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
-//error_log("time diff ".$time_diff);
+// error_log("access to ".$_SERVER['HTTP_HOST']." ".$_SERVER['REQUEST_URI']." ".$_COOKIE['PHPSESSID']." ".$_SESSION['lkasdas']." ".$time_diff." ".$_SESSION['ajsner']);
+// error_log("time diff ".$time_diff);
 
 $_SESSION['lkasdas'] = $time_now;
 
 if ($time_diff < 1) {
-    if (!isset($_SESSION['ajsner'])) {
-	$_SESSION['ajsner'] = 1;
+    if (! isset($_SESSION['ajsner'])) {
+        $_SESSION['ajsner'] = 1;
     } else {
-	$_SESSION['ajsner']++;
+        $_SESSION['ajsner'] ++;
     }
 
     if ($_SESSION['ajsner'] > 1) {
-	header($_SERVER["SERVER_PROTOCOL"]." 503 Service Temporarily Unavailable", true, 503);
-	$retryAfterSeconds = 240;
-	header('Retry-After: ' . $retryAfterSeconds);
-	echo '<h1>503 Service Temporarily Unavailable</h1>';
-	exit;
+        header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
+        $retryAfterSeconds = 240;
+        header('Retry-After: ' . $retryAfterSeconds);
+?>
+<h1>503 Service Temporarily Unavailable</h1>
+<?php
+        exit();
     }
 } else {
-	$_SESSION['ajsner'] = 0;
+    $_SESSION['ajsner'] = 0;
 }
 
 $debug = false;
 
-require_once('config.php');
-require_once('config_user.php');
+require_once ('config.php');
+require_once ('config_user.php');
 
-include('funcs.php');
-include('automoderator.php');
-include('header.php');
-include('footer.php');
+include ('funcs.php');
+include ('automoderator.php');
+include ('header.php');
+include ('footer.php');
 
-function start_page($title) {
+function start_page($title)
+{
     global $FORUM_RULES_LINK;
     global $database;
 
     show_header($title);
-    echo
-'<div class="block_menu">
-    <div class="menu" id="mobMenu">';
-
-    if (!is_logged()) {
-	echo '<a href="" onclick="load_modal(\'login.php\'); return false;">Вход</a>
-	<div class="sep"><div></div></div>
-	<a href="?reg=1">Регистрация</a>';
+    ?>
+<div class="block_menu">
+	<div class="menu" id="mobMenu">
+    
+<?php
+    if (! is_logged()) {
+        ?>        
+		<a href="" onclick="load_modal('login.php'); return false;">Вход</a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="?reg=1">Регистрация</a>
+<?php
     } else {
-	$pt = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].';')->fetchColumn();
-	$pn = $database->query('SELECT COUNT(*) FROM ForumPager WHERE id_user = '.$_SESSION['myuser_id'].' AND new = 1;')->fetchColumn();
-	echo '<a href="?reg=3" class="session_ctl">'.$_SESSION['myuser_name'].'</a>
-	<div class="sep"><div></div></div>
-	<a href="#" id="pagerlink" onclick="load_modal(\'showpager.php\'); return false;">Пейджер (<span class="autorefresh refreshnow" src="pagerstatus.php"></span>)</a>';
+        ?>	
+		<a href="?reg=3" class="session_ctl"><?php echo $_SESSION['myuser_name']; ?></a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="#" id="pagerlink"
+			onclick="load_modal('showpager.php'); return false;">Пейджер (<span
+			class="autorefresh refreshnow" src="pagerstatus.php"></span>)
+		</a>
+<?php
     }
-
-    echo '<div class="sep"><div></div></div>
-	<a href="?users">Пользователи</a><a href="#" onclick="load_modal(\'showbanlist.php\'); return false;">(Скрытые)</a>
-	<div class="sep"><div></div></div>
-	<a href="'.$FORUM_RULES_LINK.'">Правила</a>';
-
+    ?>
+    	<div class="sep">
+			<div></div>
+		</div>
+		<a href="?users">Пользователи</a><a href="#"
+			onclick="load_modal('showbanlist.php'); return false;">(Скрытые)</a>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="<?php echo $FORUM_RULES_LINK; ?>">Правила</a>
+<?php
     if (is_logged()) {
-	$logout_uri = $_SERVER['REQUEST_URI'];
-	if ($logout_uri === '/') {
-	    $logout_uri = '?logout';
-	} else {
-	    $logout_uri = $logout_uri.'&logout';
-	}
-
-	echo '<div class="sep"><div></div></div>
-	<a href="'.$logout_uri.'" class="session_ctl">Выход</a>';
-
+        $logout_uri = $_SERVER['REQUEST_URI'];
+        if ($logout_uri === '/') {
+            $logout_uri = '?logout';
+        } else {
+            $logout_uri = $logout_uri . '&logout';
+        }
+        ?>
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="<?php echo $logout_uri; ?>" class="session_ctl">Выход</a>
+<?php
     }
 
     if (is_forum_admin()) {
-	echo '<div class="sep"><div></div></div><a href="groups.php">Редактор групп тем</a>';
+        ?>        
+		<div class="sep">
+			<div></div>
+		</div>
+		<a href="groups.php">Редактор групп тем</a>
+<?php
     }
-
-    echo '<a href="javascript:void(0);" class="mobicon" onclick="mobileMenu(\'mobMenu\',\'menu\')">&#9776;</a>
-    </div>
-</div>';
-
+    ?>
+    <a href="javascript:void(0);" class="mobicon"
+			onclick="mobileMenu('mobMenu','menu')">&#9776;</a>
+	</div>
+</div>
+<?php
 }
 
-function show_menu($database) {
-    echo '<div class="block_menu_m">
-<form class="group_sel" action="">
-<select onchange="document.location=\'?g=\'+this.value;" name="g">
-<option value="0" selected="selected">Группы тем:</option>
-<option value="0">-----------------------</option>
-    ';
-
+function show_menu($database)
+{
+    ?>
+<div class="block_menu_m">
+	<form class="group_sel" action="">
+		<select onchange="document.location='?g='+this.value;" name="g">
+			<option value="0" selected="selected">Группы тем:</option>
+			<option value="0">-----------------------</option>
+<?php
     $group_query = "SELECT * FROM ForumGroups ORDER BY grp ASC;";
     foreach ($database->query($group_query) as $row) {
-	print ("<option value='{$row['id']}'>{$row['grp']}</option>");
+        ?>
+			<option value="<?php echo $row['id']; ?>"><?php echo $row['grp']; ?></option>
+<?php
     }
-
-    echo '</select>
-</form>
-<div class="menu">
-<div><a href="./?g=0">Группы<span class="view-desk"> тем</span></a></div>
-<div class="sep"><div></div></div>
-<div><a href="./">Горячее</a></div>
-<div class="sep"><div></div></div>
-<div><a href="./?s=1">Топ<span class="view-desk"> общения</span></a></div>';
+    ?>
+	</select>
+	</form>
+	<div class="menu">
+		<div>
+			<a href="./?g=0">Группы<span class="view-desk"> тем</span></a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./">Горячее</a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?s=1">Топ<span class="view-desk"> общения</span></a>
+		</div>
+<?php
     if (is_logged()) {
-	echo '<div class="sep"><div></div></div>
-<div><a href="./?m=1">Избранное</a></div>';
-	echo '<div class="sep"><div></div></div>
-<div><a href="./?o=1">Моё</a></div>';
+        ?>       
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?m=1">Избранное</a>
+		</div>
+		<div class="sep">
+			<div></div>
+		</div>
+		<div>
+			<a href="./?o=1">Моё</a>
+		</div>
+<?php
     }
-echo '<div><a style="float:right;" href="#" onclick="load_modal(\'searchtopic.php\'); return false;">
-<svg viewBox="0 0 20 20" width="16px">
-<title>Поиск по темам</title>
-<path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
-</svg>
-</a></div>
-</div></div>';
-
-//<div><form action=""><input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/></form></div>
-
+    ?>    
+		<div>
+			<a style="float: right;" href="#"
+				onclick="load_modal('searchtopic.php'); return false;">
+				<svg viewBox="0 0 20 20" width="16px">
+					<title>Поиск по темам</title>
+					<path
+						d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+				</svg>
+			</a>
+		</div>
+	</div>
+</div>
+<?php
 }
 
 function show_banner()
 {
-
-    echo '<div class="block1">';
-
-    echo '<div class="logo"><a href="./"><img src="images/ftrclogo.png"></a></div>';
-//    echo '<div class="logo"><a href="./"><img src="images/logo.png"></a></div>';
-
-    echo '<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>';
-    echo '<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>';
-
-    echo '</div>';
+?>
+<div class="block1">
+	<div class="logo">
+		<a href="./"><img src="images/ftrclogo.png"></a>
+	</div>
+	<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>
+	<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>
+</div>
+<?php
 }
 
-function show_nav_path($topic, $ctrlink="") {
+function show_nav_path($topic, $ctrlink = "")
+{
     global $FORUM_NAME;
-    echo '<div class="navigation">
-    <div class="box_path">
-    <table><tr>
-    <td class="tdw1">:: <a href="./">'.$FORUM_NAME.'</a> &nbsp;/&nbsp; '.$topic.'</td>';
+    ?>
+<div class="navigation">
+	<div class="box_path">
+		<table>
+			<tr>
+				<td class="tdw1">:: <a href="./"><?php echo $FORUM_NAME; ?></a> &nbsp;/&nbsp; <?php echo $topic; ?></td>
+<?php
     if ($ctrlink != "") {
-	echo '<td class="tdw2">'.$ctrlink.'</td>';
+        ?>
+				<td class="tdw2"><?php echo $ctrlink; ?></td>
+<?php
     }
-    echo '</tr></table></div></div>';
+    ?>    
+    		</tr>
+		</table>
+	</div>
+</div>
+<?php
 }
 
-function show_postbox($type, $id_session) {
+function show_postbox($type, $id_session)
+{
     global $database;
     global $debug;
     global $RECAPTCHA_SITE_KEY;
 
-    $error = "";
     $name = "";
     $subj = "";
     $post = "";
     $edit_info = "";
 
     if (is_defined('editpost')) {
-	$edit_post_id = $_REQUEST['editpost'];
-	$edit_post_id = ($edit_post_id * 10) / 10;
+        $edit_post_id = $_REQUEST['editpost'];
+        $edit_post_id = ($edit_post_id * 10) / 10;
 
-	$sth = $database->prepare("SELECT id, time, nick, subj, post, modtime".
-				  " FROM ForumPosts".
-				  " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
-	$sth->execute();
-	$row = $sth->fetch();
-	if ($row['id'] != "") {
-	    $name = $row['nick'];
-	    $subj = $row['subj'];
-	    $post = reconvert_text($row['post']);
-	    $edit_info = '<input type="hidden" name="edit_post_info" value="'.$edit_post_id.'">';
-	}
+        $sth = $database->prepare("SELECT id, time, nick, subj, post, modtime" . " FROM ForumPosts" . " WHERE id_session=\"$id_session\" AND id=$edit_post_id");
+        $sth->execute();
+        $row = $sth->fetch();
+        if ($row['id'] != "") {
+            $name = $row['nick'];
+            $subj = $row['subj'];
+            $post = reconvert_text($row['post']);
+            $edit_info = '<input type="hidden" name="edit_post_info" value="' . $edit_post_id . '">';
+        }
     } else {
-	if (isset($_SESSION['user_temp_name'])) {
-	    $name = $_SESSION['user_temp_name'];
-	}
+        if (isset($_SESSION['user_temp_name'])) {
+            $name = $_SESSION['user_temp_name'];
+        }
     }
 
     if ($type == 'topic') {
-	$h = 'Заголовок темы';
-	$b = 'Создать';
+        $h = 'Заголовок темы';
+        $b = 'Создать';
     } else {
-	$h = 'Заголовок сообщения';
+        $h = 'Заголовок сообщения';
 
-	if (is_defined('editpost')) {
-	    $b = 'Исправить';
-	} else {
-	    $b = 'Отправить';
-	}
+        if (is_defined('editpost')) {
+            $b = 'Исправить';
+        } else {
+            $b = 'Отправить';
+        }
     }
-echo '
-<script src="https://www.google.com/recaptcha/api.js?render='.$RECAPTCHA_SITE_KEY.'"></script>
+    ?>
+<script	src="https://www.google.com/recaptcha/api.js?render=<?php echo $RECAPTCHA_SITE_KEY; ?>"></script>
 <script>
 function formSubmit () {
-    document.getElementById(\'mess_submit\').hidden = true;
-    document.getElementById(\'mess_submit_process\').hidden = false;
-';
-
-if ($debug) {
-    echo '    formSubmit2(\'\', \'formMessage\');';
-} else {
-    echo '    grecaptcha.ready(function () {
-	grecaptcha.execute(\''.$RECAPTCHA_SITE_KEY.'\', { action: \'post\' }).then(function (token) {
-	    var recaptchaResponse = document.getElementById(\'recaptchaResponse\');
-	    recaptchaResponse.value = token;
-	    formSubmit2(\'\', \'formMessage\');
-	});
-    });';
-}
-
-echo '    return false;
+    document.getElementById('mess_submit').hidden = true;
+    document.getElementById('mess_submit_process').hidden = false;
+<?php
+    if ($debug) {
+        ?>
+    	formSubmit2('', 'formMessage');
+<?php
+    } else {
+        ?>
+    	grecaptcha.ready(function () {
+			grecaptcha.execute('<?php echo $RECAPTCHA_SITE_KEY; ?>', { action: 'post' }).then(function (token) {
+	    		var recaptchaResponse = document.getElementById('recaptchaResponse');
+	    		recaptchaResponse.value = token;
+	    		formSubmit2('', 'formMessage');
+			});
+    	});
+<?php
+    }
+    ?>
+    return false;
 }
 </script>
 <div class="line1"></div>
 <div>
-	<form action="" method="post" class="form_mess" name="formMessage" id="formMessage" enctype="multipart/form-data" onsubmit="return formSubmit()">
-	<input type="hidden" name="event" value="forumcreatesubj">
-	<div class="form_box">
-	    <table>
-	    <tr>
-	    <td class="form_box_name">
-			<label for="name" class="l_inp_text_name"> Ваше имя:</label>
-			<input class="inp_text_name" id="name" maxlength="25" name="message[author]" value="'.$name.'" type="text">
-	    </td>
-	    <td class="form_box_title">
-		    <label for="heading" class="l_inp_text_name">'.$h.':</label>
-		    <input class="inp_text_name" id="heading" maxlength="100" name="message[caption]" value="'.$subj.'" type="text">
-	    </td>
-	    </tr>
-	    </table>
-		<div class="form_box_mess">
-			<textarea maxlength="16384" class="area_text" id="mess_text" name="message[content]" onFocus="javascript: textFocus = true;" onBlur="javascript: textFocus = false;">'.$post.'</textarea>
-		</div>
-		<div>
-			<div class="form_box_btn">
-				<input class="btn_form" value="'.$b.'" type="submit" id="mess_submit">
-				<span id="mess_submit_process" hidden>
-<svg width="19px" height="19px" viewBox="0 0 50 50">
-<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
-<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/>
-</path>
-</svg>
-				</span>
+	<form action="" method="post" class="form_mess" name="formMessage"
+		id="formMessage" enctype="multipart/form-data"
+		onsubmit="return formSubmit()">
+		<input type="hidden" name="event" value="forumcreatesubj">
+		<div class="form_box">
+			<table>
+				<tr>
+					<td class="form_box_name">
+						<label for="name" class="l_inp_text_name">Ваше имя:</label>
+						<input class="inp_text_name" id="name"
+						maxlength="25" name="message[author]" value="<?php echo $name; ?>"
+						type="text">
+					</td>
+					<td class="form_box_title">
+						<label for="heading" class="l_inp_text_name"><?php echo $h; ?>:</label>
+						<input class="inp_text_name" id="heading" maxlength="100"
+						name="message[caption]" value="<?php echo $subj; ?>" type="text">
+					</td>
+				</tr>
+			</table>
+			<div class="form_box_mess">
+				<textarea maxlength="16384" class="area_text" id="mess_text"
+					name="message[content]" onFocus="javascript: textFocus = true;"
+					onBlur="javascript: textFocus = false;"><?php echo $post; ?></textarea>
 			</div>
-			<div class="format">
-				<div id="web"></div>
-				<span id="mess_emo">
-					&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[re]\',\'[/re]\', false); return false;" class="for3"><span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[b]\',\'[/b]\', true); return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>&nbsp;-&nbsp;
-					<a href="" onclick="doInsert(\'[i]\',\'[/i]\', false); return false;" class="for2"><span class="view-desk">Курсив</span><span class="view-mob">К</span></a>
-				</span>
-			</div>
-
-			<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
-
-			<div class="form_box_upload">
 			<div>
-<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl(\'recontrol\')">
-<title>Меню записи аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>&nbsp;
-<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById(\'attachFile\').click()">
-<title>Прикрепить картинку, аудио или видео</title>
-<path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z"/>
-</svg>
-				<span id="attachedFile"></span>
-				<input name="image" type="file" style="display:none;" id="attachFile">
-<script>
-document.getElementById(\'attachFile\').onchange = function () {
-    document.getElementById(\'attachedFile\').innerHTML = this.value.replace(/^.*[\\\/]/, \'\');
+				<div class="form_box_btn">
+					<input class="btn_form" value="<?php echo $b; ?>" type="submit" id="mess_submit">
+					<span id="mess_submit_process" hidden>
+						<svg width="19px" height="19px" viewBox="0 0 50 50">
+							<path fill="#33CCFF" d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
+								<animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite" />
+							</path>
+						</svg>
+					</span>
+				</div>
+				<div class="format">
+					<div id="web"></div>
+					<span id="mess_emo"> &nbsp;-&nbsp; <a href="" onclick="doInsert('[re]','[/re]', false); return false;" class="for3">
+					<span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>
+					&nbsp;-&nbsp;
+					<a href="" onclick="doInsert('[b]', '[/b]',  true);  return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>
+					&nbsp;-&nbsp;
+					<a href="" onclick="doInsert('[i]', '[/i]',  false); return false;"	class="for2"><span class="view-desk">Курсив</span><span	class="view-mob">К</span></a></span>
+				</div>
+				<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
+				<div class="form_box_upload">
+					<div>
+						<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="reControl('recontrol')">
+							<title>Меню записи аудио</title>
+							<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+						</svg>
+						&nbsp;
+						<svg viewBox="0 0 20 20" width="16px" class="svg_button" onclick="document.getElementById('attachFile').click()">
+							<title>Прикрепить картинку, аудио или видео</title>
+							<path d="M15 3H7a7 7 0 1 0 0 14h8v-2H7A5 5 0 0 1 7 5h8a3 3 0 0 1 0 6H7a1 1 0 0 1 0-2h8V7H7a3 3 0 1 0 0 6h8a5 5 0 0 0 0-10z" />
+						</svg>
+						<span id="attachedFile"></span>
+						<input name="image" type="file" style="display: none;" id="attachFile">
+						<script>
+document.getElementById('attachFile').onchange = function () {
+    document.getElementById('attachedFile').innerHTML = this.value.replace(/^.*[\\\/]/, '');
 /*  alert(\'Selected file: \' + this.value.replace(/^.*[\\\/]/, \'\')); */
 };
-</script>
-			</div>
-			<div>
-				<label class="upload_file" for="image" >JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 6МБ)</label>
-			</div>
-    <div id="recontrol" hidden>
-	<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
-<title>Начать запись аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>
-</button>
-	<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
-<title>Остановить запись аудио</title>
-<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z"/>
-</svg>
-</button>
-	<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
-<span id="action_playstart">
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
-<title>Воспроизвести запись аудио</title>
-<path d="M4 4l12 6-12 6z"/>
-</svg>
-</span>
-<span id="action_playstop" hidden>
-<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
-<title>Воспроизвести запись аудио</title>
-<path d="M4 4l12 6-12 6z"/>
-</svg>
-</span>
-</button>
-    </div>
-<script>
+						</script>
+					</div>
+					<div>
+						<label class="upload_file" for="image">JPG,PNG,GIF,WEBP/OGA,MP4A/MP4,OGV,WEBM (макс. размер 6МБ)</label>
+					</div>
+					<div id="recontrol" hidden>
+						<button id="action_recstart" onclick="myRecorderStart(updateRecord, updateUpload); return false;">
+							<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+								<title>Начать запись аудио</title>
+								<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+							</svg>
+						</button>
+						<button id="action_recstop" onclick="myRecorderStop(); return false;" hidden>
+							<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+								<title>Остановить запись аудио</title>
+									<path d="M9 18v-1.06A8 8 0 0 1 2 9h2a6 6 0 1 0 12 0h2a8 8 0 0 1-7 7.94V18h3v2H6v-2h3zM6 4a4 4 0 1 1 8 0v5a4 4 0 1 1-8 0V4z" />
+							</svg>
+						</button>
+						<button id="action_recplay" onclick="myRecorderPlay(); return false;" hidden>
+							<span id="action_playstart">
+								<svg viewBox="0 0 20 20" width="16px" class="svg_icon_black">
+									<title>Воспроизвести запись аудио</title>
+									<path d="M4 4l12 6-12 6z" />
+								</svg>
+							</span>
+							<span id="action_playstop" hidden>
+								<svg viewBox="0 0 20 20" width="16px" class="svg_icon_red">
+									<title>Воспроизвести запись аудио</title>
+									<path d="M4 4l12 6-12 6z" />
+								</svg>
+							</span>
+						</button>
+					</div>
+					<script>
 function updateRecord(maxt, curt) {
 //    console.log(\'time \' + maxt + \' \' + curt);
     let secs = maxt / 1000 - curt;
-    document.getElementById(\'attachedFile\').innerHTML = secs + " с.";
+    document.getElementById('attachedFile').innerHTML = secs + " с.";
 }
 
 function updateUpload(url) {
 //    console.log(\'url \' + url);
-    document.getElementById(\'attachedFile\').innerHTML = url.replace(/^.*[\\\/]/, \'\');
+    document.getElementById('attachedFile').innerHTML = url.replace(/^.*[\\\/]/, '');
 }
-</script>
+					</script>
+				</div>
 			</div>
 		</div>
-
-	</div>
-	<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
-'.$edit_info.'
+		<input type="hidden" name="recaptcha_response" id="recaptchaResponse">
+<?php echo $edit_info; ?>
 	</form>
-<span class="error1" id="mess_post_error"></span>
+	<span class="error1" id="mess_post_error"></span>
 </div>
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 <!--var 
 fombj = document.getElementById("formMessage");
 //-->
-</script>
 
-<script>
     (() => {
-      new EmojiPicker(document.getElementById(\'mess_text\'), document.getElementById(\'mess_emo\'))
+      new EmojiPicker(document.getElementById('mess_text'), document.getElementById('mess_emo'))
     })()
 </script>
 <div class="line1"></div>
-';
+<?php
 }
 
 function show_page_control($type, $page, $pages, $pageprev, $pagenext, $id_topic = 0, $id_grp = 0)
 {
-    echo '<div class="paging">
-    <form class="paging_sel" action="" method="get">';
+    ?>
+<div class="paging">
+	<form class="paging_sel" action="" method="get">
+<?php
     if ($id_topic != 0) {
-	echo '<input type="hidden" name="t" value="'.$id_topic.'">';
+        ?>        
+		<input type="hidden" name="t" value="<?php echo $id_topic; ?>">
+<?php
     }
     if ($id_grp != 0) {
-	echo '<input type="hidden" name="g" value="'.$id_grp.'">';
+        ?>        
+		<input type="hidden" name="g" value="<?php echo $id_grp; ?>">
+<?php
     }
-    echo '<b>Страница: </b>&nbsp;
-	<select class="pagsel" name="p">';
+    ?>    
+    	<b>Страница: </b>&nbsp;
+    	<select class="pagsel" name="p">
+<?php
     if ($pages > 0) {
-	$cnt = 1;
-	$total = $pages;
-	while ($total > 0) {
-	    if ($page == $cnt) {
-		echo '<option selected value="'.$cnt.'">';
-	    } else {
-		echo '<option value="'.$cnt.'">';
-	    }
-	    echo $total.'</option>';
-	    $cnt = $cnt + 1;
-	    $total = $total - 1;
-	}
+        $cnt = 1;
+        $total = $pages;
+        while ($total > 0) {
+            if ($page == $cnt) {
+                ?>
+			<option selected value="<?php echo $cnt; ?>"><?php
+            } else {
+                ?>
+			<option value="<?php echo $cnt; ?>"><?php
+            }
+            echo $total;
+            ?></option>
+<?php
+            $cnt = $cnt + 1;
+            $total = $total - 1;
+        }
     }
-    echo '
-	</select>
-	<input class="btn_paging_sel" value="&nbsp;" type="submit">
-	&nbsp;из '.$pages.'
-    </form>';
+    ?>
+		</select>
+		<input class="btn_paging_sel" value="&nbsp;" type="submit">
+	&nbsp;из <?php echo $pages; ?>
+    </form>
+<?php
     if ($pagenext != "") {
-	echo '<span class="prev"><a href="'.$pagenext.'"><span class="no-mob-view">Назад </span>»</a></span>';
+        ?>
+	<span class="prev">
+		<a href="<?php echo $pagenext; ?>"><span class="no-mob-view">Назад </span>»</a>
+	</span>
+<?php
     } else {
-	echo '<span class="prev"><span class="no-mob-view">Назад </span>»</span>';
+        ?>        
+	<span class="prev"><span class="no-mob-view">Назад </span>»</span>
+<?php
     }
     if ($pageprev != "") {
-	echo '<span class="next"><a href="'.$pageprev.'">«<span class="no-mob-view"> Вперед</span></a></span>';
+        ?>
+	<span class="next">
+		<a href="<?php echo $pageprev; ?>">«<span class="no-mob-view"> Вперед</span></a>
+	</span>
+<?php
     } else {
-	echo '<span class="next">«<span class="no-mob-view"> Вперед</span></span>';
+        ?>
+	<span class="next">«<span class="no-mob-view"> Вперед</span></span>
+<?php
     }
     if ($type == 'down') {
-	echo '<a name="ftop"></a><span class="up_down">';
-	echo '<a href="#bottom">Вниз</a></span>';
+        ?>
+	<a name="ftop"></a><span class="up_down"> <a href="#bottom">Вниз</a></span>
+<?php
     } else {
-	echo '<a name="bottom"></a><span class="up_down">';
-	echo '<a href="#ftop">Вверх</a></span>';
+        ?>
+	<a name="bottom"></a><span class="up_down"> <a href="#ftop">Вверх</a></span>
+<?php
     }
-echo '</div>';
+    ?>
+</div>
+<?php
 }
 
 $database = new PDO("sqlite:" . DBASEFILE);
@@ -939,21 +1038,27 @@ if (!$database) {
 		$user_pubkey		= addslashes($_REQUEST["user"]["pubkey"]);
 		if ($user_name == "") {
 		    $user_name_warning = '<div class="error">Имя пользователя не может быть пустым.</div>';
-		} else if ($user_password == "") {
+		} else if ($user_password == "" && $cmd != "updateuser") {
 		    $user_password_warning = '<div class="error">Пароль не может быть пустым.</div>';
 		    $user_password = "";
-		    $user_password_config = "";
+		    $user_password_confirm = "";
 		} else if ($user_password != $user_password_confirm) {
 		    $user_password_warning = '<div class="error">Пароль и его подтверждение не совпадают.</div>';
 		    $user_password = "";
-		    $user_password_config = "";
+		    $user_password_confirm = "";
 		} else if ($user_email == "") {
 		    $user_email_warning = '<div class="error">E-mail не может быть пустым.</div>';
 		} else if ($cmd == "updateuser") {
+			if ($user_password != "") {
+			    $user_password = md5($user_password);
+			} else {
+			    $user_password = $_SESSION['myuser_password'];
+			}
 			$query = "UPDATE ForumUsers SET login = '$user_name', password = '$user_password', email = '$user_email', fio = '$user_fio', gender = '$user_gender', description = '$user_description', pubkey = '$user_pubkey' WHERE id = $id_user;";
 			$database->exec($query);
 			$reg_mode = 4;
 		} else {
+		    $user_password = md5($user_password);
 		    $view_query = "SELECT login FROM ForumUsers WHERE login LIKE '$user_name' ;";
 		    foreach ($database->query($view_query) as $row) {
 			$login = $row['login'];
@@ -996,7 +1101,9 @@ if (!$database) {
 
 	start_page($topic);
 	if (is_logged()) {
-echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
+?>
+	<script>const userName="<?php echo $_SESSION['myuser_name']; ?>";</script>
+<?php
 	}
 	show_banner();
 	show_menu($database);
@@ -1024,12 +1131,14 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	}
 
 	if ($show_search == 1) {
-	    echo '
+?>
 <div class="block1">
 	<form action="">
-		<input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/>
+		<input type="text" name="search" onfocus="if(this.value == 'Поиск по темам...') { this.value = ''; }" value="Поиск по темам..."/>
+		<input class="btn_group_sel" type="submit" value="&nbsp;"/>
 	</form>
-</div>';
+</div>
+<?php
 	} else if ($show_users == 1) {
 	    function lower_ru($str) {
 		return mb_strtolower($str, 'utf-8');
@@ -1039,33 +1148,42 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    }
 	    function show_letters_links($str) {
 		foreach (mb_str_split_compat($str) as $letter) {
-		    echo '<a href="?users='.$letter.'">'.$letter.'</a> ';
+?>
+	<a href="?users=<?php echo $letter; ?>"><?php echo $letter; ?></a>
+<?php
 		}
 	    }
-	    echo '<div class="box_alfavit">';
+?>
+<div class="box_alfavit">
+<?php
 	    $str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	    show_letters_links($str);
-	    echo ' &nbsp;&nbsp; ';
+?>
+	&nbsp;&nbsp;
+<?php
 	    $str = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 	    show_letters_links($str);
-	    echo '</div>
+?>
+</div>
 <table class="userstable">
 <tbody>
 <tr>
     <td colspan="5">
-    <form action="" method="get">
-	<span>Поиск по нику:</span>
-        <input id="user_filter" name="users" value="" type="text"/>
-	<input value="Поиск" type="submit"/>
-    </form>
+    	<form action="" method="get">
+			<span>Поиск по нику:</span>
+    		<input id="user_filter" name="users" value="" type="text"/>
+			<input value="Поиск" type="submit"/>
+    	</form>
     </td>
 </tr>
-<tr><th>На форуме</th>
-<th>Пол</th>
-<th>Фото</th>
-<th>Время посещения</th>
-<th class="no-mob-view">Дата регистрации</th>
-</tr>';
+<tr>
+	<th>На форуме</th>
+	<th>Пол</th>
+	<th>Фото</th>
+	<th>Время посещения</th>
+	<th class="no-mob-view">Дата регистрации</th>
+</tr>
+<?php
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
 		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
 	    } else {
@@ -1083,156 +1201,178 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		if (is_numeric($row['gender'])) {
 		    $gender_id = $row['gender'];
 		}
-
-		echo '<tr>';
-		echo '<td>'.format_user_nick($row['login'], $row['id'], $row['login'], $row['id']).'</td>';
-		echo '<td class="tdw1">'.$g[$gender_id].'</td>';
+?>
+<tr>
+	<td><?php echo format_user_nick($row['login'], $row['id'], $row['login'], $row['id']); ?></td>
+	<td class="tdw1"><?php echo $g[$gender_id]; ?></td>
+<?php
 		$avatar = $UPLOAD_DIR."/small-id".$row['id'].".jpg";
 		if (file_exists($avatar)) {
-		    echo '<td class="tdw2">'.'ЕСТЬ'.'</td>';
+?>
+	<td class="tdw2">ЕСТЬ</td>
+<?php
 		} else {
-		    echo '<td class="tdw2">'.'НЕТ'.'</td>';
+?>
+	<td class="tdw2">НЕТ</td>
+<?php
 		}
-		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['last_login']).'</td>';
-		echo '<td class="tdu3 no-mob-view">'.date('d.m.Y (H:i)', $row['time']).'</td>';
-		echo '</tr>';
+?>
+	<td class="tdu3"><?php echo date('d.m.Y (H:i)', $row['last_login']); ?></td>
+	<td class="tdu3 no-mob-view"><?php echo date('d.m.Y (H:i)', $row['time']); ?></td>
+</tr>
+<?php
 	    }
-		echo '</tbody>
+?>
+</tbody>
 </table>
-';
+<?php
 	} else if ($reg_mode == 1 || $reg_mode == 3) {
-	    echo '
+?>
 <div class="box_pasport">
-	<div class="box_pasport_bg">';
-
+	<div class="box_pasport_bg">
+<?php
 	    $user_password = "";
 
 	    if ($reg_mode == 1) {
-		echo '
+?>
 		<h3>Регистрация пользователя</h3>
 		<h4>Для регистрации на Форуме Вам необходимо заполнить форму. Поля, обязательные для заполнения, обозначены значком (*).</h4>
-	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
-	<input type="hidden" name="event" value="createuser">
-	<label for="login">* Имя пользователя (login) '.$user_name_warning.'</label>
-	<input type="text" autocomplete="username" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'">
-	<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
-		';
+		<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data">
+			<input type="hidden" name="event" value="createuser">
+			<label for="login">* Имя пользователя (login) <?php echo $user_name_warning; ?></label>
+			<input type="text" autocomplete="username" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="<?php echo $user_name; ?>">
+			<div class="box_small_text">Если выбранное Вами имя уже зарегистрировано, Вы сможете просто ввести другое имя, при этом остальные заполненные поля будут сохранены.</div>
+<?php
 	    } else {
-		$user_query = "SELECT login, password, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
+		$user_query = "SELECT login, email, fio, gender, description, last_login FROM ForumUsers WHERE id = $id_user;";
 		foreach ($database->query($user_query) as $row) {
 		    $user_name = $row['login'];
-		    $user_password = $row['password'];
+		    $user_password = '';
 		    $user_email = $row['email'];
 		    $user_fio = $row['fio'];
 		    $user_gender = $row['gender'];
 		    $user_description = reconvert_text($row['description']);
 		}
-
-		echo '
+?>
 		<h3>Настройки пользователя</h3>
 		<h4>Изменение личных настроек пользователя.</h4>
-	<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data" id="regeditform">
-	<input type="hidden" name="event" value="updateuser">
-	<label for="login">* Имя пользователя </label>
-	<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="'.$user_name.'" readonly="readonly">
-	<div class="box_small_text">Вы не можете изменить имя пользователя.</div>
-		';
+		<form action="" method="post" class="form_reg" name="registration" enctype="multipart/form-data" id="regeditform">
+			<input type="hidden" name="event" value="updateuser">
+			<label for="login">* Имя пользователя </label>
+			<input type="text" class="inp_text_reg" name="user[user_name]" id="login" maxlength="20" value="<?php echo $user_name; ?>" readonly="readonly">
+			<div class="box_small_text">Вы не можете изменить имя пользователя.</div>
+<?php
 	    }
-	    echo '
-	<div class="line2"><div></div></div>
-	<label for="password1">* Пароль '.$user_password_warning.'</label>
-	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="'.$user_password.'">
-	<label for="password2">* Подтверждение пароля </label>
-	<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="'.$user_password.'">
-	<div class="box_small_text">При наборе пароля допускаются любые буквы (как русские, так и латинские) и символы. Пароль регистрозависим (советуем перед набором глянуть на Caps Lock)</div>
-	<div class="line2"><div></div></div>
-	<label for="email">* Ваш e-mail '.$user_email_warning.'</label>
-	<input type="text" class="inp_text_reg" name="user[user_email]" id="email"  value="'.$user_email.'">
-	<div class="line2"><div></div></div>
-	<label for="fio">Имя Фамилия Отчество</label>
-	<input type="text" class="inp_text_reg" name="user[user_fio]" id="fio"  value="'.$user_fio.'">
-	<label>Ваш пол</label>';
+?>
+			<div class="line2"><div></div></div>
+			<label for="password1">* Пароль <?php echo $user_password_warning; ?></label>
+			<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password]" id="password1" maxlength="100" value="<?php echo $user_password; ?>">
+			<label for="password2">* Подтверждение пароля </label>
+			<input type="password" autocomplete="new-password" class="inp_text_reg" name="user[user_password_confirm]" id="password2" maxlength="100" value="<?php echo $user_password; ?>">
+			<div class="box_small_text">При наборе пароля допускаются любые буквы (как русские, так и латинские) и символы. Пароль регистрозависим (советуем перед набором глянуть на Caps Lock)</div>
+			<div class="line2"><div></div></div>
+			<label for="email">* Ваш e-mail <?php echo $user_email_warning; ?></label>
+			<input type="text" class="inp_text_reg" name="user[user_email]" id="email"  value="<?php echo $user_email; ?>">
+			<div class="line2"><div></div></div>
+			<label for="fio">Имя Фамилия Отчество</label>
+			<input type="text" class="inp_text_reg" name="user[user_fio]" id="fio"  value="<?php echo $user_fio; ?>">
+			<label>Ваш пол</label>
+<?php
 	$cnt = 1;
 	foreach(array('Не имеет значения','Мужской','Женский','Средний') as $name) {
 	    if ($cnt == $user_gender) {
-		echo '<input type="radio" name="user[user_gender]" value="'.$cnt.'" id="'.$cnt.'" class="radioinput" checked="checked" >';
+?>
+			<input type="radio" name="user[user_gender]" value="<?php echo $cnt; ?>" id="<?php echo $cnt; ?>" class="radioinput" checked="checked" >
+<?php
 	    } else {
-		echo '<input type="radio" name="user[user_gender]" value="'.$cnt.'" id="'.$cnt.'" class="radioinput" >';
+?>
+			<input type="radio" name="user[user_gender]" value="<?php echo $cnt; ?>" id="<?php echo $cnt; ?>" class="radioinput" >
+<?php
 	    }
-	    echo '<label for="'.$cnt.'" class="radiolab">'.$name.'</label><br>';
+?>
+			<label for="<?php echo $cnt; ?>" class="radiolab"><?php echo $name; ?></label><br>
+<?php
 	    $cnt = $cnt + 1;
 	}
-	echo '
-	<label for="addition">Дополнительно</label>
-	<textarea maxlength="4096" name="user[description]" id="addition" class="area_text_reg">'.$user_description.'</textarea>
-	<input type="hidden" name="MAX_FILE_SIZE" value="500000">
-	<label for="image">Аватар:</label><input name="image" type="file">
-	<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
-	<textarea name="user[pubkey]" id="pubkey" style="display:none;"></textarea>
-	<div class="line2"><div></div></div>
-	<div class="box_small_text">Если вся информация верна - нажмите кнопку (достаточно одного раза):</div>';
+?>
+			<label for="addition">Дополнительно</label>
+			<textarea maxlength="4096" name="user[description]" id="addition" class="area_text_reg"><?php echo $user_description; ?></textarea>
+			<input type="hidden" name="MAX_FILE_SIZE" value="500000">
+			<label for="image">Аватар:</label><input name="image" type="file">
+			<div class="box_small_text">Разрешается загрузить картинку jpg, png или gif и размером не более 500КБ.</div>
+			<textarea name="user[pubkey]" id="pubkey" style="display:none;"></textarea>
+			<div class="line2"><div></div></div>
+			<div class="box_small_text">Если вся информация верна - нажмите кнопку (достаточно одного раза):</div>
+<?php
 	    if ($reg_mode == 1) {
-		echo '<input type="submit" class="btn_reg" value="Зарегистрироваться">';
+?>
+			<input type="submit" class="btn_reg" value="Зарегистрироваться">
+<?php
 	    } else {
-		echo '<input type="submit" class="btn_reg" value="Сохранить">';
+?>
+			<input type="submit" class="btn_reg" value="Сохранить">
+<?php
 	    }
-	echo '
-	</form>';
-
+?>
+		</form>
+<?php
 	if ($reg_mode == 3) {
-
-	    echo'
-	<script src="js/pgphelp.js"></script>
-	<a name="pager"></a>
-	<h3>Настройка пейджера</h3>
-	<div><span class="warning" id="pgpregwarn"></span></div>
-	<div><span class="error" id="pgpregerror"></span></div>
-	<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
-	<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
-	<textarea maxlength="4096" id="privkey" class="area_text_reg"
-	    placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
-	<div class="box_small_text">Скопируйте и храните закрытый ключ в надежном месте, недоступном для посторонних</div>
-	<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
-	<input type="text" class="inp_text_reg" id="passphrase" value="">
-	<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
-	<label for="x_pubkey">Открытый PGP ключ</label>
-	<textarea readonly id="x_pubkey" class="area_text_reg"></textarea>
-	<div class="line2"><div></div></div>
-	<div class="btn_reg_key">';
+?>
+		<script src="js/pgphelp.js"></script>
+		<a name="pager"></a>
+		<h3>Настройка пейджера</h3>
+		<div><span class="warning" id="pgpregwarn"></span></div>
+		<div><span class="error" id="pgpregerror"></span></div>
+		<h4>Закрытый ключ шифрования хранится на компьютере или мобильном устройстве пользователя, зашифрованные сообщения могут быть прочитаны только получателем или отправителем.</h4>
+		<label for="privkey">Закрытый PGP ключ<span class="error" id="lbprivkey"></span></label>
+		<textarea maxlength="4096" id="privkey" class="area_text_reg" placeholder="Оставьте пустым для создания нового ключа (старые шифрованные сообщения будут утеряны) или вставьте старый ключ..."></textarea>
+		<div class="box_small_text">Скопируйте и храните закрытый ключ в надежном месте, недоступном для посторонних</div>
+		<label for="passphrase">Пароль закрытого ключа<span class="error" id="lbpassphrase"></span></label>
+		<input type="text" class="inp_text_reg" id="passphrase" value="">
+		<div class="box_small_text">Пароль старого ключа(если установлен) или задайте для нового (необязательно)</div>
+		<label for="x_pubkey">Открытый PGP ключ</label>
+		<textarea readonly id="x_pubkey" class="area_text_reg"></textarea>
+		<div class="line2"><div></div></div>
+		<div class="btn_reg_key">
+<?php
 	    if ($_SESSION['myuser_pubkey'] !== "") {
-		echo '<textarea readonly style="display:none;" id="active_pubkey">'.$_SESSION['myuser_pubkey'].'</textarea>';
-		echo '<button type="button" class="btn_reg_left" onclick="return pgpRegResetKey();">Запретить</button>';
+?>
+			<textarea readonly style="display:none;" id="active_pubkey"><?php echo $_SESSION['myuser_pubkey']; ?></textarea>
+			<button type="button" class="btn_reg_left" onclick="return pgpRegResetKey();">Запретить</button>
+<?php
 	    } else {
-		echo '<textarea readonly style="display:none;" id="active_pubkey"></textarea>';
-		echo '<button type="button" class="btn_reg_left" onclick="return pgpRegSetKey(1);">Разрешить</button>';
+?>
+			<textarea readonly style="display:none;" id="active_pubkey"></textarea>
+			<button type="button" class="btn_reg_left" onclick="return pgpRegSetKey(1);">Разрешить</button>
+<?php
 	    }
-	    echo '<span id="addremove_key_button"></span>';
-	    echo '
-	</div>';
+?>
+			<span id="addremove_key_button"></span>
+		</div>
+<?php
 	}
-
-	echo '
+?>
 	</div>
 </div>
-';
+<?php
 	} else if ($reg_mode == 2) {
-	    echo '
+?>
 <div class="box_pasport">
-<div class="box_pasport_bg">
-<h3>Регистрация пользователя завершена!</h3>
-Теперь вы можете войти на форум под своим именем пользователя.
+	<div class="box_pasport_bg">
+		<h3>Регистрация пользователя завершена!</h3>
+		Теперь вы можете войти на форум под своим именем пользователя.
+	</div>
 </div>
-</div>
-';
+<?php
 	} else if ($reg_mode == 4) {
-	    echo '
+?>
 <div class="box_pasport">
-<div class="box_pasport_bg">
-<h3>Настройки пользователя изменены!</h3>
-Вы всегда можете изменить свои личные настройки.
+	<div class="box_pasport_bg">
+		<h3>Настройки пользователя изменены!</h3>
+		Вы всегда можете изменить свои личные настройки.
+	</div>
 </div>
-</div>
-';
+<?php
 	} else if ($show_groups != 0) {
 	    $group_query = "SELECT id, grp, note FROM ForumGroups ORDER BY grp ASC ;";
 	    foreach ($database->query($group_query) as $row) {
@@ -1255,7 +1395,17 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 			$updated = date('d.m.Y H:i', $updated);
 		    }
 		}
-		print "<div class=\"box1\"><a href=\"?g={$row['id']}\" class=\"title\">{$row['grp']}</a> {$row['note']}<br><span class=\"white\">Тем: <span class=\"bold\">".$topics."</span>&nbsp;|&nbsp;Обновление: <span class=\"bold\">".$updated."</span></span></div>";
+?>
+<div class="box1">
+	<a href="?g=<?php echo $row['id']; ?>" class="title"><?php echo $row['grp']; ?></a>
+	<?php echo $row['note']; ?><br>
+	<span class="white">
+		Тем: <span class="bold"><?php echo $topics; ?></span>
+		&nbsp;|&nbsp;
+		Обновление: <span class="bold"><?php echo $updated; ?></span>
+	</span>
+</div>
+<?php
 	    }
 	} else if ($id_topic == 0) {
 	    $posts = 0;
@@ -1406,9 +1556,9 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    $view_query = "$base_query GROUP BY id_topic $having_query ORDER BY posts DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 		}
 	    }
-
-	    echo '<table class="themes">';
-
+?>
+<table class="themes">
+<?php
 //echo "<!-- 2view_query $view_query -->";
 
 	    foreach ($database->query($view_query) as $row) {
@@ -1418,30 +1568,17 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 
 		if ($id_user === $row['id_user']) {
 		    $topic_owner = 'owner';
-		    if ($show_mytopics) {
-			$topic_settings = '<a href="" onclick="load_modal(\'topicsettings.php/?id_topic='.$row['id_topic'].'\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Настройка доступа к теме</title>
-<path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-</svg></a>';
-			$topic_users = '<a href="" onclick="load_modal(\'topicsettings.php/?id_topic='.$row['id_topic'].'&show_users=1\'); return false;" class="remove"><svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Участники темы</title>
-<path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z"/>
-</svg></a>';
-		    } else {
-			$topic_settings = '';
-			$topic_users = '';
-		    }
 		} else {
 		    $topic_owner = '';
-		    $topic_settings = '';
-		    $topic_users = '';
 		}
-
-		print("<tr>".
-		  "<td class='tdw1 $topic_owner'>{$timestamp}</td>".
-		  "<td class='tdw3 $topic_owner'><a href=\"?t={$row['id_topic']}\" title=\"{$row['grp']}\">{$row['topic']}</a> [{$row['view']}/{$row['posts']} - {$row['last_nick']}]");
-
-		echo '<div class="topic_control_panel">';
+?>
+	<tr>
+		<td class="tdw1 <?php echo $topic_owner; ?>"><?php echo $timestamp; ?></td>
+		<td class="tdw3 <?php echo $topic_owner; ?>">
+			<a href="?t=<?php echo $row['id_topic']; ?>" title="<?php echo $row['grp']; ?>"><?php echo $row['topic']; ?></a>
+			&nbsp;[<?php echo $row['view']; ?>/<?php echo $row['posts']; ?> - <?php echo $row['last_nick']; ?>]
+			<div class="topic_control_panel">
+<?php
 		if (is_forum_admin()) {
 		    $rmargs = "";
 		    if ($id_grp != 0) {
@@ -1453,47 +1590,92 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		    }
 
 		    if (!isset($FORUM_TRASH_GID) || (isset($FORUM_TRASH_GID) && $id_grp == $FORUM_TRASH_GID)) {
-			echo '<a href="?'.$rmargs.'" class="remove">Удалить</a>';
+?>
+				<a href="?<?php echo $rmargs; ?>" class="remove">Удалить</a>
+<?php
 		    }
 
 		    if (isset($FORUM_TRASH_GID) && $id_grp != $FORUM_TRASH_GID) {
-			echo '<a href="?'.$rmargs.'&trash=1" class="remove">Мусор</a>';
+?>
+				<a href="?<?php echo $rmargs; ?>&trash=1" class="remove">Мусор</a>
+<?php
 		    }
 
 		    if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
-			echo '<a href="'.$_SERVER['REQUEST_URI'].'&public='.$row['id_topic'].'" class="remove">Показать</a>';
+?>
+				<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&public=<?php echo $row['id_topic']; ?>" class="remove">Показать</a>
+<?php
 		    }
 		}
-		echo "$topic_settings$topic_users</div>";
-		print("</td>".
-		  "<td class='tdw2 $topic_owner'>".$name."</td>".
-		  "</tr>"
-		);
-
+		
+		if ($id_user === $row['id_user']) {
+		    if ($show_mytopics) {
+?>
+				<a href="" onclick="load_modal('topicsettings.php/?id_topic=<?php echo $row['id_topic']; ?>'); return false;" class="remove">
+					<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+						<title>Настройка доступа к теме</title>
+						<path d="M3.94 6.5L2.22 3.64l1.42-1.42L6.5 3.94c.52-.3 1.1-.54 1.7-.7L9 0h2l.8 3.24c.6.16 1.18.4 1.7.7l2.86-1.72 1.42 1.42-1.72 2.86c.3.52.54 1.1.7 1.7L20 9v2l-3.24.8c-.16.6-.4 1.18-.7 1.7l1.72 2.86-1.42 1.42-2.86-1.72c-.52.3-1.1.54-1.7.7L11 20H9l-.8-3.24c-.6-.16-1.18-.4-1.7-.7l-2.86 1.72-1.42-1.42 1.72-2.86c-.3-.52-.54-1.1-.7-1.7L0 11V9l3.24-.8c.16-.6.4-1.18.7-1.7zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+					</svg>
+				</a>
+		        <a href="" onclick="load_modal('topicsettings.php/?id_topic=<?php echo $row['id_topic'];?>&show_users=1'); return false;" class="remove">
+		        	<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+						<title>Участники темы</title>
+						<path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z"/>
+					</svg>
+				</a>
+<?php
+		    }
+		}
+?>
+			</div>
+		</td>
+		<td class="tdw2 <?php echo $topic_owner; ?>"><?php echo $name; ?></td>
+	</tr>
+<?php
 	    }
-	    echo '</table>';
-
+?>
+</table>
+<?php
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, 0, $id_grp);
 	} else if ($topic_private && $topic_private_access == 0) {
-	    echo '<div class="block2">';
-	    echo '<h1>Закрытая тема</h1>';
-	    echo 'Для доступа необходимо разрешение создателя темы.<br>';
+?>
+<div class="block2">
+	<h1>Закрытая тема</h1>
+	Для доступа необходимо разрешение создателя темы.<br>
+<?php
 	    if ($id_user == 0) {
-		echo "Чтобы запросить разрешение, скопируйте ссылку 
-<a href=\"invite://:$id_session@$id_topic\" onclick=\"copyStringToClipboard('invite://:$id_session@$id_topic'); popup_copy('pop$id_topic'); return false;\">
-invite://:$id_session@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
-(нажмите на ссылку для копирования) и попросите зарегистрированного пользователя отправить ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner);
-	    echo '<br>Если ваш запрос будет одобрен, то вы сможете писать анонимно с текущей сессии используемого в данный момент браузера.
- Зарегистрированные пользователи не имеют подобных ограничений.';
+?>
+	Чтобы запросить разрешение, скопируйте ссылку 
+	<a href="invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>" onclick="copyStringToClipboard('invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>'); popup_copy('pop<?php echo $id_topic; ?>'); return false;">
+		invite://:<?php echo $id_session; ?>@<?php echo $id_topic; ?>
+	</a>
+	<span class="popup">
+		<span class="popuptext" id="pop<?php echo $id_topic; ?>"></span>
+	</span>
+	(нажмите на ссылку для копирования) и попросите зарегистрированного пользователя отправить ее в личное сообщение пользователю
+	<?php echo format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner); ?>
+	<br>Если ваш запрос будет одобрен, то вы сможете писать анонимно с текущей сессии используемого в данный момент браузера.
+	Зарегистрированные пользователи не имеют подобных ограничений.
+ <?php
 	    } else {
-		echo "Чтобы запросить разрешение, скопируйте ссылку 
-<a href=\"invite://$id_user@$id_topic\" onclick=\"copyStringToClipboard('invite://$id_user@$id_topic'); popup_copy('pop$id_topic'); return false;\">
-invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" id=\"pop$id_topic\"></span></span>
-(нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю ".format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner).
-" (<a href=\"#\" onclick=\"load_modal('pagerchat.php/?new=$id_topic_owner'); return false;\">Написать сообщение</a>)";
+?>
+	Чтобы запросить разрешение, скопируйте ссылку 
+	<a href="invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>" onclick="copyStringToClipboard('invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>'); popup_copy('pop<?php echo $id_topic; ?>'); return false;">
+		invite://<?php echo $id_user; ?>@<?php echo $id_topic; ?>
+	</a>
+	<span class="popup">
+		<span class="popuptext" id="pop<?php echo $id_topic; ?>"></span>
+	</span>
+	(нажмите на ссылку для копирования) и отправьте ее в личное сообщение пользователю
+	<?php echo format_user_nick($topic_owner_login, $id_topic_owner, $topic_owner_login, $id_topic_owner); ?>
+	(<a href="#" onclick="load_modal('pagerchat.php/?new=<?php echo $id_topic_owner; ?>'); return false;">Написать сообщение</a>)
+<?php
 	    }
-	    echo '<br><br>Внимание! Разрешать или запрещать доступ в тему - личное право создателя темы.';
-	    echo '</div>';
+?>
+	<br>
+	<br>Внимание! Разрешать или запрещать доступ в тему - личное право создателя темы.
+</div>
+<?php
 	} else {
 	    $posts = 0;
 	    $pnext = "";
@@ -1562,13 +1744,11 @@ invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" i
 //echo "<!-- view_opt $view_query -->";
 
 	    foreach ($database->query($view_query) as $row) {
-		if ($row['id_post'] == $post_id_req) {
-		    echo '<div class="shared_post">';
-		} else {
-		    echo '<div>';
-		}
-		echo '<div class="text_box_1"><a id="post'.$row['id_post'].'"></a>
-<div class="box_user">';
+?>
+<div <?php echo ($row['id_post'] == $post_id_req)? 'class="shared_post"' : ''; ?>>
+<div class="text_box_1"><a id="post<?php echo $row['id_post']; ?>"></a>
+	<div class="box_user">
+<?php
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
 		$name = format_user_nick($row['nick'], $row['id_user'], $row['login'], $row['id']);
 
@@ -1613,112 +1793,145 @@ invite://$id_user@$id_topic</a><span class=\"popup\"><span class=\"popuptext\" i
 
 		$post = remove_iframes($post);
 
-		$request = $_SERVER['REQUEST_URI'].'&ban='.$post_id_session;
 		$banned_session = 0;
-		$banned_text =	'<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-				'<title>Скрыть пользователя и его темы</title>'.
-				'<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>'.
-				'</svg>';
-
-		echo '<span class="ban_left">'.$timestamp.' | <span class="name1 '.$class_strike.'">'.$name.'</span></span>'.$name_ban.' -&gt;
-<span class="white1">'.$row['subj'].'</span>';
-
+?>
+		<span class="ban_left"><?php echo $timestamp; ?>&nbsp;|&nbsp;
+			<span class="name1 <?php echo $class_strike; ?>"><?php echo $name; ?></span>
+		</span>
+		<?php echo $name_ban; ?>&nbsp;-&gt;&nbsp;
+		<span class="white1"><?php echo $row['subj']; ?></span>
+<?php
 		if ($id_session != $post_id_session) {
-		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+?>
+		<a class="ban" href="<?php echo $_SERVER['REQUEST_URI']; ?>&ban=<?php echo $post_id_session; ?>">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Скрыть пользователя и его темы</title>
+				<path d="M12.81 4.36l-1.77 1.78a4 4 0 0 0-4.9 4.9l-2.76 2.75C2.06 12.79.96 11.49.2 10a11 11 0 0 1 12.6-5.64zm3.8 1.85c1.33 1 2.43 2.3 3.2 3.79a11 11 0 0 1-12.62 5.64l1.77-1.78a4 4 0 0 0 4.9-4.9l2.76-2.75zm-.25-3.99l1.42 1.42L3.64 17.78l-1.42-1.42L16.36 2.22z"/>
+			</svg>
+		</a>
+<?php
 		}
 
 		if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
-		    $request = $_SERVER['REQUEST_URI'].'&hide='.$row['id_post'];
-		    $banned_text = '<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-				   '<title>Удалить пост</title>'.
-				   '<path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>'.
-				   '</svg>';
-		    echo '<a class="ban" href="'.$request.'">'.$banned_text.'</a>';
+?>
+		<a class="ban" href="<?php echo $_SERVER['REQUEST_URI']; ?>&hide=<?php echo $row['id_post']; ?>">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Удалить пост</title>
+				<path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>
+			</svg>
+		</a>
+<?php
 		}
 
 //		if (is_logged()) {
 		    if ($id_session == $post_id_session && time() - $row['time'] < 60 * 60 * 1) {
-//			echo '<a class="ban" href="'.$_SERVER['REQUEST_URI'].'&editpost='.$row['id_post'].'">'.
-			echo '<a class="ban" href="" onclick="post(\''.$_SERVER['REQUEST_URI'].'\',{\'editpost\':'.$row['id_post'].'}); return false;">'.
-'<svg viewBox="0 0 20 20" width="16px" class="svg_button">'.
-'<title>Редактировать сообщение</title>'.
-'<path d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>'.
-'</svg>'.
-'</a>';
+?>
+		<a class="ban" href="" onclick="post('<?php echo $_SERVER['REQUEST_URI']; ?>',{'editpost':<?php echo $row['id_post']; ?>}); return false;">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Редактировать сообщение</title>
+				<path d="M2 4v14h14v-6l2-2v10H0V2h10L8 4H2zm10.3-.3l4 4L8 16H4v-4l8.3-8.3zm1.4-1.4L16 0l4 4-2.3 2.3-4-4z"/>
+			</svg>
+		</a>
+<?php
 		    }
 //		}
 
 		if (is_forum_admin()) {
-		    echo '<a href="?t='.$id_topic.'&dp='.$row['id_post'].'" class="remove">Удалить</a>';
-		    echo '<a href="'.$_SERVER['REQUEST_URI'].'&sdel='.$post_id_session.'" class="remove">Удалить сессию</a>';
+?>
+		<a href="?t=<?php echo $id_topic; ?>&dp=<?php echo $row['id_post']; ?>" class="remove">Удалить</a>
+		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&sdel=<?php echo $post_id_session; ?>" class="remove">Удалить сессию</a>
+<?php
 		}
-		echo '</div>
-</div>';
+?>
+	</div>
+</div>
+<?php
 		if ($banned_session == 0) {
-		echo '<div class="text_box_2">
-<div id="message_'.$row['id_post'].'" class="text_box_2_mess">';
-
+?>
+<div class="text_box_2">
+	<div id="message_<?php echo $row['id_post']; ?>" class="text_box_2_mess">
+<?php
 	    $attachment = $row['attachment'];
 	    if ($attachment != "") {
 		$image_ext = substr(strrchr($attachment, '.'), 1);
 		if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
 		    $image_ext == 'webp') {
-		    echo '<a href="'.$UPLOAD_DIR.'/'.$attachment.'" class="highslide" onclick="return hs.expand(this)">';
-		    echo '<img src="'.$UPLOAD_DIR."/small-".$attachment.'" alt="" class="postimage"/>';
-		    echo '</a>';
+?>
+		<a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)">
+			<img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/>
+		</a>
+<?php
 		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
-		    echo '<audio class="postvideo" controls>';
-		    echo "<source src=\"$UPLOAD_DIR/$attachment\">";
-		    echo '</audio>';
+?>
+		<audio class="postvideo" controls>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>">
+		</audio>
+<?php
 		} else {
-		    echo '<video class="postvideo" controls>';
+?>
+		<video class="postvideo" controls>
+<?php
 		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/mp4\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4">
+<?php
 		    } else if ($image_ext == 'ogv') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/ogg\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg">
+<?php
 		    } else if ($image_ext == 'webm') {
-			echo "<source src=\"$UPLOAD_DIR/$attachment\" type=\"video/webm\">";
+?>
+			<source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm">";
+<?php
 		    }
-		    echo 'Your browser does not support the video tag.';
-		    echo '</video>';
+?>
+			Your browser does not support the video tag.
+		</video>
+<?php
 		}
 	    } else {
 		$post_img = "img".$row['id_post'].".jpg";
 		if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-		    echo '<a href="'.$UPLOAD_DIR.'/'.$post_img.'" class="highslide" onclick="return hs.expand(this)">';
-		    echo '<img src="'.$UPLOAD_DIR."/small-".$post_img.'" alt="" class="postimage"/>';
-		    echo '</a>';
+?>
+		<a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)">
+			<img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/>
+		</a>
+<?php
 		}
 	    }
-
-//$post_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-//    'https' : 'http').'://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['REQUEST_URI'].'#post'.$msg_count;
-
-echo $post.'</div>
+        echo $post;
+?>
+</div>
 	<div class="answer_bar">
-<!-- <a href="#ftop" class="up">Вверх</a> -->
-<a href="#" onclick="reply(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Ответить</title>
-<path d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
-</svg>
-</a>
-<a href="#" onclick="reply_cite(\''.$row['nick'].' ('.$timestamp.')\', \'message_'.$row['id_post'].'\');" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Цитировать</title>
-<path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
-</svg>
-</a>
-<a href="/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'" onclick="copyStringToClipboard(\'https://'.$_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post'].'\'); popup_copy(\'pop'.$row['id_post'].'\'); return false;" class="reply">
-<svg viewBox="0 0 20 20" width="16px" class="svg_button">
-<title>Ссылка на это сообщение</title>
-<path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
-</svg>
-</a><span class="popup"><span class="popuptext" id="pop'.$row['id_post'].'"></span></span>
+		<a href="#" onclick="reply('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Ответить</title>
+				<path d="M 15,3 V 5.99 A 4,4 0 0 1 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 A 6,6 0 0 0 17,6 V 3 Z"/>
+			</svg>
+		</a>
+		<a href="#" onclick="reply_cite('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Цитировать</title>
+				<path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
+			</svg>
+		</a>
+		<a href="/?t=<?php echo $id_topic; ?>&post=<?php echo $row['id_post']; ?>#post<?php echo $row['id_post']; ?>"
+			onclick="copyStringToClipboard('https://<?php echo $_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post']; ?>'); popup_copy('pop<?php echo $row['id_post']; ?>'); return false;" class="reply">
+			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
+				<title>Ссылка на это сообщение</title>
+				<path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>
+			</svg>
+		</a>
+		<span class="popup">
+			<span class="popuptext" id="pop<?php echo $row['id_post']; ?>"></span>
+		</span>
 	</div>
-</div>';
+</div>
+<?php
 		}
-		echo '</div>';
+?>
+</div>
+<?php
 	    }
 	    show_page_control('up', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, $id_topic);
 	}
@@ -1733,16 +1946,15 @@ echo $post.'</div>
 	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics")->fetchColumn();
 	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers")->fetchColumn();
 	$users = $users - 1; // minus super Anonymous
-
-	echo '
+?>
 <div class="line1"></div>
 <div class="block2">
 	<div class="copy">Клонировано <a title="Made in Tomsk" href="https://github.com/antimozga/ftr" target="_blank">AntiMozga</a></div>
-	Тем: '.$topics.'
-	&nbsp;|&nbsp; Сообщений: '.$posts.'
-	&nbsp;|&nbsp; Пользователей: '.$users.'
-</div>';
-
+	Тем: <?php echo $topics; ?>
+	&nbsp;|&nbsp; Сообщений: <?php echo $posts; ?>
+	&nbsp;|&nbsp; Пользователей: <?php echo $users; ?>
+</div>
+<?php
 	show_footer();
 
     }
