@@ -15,7 +15,9 @@ if (isset($_SESSION['ajsner'])) {
         header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
         $retryAfterSeconds = 240;
         header('Retry-After: ' . $retryAfterSeconds);
-        echo '<h1>503 Service Temporarily Unavailable</h1>';
+?>
+<h1>503 Service Temporarily Unavailable</h1>
+<?php
         exit();
     }
 }
@@ -44,7 +46,9 @@ if ($time_diff < 1) {
         header($_SERVER["SERVER_PROTOCOL"] . " 503 Service Temporarily Unavailable", true, 503);
         $retryAfterSeconds = 240;
         header('Retry-After: ' . $retryAfterSeconds);
-        echo '<h1>503 Service Temporarily Unavailable</h1>';
+?>
+<h1>503 Service Temporarily Unavailable</h1>
+<?php
         exit();
     }
 } else {
@@ -1091,7 +1095,9 @@ if (!$database) {
 
 	start_page($topic);
 	if (is_logged()) {
-echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
+?>
+	<script>const userName="<?php echo $_SESSION['myuser_name']; ?>";</script>
+<?php
 	}
 	show_banner();
 	show_menu($database);
@@ -1119,12 +1125,14 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	}
 
 	if ($show_search == 1) {
-	    echo '
+?>
 <div class="block1">
 	<form action="">
-		<input type="text" name="search" onfocus="if(this.value == \'Поиск по темам...\') { this.value = \'\'; }" value="Поиск по темам..."/><input class="btn_group_sel" type="submit" value="&nbsp;"/>
+		<input type="text" name="search" onfocus="if(this.value == 'Поиск по темам...') { this.value = ''; }" value="Поиск по темам..."/>
+		<input class="btn_group_sel" type="submit" value="&nbsp;"/>
 	</form>
-</div>';
+</div>
+<?php
 	} else if ($show_users == 1) {
 	    function lower_ru($str) {
 		return mb_strtolower($str, 'utf-8');
@@ -1134,33 +1142,42 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 	    }
 	    function show_letters_links($str) {
 		foreach (mb_str_split_compat($str) as $letter) {
-		    echo '<a href="?users='.$letter.'">'.$letter.'</a> ';
+?>
+	<a href="?users=<?php echo $letter; ?>"><?php echo $letter; ?></a>
+<?php
 		}
 	    }
-	    echo '<div class="box_alfavit">';
+?>
+<div class="box_alfavit">
+<?php
 	    $str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	    show_letters_links($str);
-	    echo ' &nbsp;&nbsp; ';
+?>
+	&nbsp;&nbsp;
+<?php
 	    $str = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 	    show_letters_links($str);
-	    echo '</div>
+?>
+</div>
 <table class="userstable">
 <tbody>
 <tr>
     <td colspan="5">
-    <form action="" method="get">
-	<span>Поиск по нику:</span>
-        <input id="user_filter" name="users" value="" type="text"/>
-	<input value="Поиск" type="submit"/>
-    </form>
+    	<form action="" method="get">
+			<span>Поиск по нику:</span>
+    		<input id="user_filter" name="users" value="" type="text"/>
+			<input value="Поиск" type="submit"/>
+    	</form>
     </td>
 </tr>
-<tr><th>На форуме</th>
-<th>Пол</th>
-<th>Фото</th>
-<th>Время посещения</th>
-<th class="no-mob-view">Дата регистрации</th>
-</tr>';
+<tr>
+	<th>На форуме</th>
+	<th>Пол</th>
+	<th>Фото</th>
+	<th>Время посещения</th>
+	<th class="no-mob-view">Дата регистрации</th>
+</tr>
+<?php
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
 		$view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
 	    } else {
@@ -1178,23 +1195,31 @@ echo '<script>const userName="'.$_SESSION['myuser_name'].'";</script>';
 		if (is_numeric($row['gender'])) {
 		    $gender_id = $row['gender'];
 		}
-
-		echo '<tr>';
-		echo '<td>'.format_user_nick($row['login'], $row['id'], $row['login'], $row['id']).'</td>';
-		echo '<td class="tdw1">'.$g[$gender_id].'</td>';
+?>
+<tr>
+	<td><?php echo format_user_nick($row['login'], $row['id'], $row['login'], $row['id']); ?></td>
+	<td class="tdw1"><?php echo $g[$gender_id]; ?></td>
+<?php
 		$avatar = $UPLOAD_DIR."/small-id".$row['id'].".jpg";
 		if (file_exists($avatar)) {
-		    echo '<td class="tdw2">'.'ЕСТЬ'.'</td>';
+?>
+	<td class="tdw2">ЕСТЬ</td>
+<?php
 		} else {
-		    echo '<td class="tdw2">'.'НЕТ'.'</td>';
+?>
+	<td class="tdw2">НЕТ</td>
+<?php
 		}
-		echo '<td class="tdu3">'.date('d.m.Y (H:i)', $row['last_login']).'</td>';
-		echo '<td class="tdu3 no-mob-view">'.date('d.m.Y (H:i)', $row['time']).'</td>';
-		echo '</tr>';
+?>
+	<td class="tdu3"><?php echo date('d.m.Y (H:i)', $row['last_login']); ?></td>
+	<td class="tdu3 no-mob-view"><?php echo date('d.m.Y (H:i)', $row['time']); ?></td>
+</tr>
+<?php
 	    }
-		echo '</tbody>
+?>
+</tbody>
 </table>
-';
+<?php
 	} else if ($reg_mode == 1 || $reg_mode == 3) {
 	    echo '
 <div class="box_pasport">
@@ -1828,16 +1853,15 @@ echo $post.'</div>
 	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics")->fetchColumn();
 	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers")->fetchColumn();
 	$users = $users - 1; // minus super Anonymous
-
-	echo '
+?>
 <div class="line1"></div>
 <div class="block2">
 	<div class="copy">Клонировано <a title="Made in Tomsk" href="https://github.com/antimozga/ftr" target="_blank">AntiMozga</a></div>
-	Тем: '.$topics.'
-	&nbsp;|&nbsp; Сообщений: '.$posts.'
-	&nbsp;|&nbsp; Пользователей: '.$users.'
-</div>';
-
+	Тем: <?php echo $topics; ?>
+	&nbsp;|&nbsp; Сообщений: <?php echo $posts; ?>
+	&nbsp;|&nbsp; Пользователей: <?php echo $users; ?>
+</div>
+<?php
 	show_footer();
 
     }
