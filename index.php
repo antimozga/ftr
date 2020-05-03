@@ -1739,8 +1739,8 @@ if (!$database) {
 
 	    foreach ($database->query($view_query) as $row) {
 ?>
-	<div <?php echo ($row['id_post'] == $post_id_req)? 'class="shared_post"' : ''; ?>>
-	<div class="text_box_1"><a id="post<?php echo $row['id_post']; ?>"></a>
+<div <?php echo ($row['id_post'] == $post_id_req)? 'class="shared_post"' : ''; ?>>
+<div class="text_box_1"><a id="post<?php echo $row['id_post']; ?>"></a>
 	<div class="box_user">
 <?php
 		$timestamp = date('d.m.Y (H:i)', $row['time']);
