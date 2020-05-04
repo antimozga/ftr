@@ -1515,20 +1515,15 @@ if (!$database) {
             }
 
             $ban_opts = "";
+            $ban_opts_count = "";
             if (is_session('banlist')) {
                 foreach ($_SESSION['banlist'] as $ban_id_session) {
-                    if ($ban_opts == "") {
-                        $ban_opts = "ForumTopics.id_session != \"$ban_id_session\"";
-                    } else {
-                        $ban_opts = "$ban_opts AND ForumTopics.id_session != \"$ban_id_session\"";
-                    }
-                }
-                if ($ban_opts != "") {
-                    $ban_opts = "AND ($ban_opts OR ForumTopics.id_session IS NULL)";
+                        $ban_opts = "$ban_opts AND ForumTopics.id_session!='$ban_id_session' AND ForumPosts.id_session!='$ban_id_session'";
+                        $ban_opts_count = "$ban_opts_count AND ForumTopics.id_session!='$ban_id_session'";
                 }
 
                 $base_query = "$base_query $ban_opts";
-                $count_query = "$count_query $ban_opts";
+                $count_query = "$count_query $ban_opts_count";
             }
 
             // echo "<!-- 2count_query $count_query -->";
@@ -1692,27 +1687,20 @@ if (!$database) {
 	    $ban_opts = "";
         if (is_session('banlist')) {
             foreach ($_SESSION['banlist'] as $ban_id_session) {
-                if ($ban_opts == "") {
-                    $ban_opts = "ForumPosts.id_session != \"$ban_id_session\"";
-                } else {
-                    $ban_opts = "$ban_opts AND ForumPosts.id_session != \"$ban_id_session\"";
-                }
-            }
-            if ($ban_opts != "") {
-                $ban_opts = "AND ($ban_opts OR ForumPosts.id_session IS NULL)";
+                    $ban_opts = "$ban_opts AND ForumPosts.id_session!='$ban_id_session'";
             }
         }
 
 //echo "<!-- ban_opts $ban_opts -->";
 
-	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic $ban_opts;")->fetchColumn();
+	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic $ban_opts")->fetchColumn();
 
 	    $first_posts = 0;
 	    $post_id_req = "";
         if (is_defined('post') > 0) {
             $post_id_req = $_REQUEST['post'];
             if (is_numeric($post_id_req)) {
-                $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic AND id >= $post_id_req $ban_opts;")->fetchColumn();
+                $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic AND id >= $post_id_req $ban_opts")->fetchColumn();
 
                 if ($first_posts != "") {
                     $first_posts = $first_posts - 1;
