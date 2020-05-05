@@ -316,4 +316,12 @@ function redirect_without($wout)
     exit();
 }
 
+function is_hardcore_on()
+{
+    if (is_session('hardcore')) {
+        return $_SESSION['hardcore'];
+    } else {
+        return 0;
+    }
+}
 ?>

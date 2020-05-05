@@ -613,6 +613,15 @@ if (!$database) {
 	    exit();
 	}
 
+	if (is_defined('hardcore')) {
+	    if ($_REQUEST['hardcore'] == 1) {
+	        $_SESSION['hardcore'] = 1;
+	    } else {
+	        unset($_SESSION['hardcore']);
+	    }
+	    redirect_without('hardcore');
+	}
+	
 	if (is_defined("logout")) {
 	    unset($_SESSION['myuser_name']);
 	    unset($_SESSION['myuser_password']);
@@ -1468,13 +1477,18 @@ if (!$database) {
 	    $pprev = "";
 	    $having_query = "";
 
+	    $base_query_hidden = '';
+	    if (is_hardcore_on() == 0) {
+	        $base_query_hidden = " AND ForumPosts.hidden = 0 ";
+	    }
+	    
 	    $base_query = "SELECT ForumTopics.nick AS nick, ForumTopics.id_user AS id_user, ForumTopics.view AS view,".
 			  " ForumUsers.login AS login, ForumUsers.id AS id, COUNT(*) AS posts, MAX(ForumPosts.time) AS time,".
 			  " ForumTopics.topic AS topic, ForumPosts.id_topic AS id_topic, ForumPosts.nick AS last_nick,".
 			  " ForumPosts.id_user AS last_id_user, ForumGroups.grp AS grp".
 			  " FROM ForumPosts, ForumTopics, ForumUsers, ForumGroups".
 			  " WHERE ForumPosts.id_topic = ForumTopics.id AND ForumGroups.id = ForumTopics.id_grp".
-			  " AND ForumPosts.hidden = 0 ";
+			  $base_query_hidden;
 	    $count_query = "SELECT COUNT(*)".
 			   " FROM ForumTopics,ForumUsers WHERE ForumTopics.id_user=ForumUsers.id ";
 
@@ -1739,16 +1753,22 @@ if (!$database) {
             }
         }
 
+        if (is_hardcore_on() == 0) {
+            $query_hidden_opts = 'hidden = 0 AND';
+        } else {
+            $query_hidden_opts = '';
+        }
+        
 //echo "<!-- ban_opts $ban_opts -->";
-
-	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic $ban_opts")->fetchColumn();
+        
+	    $posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE $query_hidden_opts id_topic = $id_topic $ban_opts")->fetchColumn();
 
 	    $first_posts = 0;
 	    $post_id_req = "";
         if (is_defined('post') > 0) {
             $post_id_req = $_REQUEST['post'];
             if (is_numeric($post_id_req)) {
-                $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0 AND id_topic = $id_topic AND id >= $post_id_req $ban_opts")->fetchColumn();
+                $first_posts = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE $query_hidden_opts id_topic = $id_topic AND id >= $post_id_req $ban_opts")->fetchColumn();
 
                 if ($first_posts != "") {
                     $first_posts = $first_posts - 1;
@@ -1775,13 +1795,17 @@ if (!$database) {
 	    $view_query = "UPDATE ForumTopics SET view = view + 1 WHERE id = $id_topic;";
 	    $database->exec($view_query);
 
+	    if (is_hardcore_on() == 0) {
+	        $query_hidden_opts = 'AND ForumPosts.hidden = 0';
+	    }
+	    
 	    $view_query =	"SELECT ForumPosts.id AS id_post, ForumUsers.login AS login, ForumUsers.id AS id,".
 				" ForumPosts.time AS time, ForumPosts.nick AS nick, ForumPosts.id_user AS id_user,".
 				" ForumPosts.subj AS subj, ForumPosts.post AS post, ForumTopics.topic AS topic,".
 				" ForumPosts.id_session AS id_session, ForumPosts.attachment AS attachment".
 				" FROM ForumPosts, ForumTopics, ForumUsers".
 				" WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.id = $id_topic".
-				" AND ForumUsers.id = ForumPosts.id_user AND ForumPosts.hidden = 0 $ban_opts".
+				" AND ForumUsers.id = ForumPosts.id_user $query_hidden_opts $ban_opts".
 				" ORDER BY ForumPosts.time DESC LIMIT $numentry,$MAX_PAGE_ENTRIES;";
 
 //echo "<!-- view_opt $view_query -->";
@@ -1858,7 +1882,7 @@ if (!$database) {
 <?php
             }
 
-            if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user']) {
+            if ($id_topic_owner != 0 && $id_topic_owner == $id_user && $id_topic_owner != $row['id_user'] && is_hardcore_on() == 0) {
 ?>
 		<a class="ban" href="<?php echo $_SERVER['REQUEST_URI']; ?>&hide=<?php echo $row['id_post']; ?>">
 			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
@@ -1955,7 +1979,11 @@ if (!$database) {
 	$topics = 0;
 	$users = 0;
 
-	$posts  = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0")->fetchColumn();
+	if (is_hardcore_on()) {
+	    $posts  = $database->query("SELECT COUNT(*) FROM ForumPosts")->fetchColumn();
+	} else {
+	   $posts  = $database->query("SELECT COUNT(*) FROM ForumPosts WHERE hidden = 0")->fetchColumn();
+	}
 	$topics = $database->query("SELECT COUNT(*) FROM ForumTopics")->fetchColumn();
 	$users  = $database->query("SELECT COUNT(*) FROM ForumUsers")->fetchColumn();
 	$users = $users - 1; // minus super Anonymous
@@ -1966,6 +1994,7 @@ if (!$database) {
 	Тем: <?php echo $topics; ?>
 	&nbsp;|&nbsp; Сообщений: <?php echo $posts; ?>
 	&nbsp;|&nbsp; Пользователей: <?php echo $users; ?>
+	&nbsp;|&nbsp;<?php echo (is_session('hardcore') && $_SESSION['hardcore'] == 1)?'<a href="'.get_href().'hardcore=0">Без фильтрации</a>':'<a href="'.get_href().'hardcore=1">С фильтрацией</a>'; ?>
 </div>
 <?php
 	show_footer();
