@@ -673,9 +673,9 @@ if (!$database) {
 	        $id_public = $_REQUEST['purgatory'];
 	        $id_public = ($id_public * 10) / 10;
 	        if ($id_public > 0) {
-	            $database->exec("UPDATE ForumUsers".
-	                " SET topics_rate = topics_rate - 1".
-	                " WHERE id = (SELECT id_user FROM ForumTopics WHERE id = $id_public AND id_user != 0 AND topics_rate >= 0)");
+//	            $database->exec("UPDATE ForumUsers".
+//	                " SET topics_rate = topics_rate - 1".
+//	                " WHERE id = (SELECT id_user FROM ForumTopics WHERE id = $id_public AND id_user != 0 AND topics_rate >= 0)");
 	            $database->exec("UPDATE ForumTopics SET purgatory = 1 WHERE id = $id_public;");
 	        }
 	        redirect_without('purgatory');
@@ -1239,9 +1239,9 @@ if (!$database) {
 </tr>
 <?php
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
-            $view_query = "SELECT id, login, last_login, time, gender, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
+            $view_query = "SELECT id, login, last_login, time, gender, topics_rate, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
 	    } else {
-            $view_query = "SELECT id, login, last_login, time, gender, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
+            $view_query = "SELECT id, login, last_login, time, gender, topics_rate, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
 	    }
 
 	    $g = array(0 => 'Не указан', 1 => 'Не имеет значения', 2 => 'Мужской', 3 => 'Женский', 4 => 'Средний');
@@ -1260,6 +1260,9 @@ if (!$database) {
 	<td><?php echo format_user_nick($row['login'], $row['id'], $row['login'], $row['id']); ?>
 <?php
             if (is_forum_admin()) {
+?>
+		<sup><?php echo $row['topics_rate']?></sup>
+<?php
                 if ($row['status'] == 1) {
                     ?>
 		<a href="?users&enableuser=<?php echo $row['id']?>" class="remove">Включить</a>
