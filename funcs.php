@@ -22,18 +22,20 @@ function check_login()
     global $database;
 
     if (is_session('myuser_name')) {
-        $sth = $database->prepare('SELECT id, login, password, pubkey FROM ForumUsers WHERE login="' . $_SESSION['myuser_name'] . '"');
+        $sth = $database->prepare('SELECT id, login, password, pubkey, status FROM ForumUsers WHERE login="' . $_SESSION['myuser_name'] . '"');
         $sth->execute();
         $row = $sth->fetch();
 
         if ($_SESSION['myuser_password'] == $row['password'] && ($row['id'] != 0)) {
-            $_SESSION['myuser_id'] = $row['id'];
-            $_SESSION['myuser_pubkey'] = stripslashes($row['pubkey']);
-
-            $tim = time();
-            $database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = " . $row['id'] . ";");
-
-            return 1;
+            if ($row['status'] == 0) {
+                $_SESSION['myuser_id'] = $row['id'];
+                $_SESSION['myuser_pubkey'] = stripslashes($row['pubkey']);
+    
+                $tim = time();
+                $database->exec("UPDATE ForumUsers SET last_login = $tim WHERE id = " . $row['id'] . ";");
+    
+                return 1;
+            }
         }
     }
 

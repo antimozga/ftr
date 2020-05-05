@@ -543,7 +543,9 @@ if (!$database) {
     $database->exec($query);
 
     $query = "CREATE TABLE IF NOT EXISTS ForumUsers " .
-	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR, fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER, pubkey NVARCHAR, topics_rate INTEGER DEFAULT 0);";
+	     "(id INTEGER PRIMARY KEY, login VARCHAR, password VARCHAR, email VARCHAR,".
+         " fio VARCHAR, gender INTEGER, description VARCHAR, time INTEGER, last_login INTEGER,".
+         " pubkey NVARCHAR, topics_rate INTEGER DEFAULT 0, status INTEGER DEFAULT 0);";
     $database->exec($query);
 
     $query = "REPLACE INTO ForumUsers (id, login) VALUES (0, 'Анонимно');";
@@ -636,6 +638,22 @@ if (!$database) {
 	}
 
 	if (is_forum_admin()) {
+	    if (is_defined('disableuser')) {
+            $id_user = $_REQUEST['disableuser'];
+            $id_user = ($id_user * 10) / 10;
+            $database->exec("UPDATE ForumUsers SET status=1 WHERE id=$id_user");
+
+	        redirect_without('disableuser');
+	    }
+	    
+	    if (is_defined('enableuser')) {
+	        $id_user = $_REQUEST['enableuser'];
+	        $id_user = ($id_user * 10) / 10;
+	        $database->exec("UPDATE ForumUsers SET status=0 WHERE id=$id_user");
+	        
+	        redirect_without('enableuser');
+	    }
+
         if (is_defined('sdel')) {
             $session_id = addslashes($_REQUEST['sdel']);
             if ($session_id != "") {
@@ -1194,9 +1212,9 @@ if (!$database) {
 </tr>
 <?php
 	    if (mb_strlen($show_users_string, 'utf-8') > 1) {
-            $view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
+            $view_query = "SELECT id, login, last_login, time, gender, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%';";
 	    } else {
-            $view_query = "SELECT id, login, last_login, time, gender FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
+            $view_query = "SELECT id, login, last_login, time, gender, status FROM ForumUsers WHERE login LIKE '".$show_users_string."%' OR login LIKE '".lower_ru($show_users_string)."%';";
 	    }
 
 	    $g = array(0 => 'Не указан', 1 => 'Не имеет значения', 2 => 'Мужской', 3 => 'Женский', 4 => 'Средний');
@@ -1212,7 +1230,21 @@ if (!$database) {
     		}
 ?>
 <tr>
-	<td><?php echo format_user_nick($row['login'], $row['id'], $row['login'], $row['id']); ?></td>
+	<td><?php echo format_user_nick($row['login'], $row['id'], $row['login'], $row['id']); ?>
+<?php
+            if (is_forum_admin()) {
+                if ($row['status'] == 1) {
+                    ?>
+		<a href="?users&enableuser=<?php echo $row['id']?>" class="remove">Включить</a>
+<?php
+                } else {
+?>
+		<a href="?users&disableuser=<?php echo $row['id']?>" class="remove">Отключить</a>
+<?php
+                }
+            }
+?>
+	</td>
 	<td class="tdw1"><?php echo $g[$gender_id]; ?></td>
 <?php
             $avatar = $UPLOAD_DIR."/small-id".$row['id'].".jpg";

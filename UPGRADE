@@ -1,9 +1,13 @@
+- User status:
+
+ALTER TABLE ForumUsers ADD COLUMN status  INTEGER DEFAULT 0;
+
+History:
+
 - Topics settings:
 
 ALTER TABLE ForumTopics ADD COLUMN private  INTEGER DEFAULT 0;
 ALTER TABLE ForumTopics ADD COLUMN readonly INTEGER DEFAULT 0;
-
-History:
 
 - Hide posts:
 
