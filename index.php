@@ -140,6 +140,7 @@ function start_page($title)
 
 function show_menu($database)
 {
+    global $FORUM_PURGATORIUM_GID;
     ?>
 <div class="block_menu_m">
 	<form class="group_sel" action="">
@@ -149,6 +150,11 @@ function show_menu($database)
 <?php
     $group_query = "SELECT * FROM ForumGroups ORDER BY grp ASC;";
     foreach ($database->query($group_query) as $row) {
+        if (isset($FORUM_PURGATORIUM_GID) && is_hardcore_on()) {
+            if ($row['id'] == $FORUM_PURGATORIUM_GID) {
+                continue;
+            }
+        }
         ?>
 			<option value="<?php echo $row['id']; ?>"><?php echo $row['grp']; ?></option>
 <?php
@@ -811,7 +817,7 @@ if (!$database) {
         }
 
         $nav_path = "<a href=\"?g=$id_group\">$group</a> &nbsp;/&nbsp; <a href=\"?t=$id_topic\">$topic</a>";
-        if ($purgatory != 0) {
+        if ($purgatory != 0 && is_hardcore_on() == 0) {
             $nav_path = $nav_path . "&nbsp[<a href=\"?g=$FORUM_PURGATORIUM_GID\">Чистилище</a>]";
         }
         unset($purgatory);
@@ -1438,15 +1444,24 @@ if (!$database) {
 </div>
 <?php
 	} else if ($show_groups != 0) {
+	    if (isset($FORUM_PURGATORIUM_GID) && is_hardcore_on() == 0) {
+	        $group_query_purgatory = 'purgatory=0 AND';
+	        $group_query_purgatory1 = 'AND ForumTopics.purgatory=0';
+	    } else {
+	        $group_query_purgatory = '';
+	        $group_query_purgatory1 = '';
+	    }
 	    $group_query = "SELECT id, grp, note FROM ForumGroups ORDER BY grp ASC ;";
 	    foreach ($database->query($group_query) as $row) {
             $topics = 0;
             $updated = 0;
 			$view_query =
-"SELECT (SELECT COUNT(*) FROM ForumTopics WHERE purgatory=0 AND id_grp = {$row['id']}) as topics, ".
-"(SELECT MAX(ForumPosts.time) FROM ForumPosts,ForumTopics WHERE ForumPosts.id_grp = {$row['id']} AND ForumPosts.id_topic = ForumTopics.id AND ForumTopics.purgatory=0) as time;";
-            if (isset($FORUM_PURGATORIUM_GID)) {
-                if ($row['id'] == $FORUM_PURGATORIUM_GID) {
+"SELECT (SELECT COUNT(*) FROM ForumTopics WHERE $group_query_purgatory id_grp = {$row['id']}) as topics, ".
+"(SELECT MAX(ForumPosts.time) FROM ForumPosts,ForumTopics WHERE ForumPosts.id_grp = {$row['id']} AND ForumPosts.id_topic = ForumTopics.id $group_query_purgatory1) as time;";
+			if (isset($FORUM_PURGATORIUM_GID) && $row['id'] == $FORUM_PURGATORIUM_GID) {
+                if (is_hardcore_on()) {
+                    continue;
+                } else {
                     $view_query =
 "SELECT (SELECT COUNT(*) FROM ForumTopics WHERE purgatory!=0 AND id_grp != $FORUM_TRASH_GID AND id_grp != $FORUM_NEWSVTOMSKE_GID) as topics,".
 " (SELECT MAX(ForumPosts.time) FROM ForumPosts,ForumTopics WHERE ForumPosts.id_topic = ForumTopics.id AND ForumTopics.purgatory!=0 AND ForumTopics.id_grp != $FORUM_TRASH_GID AND ForumTopics.id_grp != $FORUM_NEWSVTOMSKE_GID) as time;";
@@ -1504,7 +1519,7 @@ if (!$database) {
                 $count_query = "$count_query AND ForumTopics.id IN" . " (select id_topic from ForumPosts group by id_topic having id_grp!=$FORUM_NEWSVTOMSKE_GID or (id_grp=$FORUM_NEWSVTOMSKE_GID and count(*) > 1))";
             }
 
-            if (isset($FORUM_PURGATORIUM_GID)) {
+            if (isset($FORUM_PURGATORIUM_GID) && is_hardcore_on() == 0) {
                 if ($having_query != "") {
                     $having_query = "$having_query AND";
                     $count_query = "$count_query AND";
@@ -1524,7 +1539,7 @@ if (!$database) {
 	    }
 
 	    if ($id_grp != 0) {
-            if ($id_grp === $FORUM_PURGATORIUM_GID) {
+	        if (isset($FORUM_PURGATORIUM_GID) && $id_grp === $FORUM_PURGATORIUM_GID && is_hardcore_on() == 0) {
                 if (isset($FORUM_TRASH_GID)) {
                     $base_query = "$base_query AND ForumTopics.id_grp != $FORUM_TRASH_GID";
                     $count_query = "$count_query AND ForumTopics.id_grp != $FORUM_TRASH_GID";
@@ -1538,7 +1553,7 @@ if (!$database) {
                 $base_query = "$base_query  AND ForumUsers.id = ForumTopics.id_user AND ForumTopics.purgatory != 0";
                 $count_query = "$count_query AND ForumTopics.purgatory != 0";
             } else {
-                if (isset($FORUM_PURGATORIUM_GID)) {
+                if (isset($FORUM_PURGATORIUM_GID) && is_hardcore_on() == 0) {
                     $base_query = "$base_query  AND ForumPosts.id_grp = $id_grp AND ForumUsers.id = ForumTopics.id_user " . "AND ForumTopics.purgatory = 0";
                     $count_query = "$count_query AND ForumTopics.id_grp = $id_grp " . "AND ForumTopics.purgatory = 0";
                 } else {
