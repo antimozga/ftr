@@ -654,6 +654,18 @@ if (!$database) {
 	        redirect_without('enableuser');
 	    }
 
+	    if (is_defined('purgatory')) {
+	        $id_public = $_REQUEST['purgatory'];
+	        $id_public = ($id_public * 10) / 10;
+	        if ($id_public > 0) {
+	            $database->exec("UPDATE ForumUsers".
+	                " SET topics_rate = topics_rate - 1".
+	                " WHERE id = (SELECT id_user FROM ForumTopics WHERE id = $id_public AND id_user != 0 AND topics_rate >= 0)");
+	            $database->exec("UPDATE ForumTopics SET purgatory = 1 WHERE id = $id_public;");
+	        }
+	        redirect_without('purgatory');
+	    }
+
         if (is_defined('sdel')) {
             $session_id = addslashes($_REQUEST['sdel']);
             if ($session_id != "") {
@@ -1639,6 +1651,10 @@ if (!$database) {
                 if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
 ?>
 				<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&public=<?php echo $row['id_topic']; ?>" class="remove">Показать</a>
+<?php
+                } else {
+?>
+				<a href="<?php echo get_href(); ?>purgatory=<?php echo $row['id_topic']; ?>" class="remove">Скрыть</a>
 <?php
                 }
             }

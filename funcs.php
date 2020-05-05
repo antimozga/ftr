@@ -297,6 +297,17 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
     return $post_nick;
 }
 
+function get_href()
+{
+    $uri = $_SERVER['REQUEST_URI'];
+    if ($uri === '/') {
+        $uri = '?';
+    } else {
+        $uri = $uri.'&';
+    }
+    return $uri;
+}
+
 function redirect_without($wout)
 {
     $uri = $_SERVER['REQUEST_URI'];
