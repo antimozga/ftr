@@ -2013,7 +2013,7 @@ if (!$database) {
 	Тем: <?php echo $topics; ?>
 	&nbsp;|&nbsp; Сообщений: <?php echo $posts; ?>
 	&nbsp;|&nbsp; Пользователей: <?php echo $users; ?>
-	&nbsp;|&nbsp; Хардкор <span class="switch"><?php echo (is_session('hardcore') && $_SESSION['hardcore'] == 1)?'<a style="color: red;" href="'.get_href().'hardcore=0">&#x2714;</a>':'<a href="'.get_href().'hardcore=1">&#x2718;</a>'; ?></span>
+	&nbsp;|&nbsp; Хардкор <span class="switch"><?php echo (is_session('hardcore') && $_SESSION['hardcore'] == 1)?'<a style="color: green;" href="'.get_href().'hardcore=0">&#x2714;</a>':'<a href="'.get_href().'hardcore=1">&#x2718;</a>'; ?></span>
 </div>
 <?php
 	show_footer();
