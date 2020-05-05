@@ -1671,20 +1671,21 @@ if (!$database) {
 <?php
                 }
 
-                if (isset($FORUM_TRASH_GID) && $id_grp != $FORUM_TRASH_GID) {
+                if (!isset($FORUM_TRASH_GID) || $id_grp != $FORUM_TRASH_GID) {
 ?>
 				<a href="?<?php echo $rmargs; ?>&trash=1" class="remove">Мусор</a>
 <?php
-                }
-
-                if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
+                    if (is_hardcore_on() == 0) {
+                        if (isset($FORUM_PURGATORIUM_GID) && $id_grp == $FORUM_PURGATORIUM_GID) {
 ?>
 				<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&public=<?php echo $row['id_topic']; ?>" class="remove">Показать</a>
 <?php
-                } else {
+                        } else {
 ?>
 				<a href="<?php echo get_href(); ?>purgatory=<?php echo $row['id_topic']; ?>" class="remove">Скрыть</a>
 <?php
+                        }
+                    }
                 }
             }
 		
