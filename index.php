@@ -2010,7 +2010,7 @@ if (!$database) {
 	Тем: <?php echo $topics; ?>
 	&nbsp;|&nbsp; Сообщений: <?php echo $posts; ?>
 	&nbsp;|&nbsp; Пользователей: <?php echo $users; ?>
-	&nbsp;|&nbsp;<?php echo (is_session('hardcore') && $_SESSION['hardcore'] == 1)?'<a href="'.get_href().'hardcore=0">Без фильтрации</a>':'<a href="'.get_href().'hardcore=1">С фильтрацией</a>'; ?>
+	&nbsp;|&nbsp; Хардкор <span class="switch"><?php echo (is_session('hardcore') && $_SESSION['hardcore'] == 1)?'<a style="color: red;" href="'.get_href().'hardcore=0">&#x2714;</a>':'<a href="'.get_href().'hardcore=1">&#x2718;</a>'; ?></span>
 </div>
 <?php
 	show_footer();

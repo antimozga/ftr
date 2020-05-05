@@ -1342,6 +1342,15 @@ svg.svg_icon_red {
 }
 
 /*
+ * switch
+ */
+
+.switch a, a:hover, .switch a:visited {
+	color: #33CCFF;
+	text-decoration: none;
+}
+
+/*
   SHARED POST
  */
 
