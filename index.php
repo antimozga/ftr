@@ -218,6 +218,9 @@ function show_banner()
 	<div class="logo">
 		<a href="./"><img src="images/ftrclogo.png"></a>
 	</div>
+	<div class="logo2">
+		<img src="images/7may-radio.jpg">
+	</div>
 	<div class="autorefresh refreshnow" src="weather-gismeteo-informer.php"></div>
 	<div class="autorefresh refreshnow" src="exchangerate-ecb.php"></div>
 </div>

@@ -674,6 +674,15 @@ label.upload_file {
 	left: -20px;
 }
 
+.logo2 {
+	position: relative;
+	float: left;
+}
+
+.logo2 img {
+	height: 120px;
+}
+
 .weather {
 	display: block;
 	position: relative;
