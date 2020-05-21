@@ -920,19 +920,19 @@ cite, .box_cite {
 }
 
 .form_box_mess_info {
-/*	display: inline; */
+	display: table;
+	width: 100%;
 }
 
 .form_box_name {
 	padding: 5px 4px 0px 0px;
-	float: left;
 	width: 34%;
+	display: table-cell;
 }
 
 .form_box_title {
 	padding: 5px 0px 0px 0px;
-	float: right;
-	width: 64%;
+	display: table-cell;
 }
 
 .form_box_mess {
