@@ -325,21 +325,18 @@ function formSubmit () {
 		onsubmit="return formSubmit()">
 		<input type="hidden" name="event" value="forumcreatesubj">
 		<div class="form_box">
-			<table>
-				<tr>
-					<td class="form_box_name">
-						<label for="name" class="l_inp_text_name">Ваше имя:</label>
-						<input class="inp_text_name" id="name"
-						maxlength="25" name="message[author]" value="<?php echo $name; ?>"
-						type="text">
-					</td>
-					<td class="form_box_title">
-						<label for="heading" class="l_inp_text_name"><?php echo $h; ?>:</label>
-						<input class="inp_text_name" id="heading" maxlength="100"
+			<div class="form_box_mess_info">
+				<div class="form_box_name">
+					<label for="name" class="l_inp_text_name">Ваше имя:</label>
+					<input class="inp_text_name" id="name" maxlength="25"
+						name="message[author]" value="<?php echo $name; ?>" type="text">
+				</div>
+				<div class="form_box_title">
+					<label for="heading" class="l_inp_text_name"><?php echo $h; ?>:</label>
+					<input class="inp_text_name" id="heading" maxlength="100"
 						name="message[caption]" value="<?php echo $subj; ?>" type="text">
-					</td>
-				</tr>
-			</table>
+				</div>
+			</div>
 			<div class="form_box_mess">
 				<textarea maxlength="16384" class="area_text" id="mess_text"
 					name="message[content]" onFocus="javascript: textFocus = true;"

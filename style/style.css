@@ -919,15 +919,20 @@ cite, .box_cite {
 	}
 }
 
+.form_box_mess_info {
+/*	display: inline; */
+}
+
 .form_box_name {
 	padding: 5px 4px 0px 0px;
-/*	float: left; */
+	float: left;
 	width: 35%;
 }
 
 .form_box_title {
 	padding: 5px 0px 0px 0px;
-/*	float: right; */
+	float: right;
+	width: 64%;
 }
 
 .form_box_mess {
@@ -973,7 +978,9 @@ label.l_inp_text_name span {
 /*	width: 376px; */
 	height: 18px;
 /*	padding: 2px 0px 0px 2px; */
-	margin: 0px;
+/*	margin: 0px; */
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .area_text {
