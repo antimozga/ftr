@@ -570,7 +570,7 @@ if (!$database) {
     $database->exec($query);    
     
     $query = "CREATE TABLE IF NOT EXISTS ForumPostAttachment ".
-        "(id_post INTEGER NOT NULL, attachment NVARCHAR NOT NULL, censor INTEGER DEFAULT 0, UNIQUE(id_post, attachment));";
+        "(id_post INTEGER NOT NULL, idx INTEGER NOT NULL, attachment NVARCHAR NOT NULL, censor INTEGER DEFAULT 0, UNIQUE(id_post, idx));";
     $database->exec($query);    
     
     unset($_SESSION['reloadpage']);
@@ -1053,7 +1053,7 @@ if (!$database) {
                                 move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
 
                                 //$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
-                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, attachment) VALUES($post_id, '$img_file')");
+                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment) VALUES($post_id, 0, '$img_file')");
                             }
                         }
 
