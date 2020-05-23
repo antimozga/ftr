@@ -204,6 +204,6 @@ yarn prep
 yarn add express
 yarn add multer
 yarn add @tensorflow/tfjs-node
-yarn add pm2@latest -g
+npm install pm2@latest -g
 pm2 start nsfwjs-server/server.js
 ```
