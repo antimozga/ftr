@@ -565,6 +565,10 @@ if (!$database) {
 	     "(id_topic INTEGER, id_user INTEGER, id_session NVARCHAR, readonly INTEGER DEFAULT 0);";
     $database->exec($query);
 
+    $query = "CREATE TABLE IF NOT EXISTS ForumBlackLists ".
+        "(id_user INTEGER NOT NULL, id_session NVARCHAR NOT NULL, UNIQUE(id_user, id_session));";
+    $database->exec($query);    
+    
     unset($_SESSION['reloadpage']);
 
     check_login();
@@ -604,14 +608,22 @@ if (!$database) {
 	$user_description = '';
 	$user_pubkey = '';
 
+	if (isset($_SESSION['myuser_id'])) {
+	    $id_user = $_SESSION['myuser_id'];
+	}
+	
 	if (is_defined('ban')) {
 	    $session_id = addslashes($_REQUEST['ban']);
 	    if ($session_id != "") {
-    		if (is_session('banlist')) {
-    		    array_push($_SESSION['banlist'], $session_id);
-    		} else {
-    		    $_SESSION['banlist'] = array($session_id);
-    		}
+	        if (is_logged()) {
+	            $database->exec("INSERT INTO ForumBlackLists(id_user, id_session) VALUES($id_user, '$session_id')");
+	        } else {
+        		if (is_session('banlist')) {
+        		    array_push($_SESSION['banlist'], $session_id);
+        		} else {
+        		    $_SESSION['banlist'] = array($session_id);
+        		}
+	        }
 	    }
 	    $uri = $_SERVER['REQUEST_URI'];
 	    $uri = substr($uri, 0, strpos($uri, '&ban'));
@@ -636,10 +648,6 @@ if (!$database) {
 	    unset($_SESSION['myuser_pubkey']);
 
 	    redirect_without('logout');
-	}
-
-	if (isset($_SESSION['myuser_id'])) {
-	    $id_user = $_SESSION['myuser_id'];
 	}
 
 	if (is_defined("event")) {
@@ -1592,10 +1600,18 @@ if (!$database) {
 
             $ban_opts = "";
             $ban_opts_count = "";
-            if (is_session('banlist')) {
-                foreach ($_SESSION['banlist'] as $ban_id_session) {
-                        $ban_opts = "$ban_opts AND ForumTopics.id_session!='$ban_id_session' AND ForumPosts.id_session!='$ban_id_session'";
-                        $ban_opts_count = "$ban_opts_count AND ForumTopics.id_session!='$ban_id_session'";
+            if (is_logged()) {
+                $banlist = $database->query("SELECT id_session FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']}");
+            } else if (is_session('banlist')) {
+                $banlist = $_SESSION['banlist'];
+            }
+            if (isset($banlist)) {
+                foreach ($banlist as $ban_id_session) {
+                    if (is_array($ban_id_session)) {
+                        $ban_id_session = $ban_id_session['id_session'];
+                    }
+                    $ban_opts = "$ban_opts AND ForumTopics.id_session!='$ban_id_session' AND ForumPosts.id_session!='$ban_id_session'";
+                    $ban_opts_count = "$ban_opts_count AND ForumTopics.id_session!='$ban_id_session'";
                 }
 
                 $base_query = "$base_query $ban_opts";
@@ -1766,9 +1782,18 @@ if (!$database) {
 	    $pprev = "";
 
 	    $ban_opts = "";
-        if (is_session('banlist')) {
-            foreach ($_SESSION['banlist'] as $ban_id_session) {
-                    $ban_opts = "$ban_opts AND ForumPosts.id_session!='$ban_id_session'";
+	    if (is_logged()) {
+	        $banlist = $database->query("SELECT id_session FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']}");
+	    } else if (is_session('banlist')) {
+	        $banlist = $_SESSION['banlist'];
+	    }
+        if (isset($banlist)) {
+            foreach ($banlist as $ban_id_session) {
+                if (is_array($ban_id_session)) {
+                    $ban_id_session = $ban_id_session['id_session'];
+                }
+                
+                $ban_opts = "$ban_opts AND ForumPosts.id_session!='$ban_id_session'";
             }
         }
 

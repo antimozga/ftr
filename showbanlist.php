@@ -13,7 +13,11 @@ if (! $database) {
 
     if (is_defined('unban')) {
         $session_id = addslashes($_REQUEST['unban']);
-        if (is_session('banlist')) {
+        if (is_logged()) {
+            $database->exec("DELETE FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']} AND id_session='$session_id'");
+            
+            $_SESSION['reloadpage'] = 1;
+        } else if (is_session('banlist')) {
             $arr = $_SESSION['banlist'];
             $pos = array_search($session_id, $arr);
             unset($arr[$pos]);
@@ -36,10 +40,18 @@ if (! $database) {
 	<table class="userstable">
     
 <?php
-    if (is_session('banlist')) {
-        foreach ($_SESSION['banlist'] as $ban_id_session) {
+    if (is_logged()) {
+        $banlist = $database->query("SELECT id_session FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']}");
+    } else if (is_session('banlist')) {
+        $banlist = $_SESSION['banlist'];
+    }
+    if (isset($banlist)) {
+        foreach ($banlist as $ban_id_session) {
+            if (is_array($ban_id_session)) {
+                $ban_id_session = $ban_id_session['id_session'];
+            }
             $bannick = "";
-            foreach ($database->query("SELECT DISTINCT nick, id_user FROM ForumPosts WHERE id_session = \"$ban_id_session\"") as $row) {
+            foreach ($database->query("SELECT DISTINCT nick, id_user FROM ForumPosts WHERE id_session = '$ban_id_session'") as $row) {
                 if ($row['id_user'] != 0) {
                     $bannick = format_user_nick($row['nick'], $row['id_user'], $row['nick'], $row['id_user']) . " $bannick";
                 } else {
