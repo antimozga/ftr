@@ -172,10 +172,38 @@ $HTTP["scheme"] == "http" {
 systemctl restart lighttpd
 ```
 
-## Weather
+## Погода
 
-Add to ```/etc/crontab```:
+Добавьте в ```/etc/crontab```:
 
 ```
 *  *    * * *   www-data php /var/www/html/weather-gismeteo-cron.php
+```
+
+## NSFW
+
+Установите поддержку curl для PHP:
+
+```
+apt install php-curl
+```
+
+Загрузите сервер:
+
+```
+git clone https://github.com/antimozga/nsfwjs.git
+```
+
+Установите необходимые зависимости:
+
+```
+cd nsfwjs
+yarn add @tensorflow/tfjs
+yarn add nsfwjs
+yarn prep
+yarn add express
+yarn add multer
+yarn add @tensorflow/tfjs-node
+npm install pm2@latest -g
+pm2 start nsfwjs-server/server.js
 ```
