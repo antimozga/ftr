@@ -201,7 +201,6 @@ cd nsfwjs
 yarn add @tensorflow/tfjs
 yarn add nsfwjs
 yarn prep
-yarn install express
 yarn add express
 yarn add multer
 yarn add @tensorflow/tfjs-node
