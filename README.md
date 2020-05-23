@@ -188,6 +188,8 @@ systemctl restart lighttpd
 apt install php-curl
 ```
 
+## NSFW сервер
+
 Загрузите сервер:
 
 ```
@@ -207,3 +209,14 @@ yarn add @tensorflow/tfjs-node
 npm install pm2@latest -g
 pm2 start nsfwjs-server/server.js
 ```
+
+В конфигурации вебсервера настройте прокси на 127.0.0.1:8080. Для lighttpd добавьте в ```/etc/lighttpd/lighttpd.conf```:
+
+```
+server.modules += ( "mod_proxy" )
+$HTTP["url"] =~ "^/nsfw" {
+    proxy.server = ( "" => ( ( "host" => "127.0.0.1", "port" => "8080" ) ) )
+}
+```
+
+и перезапустите вебсервер.
