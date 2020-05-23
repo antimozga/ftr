@@ -20,12 +20,39 @@ if (! $database) {
         } else if (is_session('banlist')) {
             $arr = $_SESSION['banlist'];
             $pos = array_search($session_id, $arr);
-            unset($arr[$pos]);
-            $arr = array_values($arr);
-            $_SESSION['banlist'] = $arr;
-
+            if ($pos !== FALSE) {
+                unset($arr[$pos]);
+                $arr = array_values($arr);
+                $_SESSION['banlist'] = $arr;
+    
+                $_SESSION['reloadpage'] = 1;
+            }
+        }
+    } else if (is_defined('import') && is_logged()) {
+        if (isset($_SESSION['banlist'])) {
+            foreach ($_SESSION['banlist'] as $session_id) {
+                $database->exec("INSERT INTO ForumBlackLists(id_user, id_session) VALUES({$_SESSION['myuser_id']}, '$session_id')");
+            }
+            
             $_SESSION['reloadpage'] = 1;
         }
+    } else if (is_defined('export') && is_logged()) {
+        $banlist = $database->query("SELECT id_session FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']}");
+        foreach ($banlist as $row) {
+            if (is_session('banlist')) {
+                $arr = $_SESSION['banlist'];
+                $pos = array_search($row['id_session'], $arr);
+                if ($pos !== FALSE) {
+                    unset($arr[$pos]);
+                    $arr = array_values($arr);
+                }
+                $_SESSION['banlist'] = $arr;
+                array_push($_SESSION['banlist'], $row['id_session']);
+            } else {
+                $_SESSION['banlist'] = array($row['id_session']);
+            }            
+        }
+        $_SESSION['reloadpage'] = 1;
     }
 
     if (is_session('reloadpage')) {
@@ -37,14 +64,21 @@ if (! $database) {
     $banned = 0;
     ?>
 <div class="modal-content-window banlist_window">
-	<table class="userstable">
-    
 <?php
     if (is_logged()) {
+?>
+    <div class="banlist_impexp">
+    	<a href="#" onclick="update_modal('showbanlist.php?import')">Импорт из анонимной сессии браузера</a>
+    	<a href="#" onclick="update_modal('showbanlist.php?export')">Экспорт в анонимную сессии браузера</a>
+    </div>
+<?php
         $banlist = $database->query("SELECT id_session FROM ForumBlackLists WHERE id_user={$_SESSION['myuser_id']}");
     } else if (is_session('banlist')) {
         $banlist = $_SESSION['banlist'];
     }
+?>
+	<table class="userstable">
+<?php
     if (isset($banlist)) {
         foreach ($banlist as $ban_id_session) {
             if (is_array($ban_id_session)) {

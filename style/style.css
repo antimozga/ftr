@@ -1275,6 +1275,24 @@ label.l_inp_text_name span {
     overflow: auto;
 }
 
+.banlist_impexp {
+	display: table;
+	width: 100%;
+}
+
+.banlist_impexp a {
+	display: table-cell;
+}
+
+.banlist_impexp a:hover, a:visited {
+/*	text-decoration: underline; */
+	color: #33CCFF;	
+}
+
+.banlist_impexp a:hover {
+	text-decoration: underline;
+}
+
 /*
  * TOPIC SETTINGS
  */
