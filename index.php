@@ -569,6 +569,10 @@ if (!$database) {
         "(id_user INTEGER NOT NULL, id_session NVARCHAR NOT NULL, UNIQUE(id_user, id_session));";
     $database->exec($query);    
     
+    $query = "CREATE TABLE IF NOT EXISTS ForumPostAttachment ".
+        "(id_post INTEGER NOT NULL, attachment NVARCHAR NOT NULL, censor INTEGER DEFAULT 0, UNIQUE(id_post, attachment));";
+    $database->exec($query);    
+    
     unset($_SESSION['reloadpage']);
 
     check_login();
@@ -1048,7 +1052,8 @@ if (!$database) {
 
                                 move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
 
-                                $database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
+                                //$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
+                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, attachment) VALUES($post_id, '$img_file')");
                             }
                         }
 
@@ -1959,32 +1964,35 @@ if (!$database) {
 </div>
 <div class="text_box_2">
 	<div id="message_<?php echo $row['id_post']; ?>" class="text_box_2_mess"><?php
-            $attachment = $row['attachment'];
-            if ($attachment != "") {
-            $image_ext = substr(strrchr($attachment, '.'), 1);
-            if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
-                $image_ext == 'webp') {
+            //$attachment = $row['attachment'];
+            $sth = $database->prepare("SELECT attachment, censor FROM ForumPostAttachment WHERE id_post={$row['id_post']}");
+            $sth->execute();
+            $post_data = $sth->fetch();
+            if ($post_data !== FALSE) {
+                $attachment = $post_data['attachment'];
+                $censor = $post_data['censor'];
+                
+                if (file_exists($UPLOAD_DIR.'/'.$filename)) {
+                    $image_ext = substr(strrchr($attachment, '.'), 1);
+                    if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
+                        $image_ext == 'webp') {
 ?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage"/></a><?php
-    		} else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
+                    } else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 ?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
-    		} else {
+                    } else {
 ?><video class="postvideo" controls><?php
-    		    if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
+                        if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
 ?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
-    		    } else if ($image_ext == 'ogv') {
+                        } else if ($image_ext == 'ogv') {
 ?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg"><?php
-    		    } else if ($image_ext == 'webm') {
+                        } else if ($image_ext == 'webm') {
 ?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
-    		    }
+                        }
 ?>Your browser does not support the video tag.</video><?php
-    		}
-	    } else {
-    		$post_img = "img".$row['id_post'].".jpg";
-    		if (file_exists($UPLOAD_DIR."/small-".$post_img)) {
-?><a href="<?php echo $UPLOAD_DIR.'/'.$post_img; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$post_img; ?>" alt="" class="postimage"/></a><?php
-    		}
-	    }
-        echo $post;
+                    }
+                }
+            }
+            echo $post;
 ?></div>
 	<div class="answer_bar">
 		<a href="#" onclick="reply('<?php echo $row['nick']; ?> (<?php echo $timestamp; ?>)', 'message_<?php echo $row['id_post']; ?>');" class="reply">
