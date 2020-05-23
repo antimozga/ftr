@@ -191,7 +191,7 @@ apt install php-curl
 Загрузите сервер:
 
 ```
-git clone git@github.com:antimozga/nsfwjs.git
+git clone https://github.com/antimozga/nsfwjs.git
 ```
 
 Установите необходимые зависимости:
