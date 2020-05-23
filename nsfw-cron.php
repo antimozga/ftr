@@ -28,7 +28,7 @@ if (! $database) {
 
 function censor($filename) {
     // initialise the curl request
-    $request = curl_init('http://62.171.146.145:8080/nsfw');
+    $request = curl_init('https://video.vtomske.net/nsfw');
 
     // Create a CURLFile object
     $cfile = curl_file_create($filename);
