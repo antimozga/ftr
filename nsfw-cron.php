@@ -39,9 +39,17 @@ function censor($filename) {
     curl_setopt($request, CURLOPT_POSTFIELDS, $data);
     curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
 
-    $datas = json_decode(curl_exec($request));
+    $ret = curl_exec($request);
+    $datas = json_decode($ret);
 
     curl_close($request);
+
+    if ($datas == null) {
+	if ($ret == 'Unsupported image file') {
+	    return 0;
+	}
+	return -1;
+    }
 
     if (is_array($datas)) {
 	switch($datas[0]->{'className'}) {
@@ -49,19 +57,20 @@ function censor($filename) {
 	    case 'Porn':
 	    case 'Sexy':
 //		printf("%s: %s: %f\n", $filename, $datas[0]->{'className'}, $datas[0]->{'probability'});
-		return true;
+		return 1;
 	    default:
 		//printf("%s: %s: %f\n", $filename, $datas[0]->{'className'}, $datas[0]->{'probability'});
-		return false;
+		return 0;
 	}
     }
 }
 
 foreach($database->query("SELECT id_post, idx, attachment FROM ForumPostAttachment WHERE censor=0") as $row) {
     if (file_exists($UPLOAD_DIR.'/'.$row['attachment'])) {
-	if (censor($UPLOAD_DIR.'/'.$row['attachment'])) {
+	$ret = censor($UPLOAD_DIR.'/'.$row['attachment']);
+	if ($ret > 0) {
 	    $database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row['id_post']} AND idx={$row['idx']}");
-	} else {
+	} else if ($ret == 0) {
 	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row['id_post']} AND idx={$row['idx']}");
 	}
     }
