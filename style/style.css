@@ -186,6 +186,10 @@ img.postimage {
 	max-height: 315px;
 }
 
+img.censored {
+	filter: blur(30px);
+}
+
 .postyoutube {
 	width: 420px;
 	height: 315px;
