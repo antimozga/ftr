@@ -71,14 +71,16 @@ $query = NULL;
 
 //print_r($results);
 
+$upload_path = WWWROOTDIR.'/'.$UPLOAD_DIR;
+
 foreach($results as $row) {
     printf("Processing %s\n", $row->attachment);
 
-    if (file_exists($UPLOAD_DIR.'/'.$row->attachment)) {
+    if (file_exists($upload_path.'/'.$row->attachment)) {
 	$image_ext = strtolower(substr(strrchr($row->attachment, '.'), 1));
 	if ($image_ext == 'jpg' || $image_ext == 'jpeg' || $image_ext == 'gif' || $image_ext == 'png' || $image_ext == 'webp') {
-	    if (file_exists($UPLOAD_DIR.'/small-'.$row->attachment)) {
-		system("convert $UPLOAD_DIR/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+	    if (file_exists($upload_path.'/small-'.$row->attachment)) {
+		system("convert $upload_path/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
 
 		$ret = censor("/tmp/small-{$row->attachment}.jpg");
 		if ($ret > 0) {
