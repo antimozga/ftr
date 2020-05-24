@@ -177,7 +177,15 @@ systemctl restart lighttpd
 Добавьте в ```/etc/crontab```:
 
 ```
-*  *    * * *   www-data php /var/www/html/weather-gismeteo-cron.php
+*  *    * * *   www-data /usr/bin/flock -w 0 /tmp/weather-gismeteo-cron.lock php /var/www/html/weather-gismeteo-cron.php
+```
+
+## Новостной бот
+
+Добавьте в ```/etc/crontab```:
+
+```
+*/3 *   * * *   www-data /usr/bin/flock -w 0 /tmp/export-newsvtomske-cron.lock php /var/www/html/export-newsvtomske-cron.php
 ```
 
 ## NSFW
@@ -186,6 +194,12 @@ systemctl restart lighttpd
 
 ```
 apt install php-curl
+```
+
+Добавьте в ```/etc/crontab``` строку:
+
+```
+*  *    * * *   www-data /usr/bin/flock -w 0 /tmp/nsfw-cron.lock php /var/www/html/nsfw-cron.php
 ```
 
 ## NSFW сервер
