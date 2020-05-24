@@ -188,6 +188,12 @@ systemctl restart lighttpd
 apt install php-curl
 ```
 
+Добавьте в ```/etc/crontab``` строку:
+
+```
+*  *    * * *   www-data /usr/bin/flock -w 0 /tmp/nsfw-cron.lock php /var/www/html/nsfw-cron.php
+```
+
 ## NSFW сервер
 
 Загрузите сервер:
