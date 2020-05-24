@@ -1976,7 +1976,7 @@ if (!$database) {
                     $image_ext = substr(strrchr($attachment, '.'), 1);
                     if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
                         $image_ext == 'webp') {
-?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0)?' censored':''; ?>"/></a><?php
+?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>"/></a><?php
                     } else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 ?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
                     } else {
