@@ -36,6 +36,8 @@ $row = $sth->fetch();
 if ($row) {
     $last_access = $row['time'];
 
+    $sth = NULL;
+
     $database->exec("DELETE FROM GisMeteoTable WHERE time <= strftime('%s', datetime('now', '-1 hour'))");
 
     $now = time();
