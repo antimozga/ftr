@@ -65,24 +65,32 @@ function censor($filename) {
     }
 }
 
-foreach($database->query("SELECT id_post, idx, attachment FROM ForumPostAttachment WHERE censor=0") as $row) {
-    if (file_exists($UPLOAD_DIR.'/'.$row['attachment'])) {
-	$image_ext = strtolower(substr(strrchr($row['attachment'], '.'), 1));
+$query = $database->query("SELECT id_post, idx, attachment FROM ForumPostAttachment WHERE censor=0");
+$results = $query->fetchAll(PDO::FETCH_OBJ);
+$query = NULL;
+
+//print_r($results);
+
+foreach($results as $row) {
+    printf("Processing %s\n", $row->attachment);
+
+    if (file_exists($UPLOAD_DIR.'/'.$row->attachment)) {
+	$image_ext = strtolower(substr(strrchr($row->attachment, '.'), 1));
 	if ($image_ext == 'jpg' || $image_ext == 'jpeg' || $image_ext == 'gif' || $image_ext == 'png' || $image_ext == 'webp') {
-	    system("convert $UPLOAD_DIR/small-{$row['attachment']} -delete 1--1 /tmp/small-{$row['attachment']}.jpg");
+	    system("convert $UPLOAD_DIR/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
 //
 // convert 597_1000.jpg -delete 1--1 597_1000_out.jpg
 //
-	    $ret = censor("/tmp/small-{$row['attachment']}.jpg");
+	    $ret = censor("/tmp/small-{$row->attachment}.jpg");
 	    if ($ret > 0) {
-		$database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row['id_post']} AND idx={$row['idx']}");
+		$database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 	    } else if ($ret == 0) {
-		$database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row['id_post']} AND idx={$row['idx']}");
+		$database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 	    }
 
-	    unlink("/tmp/small-{$row['attachment']}.jpg");
+	    unlink("/tmp/small-{$row->attachment}.jpg");
 	} else {
-	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row['id_post']} AND idx={$row['idx']}");
+	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 	}
     }
 }
