@@ -77,18 +77,18 @@ foreach($results as $row) {
     if (file_exists($UPLOAD_DIR.'/'.$row->attachment)) {
 	$image_ext = strtolower(substr(strrchr($row->attachment, '.'), 1));
 	if ($image_ext == 'jpg' || $image_ext == 'jpeg' || $image_ext == 'gif' || $image_ext == 'png' || $image_ext == 'webp') {
-	    system("convert $UPLOAD_DIR/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
-//
-// convert 597_1000.jpg -delete 1--1 597_1000_out.jpg
-//
-	    $ret = censor("/tmp/small-{$row->attachment}.jpg");
-	    if ($ret > 0) {
-		$database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
-	    } else if ($ret == 0) {
-		$database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
-	    }
+	    if (file_exists($UPLOAD_DIR.'/small-'.$row->attachment)) {
+		system("convert $UPLOAD_DIR/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
 
-	    unlink("/tmp/small-{$row->attachment}.jpg");
+		$ret = censor("/tmp/small-{$row->attachment}.jpg");
+		if ($ret > 0) {
+		    $database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
+		} else if ($ret == 0) {
+		    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
+		}
+
+		unlink("/tmp/small-{$row->attachment}.jpg");
+	    }
 	} else {
 	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 	}
