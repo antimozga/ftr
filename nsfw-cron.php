@@ -28,7 +28,7 @@ if (! $database) {
 
 function censor($filename) {
     // initialise the curl request
-    $request = curl_init('https://video.vtomske.net/nsfw');
+    $request = curl_init(NSFWSERVER);
 
     // Create a CURLFile object
     $cfile = curl_file_create($filename);
@@ -51,18 +51,50 @@ function censor($filename) {
 	return -1;
     }
 
+    $hentai = -1;
+    $hentai_pos = -1;
+    $porn = -1;
+    $porn_pos = -1;
+    $sexy = -1;
+    $sexy_pos = -1;
+
     if (is_array($datas)) {
-	switch($datas[0]->{'className'}) {
+	for ($i = 0; $i < 3; $i++) {
+	    switch($datas[$i]->{'className'}) {
 	    case 'Hentai':
+		break;
+		$hentai = $datas[$i]->{'probability'};
+		$hentai_pos = $i;
 	    case 'Porn':
+		$porn = $datas[$i]->{'probability'};
+		$porn_pos = $i;
+		break;
 	    case 'Sexy':
-//		printf("%s: %s: %f\n", $filename, $datas[0]->{'className'}, $datas[0]->{'probability'});
-		return 1;
+		$sexy = $datas[$i]->{'probability'};
+		$sexy_pos = $i;
+		break;
 	    default:
-		//printf("%s: %s: %f\n", $filename, $datas[0]->{'className'}, $datas[0]->{'probability'});
-		return 0;
+		break;
+	    }
 	}
     }
+
+//    printf("%f(%d) %f(%d) %f(%d)\n", $hentai, $hentai_pos, $porn, $porn_pos, $sexy, $sexy_pos);
+
+    if ($hentai_pos == 0 || $porn_pos == 0 || ($sexy_pos == 0 && $sexy > 0.7)) {
+	return 1;
+    }
+
+    if ($hentai_pos == 1 && $hentai_pos > 0.1) {
+	return 1;
+    }
+
+    if (($porn_pos == 1 && $porn > 0.1) ||
+	($porn_pos == 2 && $porn > 0.1)) {
+	return 1;
+    }
+
+    return 0;
 }
 
 $query = $database->query("SELECT id_post, idx, attachment FROM ForumPostAttachment WHERE censor=0");
@@ -80,7 +112,8 @@ foreach($results as $row) {
 	$image_ext = strtolower(substr(strrchr($row->attachment, '.'), 1));
 	if ($image_ext == 'jpg' || $image_ext == 'jpeg' || $image_ext == 'gif' || $image_ext == 'png' || $image_ext == 'webp') {
 	    if (file_exists($upload_path.'/small-'.$row->attachment)) {
-		system("convert $upload_path/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+//		system("convert $upload_path/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+		system("convert -resize 299x299\> $upload_path/{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
 
 		$ret = censor("/tmp/small-{$row->attachment}.jpg");
 		if ($ret > 0) {

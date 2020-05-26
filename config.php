@@ -6,6 +6,8 @@ define("KEYLISTFILE", "uploads/LFKBv0.11prebeta.txt");
 
 define("WWWROOTDIR", "/var/www/html");
 
+define("NSFWSERVER", "https://video.vtomske.net/nsfw");
+
 $FORUM_TITLE = "ТОМСКИЙ ФОРУМ";
 
 $FORUM_NAME = "Томский форум";
