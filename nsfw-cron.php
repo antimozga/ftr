@@ -106,23 +106,34 @@ $query = NULL;
 $upload_path = WWWROOTDIR.'/'.$UPLOAD_DIR;
 
 foreach($results as $row) {
-    printf("Processing %s\n", $row->attachment);
 
     if (file_exists($upload_path.'/'.$row->attachment)) {
 	$image_ext = strtolower(substr(strrchr($row->attachment, '.'), 1));
 	if ($image_ext == 'jpg' || $image_ext == 'jpeg' || $image_ext == 'gif' || $image_ext == 'png' || $image_ext == 'webp') {
 	    if (file_exists($upload_path.'/small-'.$row->attachment)) {
-//		system("convert $upload_path/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
-		system("convert -resize 299x299\> $upload_path/{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+		if ($image_ext == 'gif') {
+		    for ($i = -1; $i < 1; $i++) {
+			printf("Processing %s[%d]\n", $row->attachment, $i);
+			system("convert -resize 299x299\> $upload_path/{$row->attachment}[$i] /tmp/small-{$row->attachment}.jpg");
+			$ret = censor("/tmp/small-{$row->attachment}.jpg");
+			unlink("/tmp/small-{$row->attachment}.jpg");
+			if ($ret != 0) {
+			    break;
+			}
+		    }
+		} else {
+			printf("Processing %s\n", $row->attachment);
+//			system("convert $upload_path/small-{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+			system("convert -resize 299x299\> $upload_path/{$row->attachment} -delete 1--1 /tmp/small-{$row->attachment}.jpg");
+			$ret = censor("/tmp/small-{$row->attachment}.jpg");
+			unlink("/tmp/small-{$row->attachment}.jpg");
+		}
 
-		$ret = censor("/tmp/small-{$row->attachment}.jpg");
 		if ($ret > 0) {
 		    $database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 		} else if ($ret == 0) {
 		    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 		}
-
-		unlink("/tmp/small-{$row->attachment}.jpg");
 	    }
 	} else {
 	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
