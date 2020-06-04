@@ -978,19 +978,19 @@ label.l_inp_text_name span {
 }
 
 .inp_text_name {
-	width: 100%;
+	width: calc(100% - 4px);
 /*	width: 376px; */
 	height: 18px;
 /*	padding: 2px 0px 0px 2px; */
 /*	margin: 0px; */
-	padding-left: 0;
-	padding-right: 0;
+	padding-left: 2px;
+	padding-right: 2px;
 }
 
 .area_text {
-	width: 100%;
+	width: calc(100% - 4px);
 	height: 110px;
-	padding: 0px;
+	padding: 2px;
 	margin: 3px 0px 0px 0px;
 }
 
