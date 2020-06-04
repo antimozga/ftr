@@ -355,12 +355,22 @@ function formSubmit () {
 				</div>
 				<div class="format">
 					<div id="web"></div>
-					<span id="mess_emo"> &nbsp;-&nbsp; <a href="" onclick="doInsert('[re]','[/re]', false); return false;" class="for3">
+					<span id="mess_emo"> &nbsp;-&nbsp; <a href="" onclick="return doInsert('[re]','[/re]', false)" class="for3">
 					<span class="view-desk">Цитата</span><span class="view-mob">Ц</span></a>
 					&nbsp;-&nbsp;
-					<a href="" onclick="doInsert('[b]', '[/b]',  true);  return false;" class="for1" id="bold"><span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>
+					<a href="" onclick="return doInsert('[b]', '[/b]',  true)" class="for1" id="bold">
+					<span class="view-desk">Жирный</span><span class="view-mob">Ж</span></a>
 					&nbsp;-&nbsp;
-					<a href="" onclick="doInsert('[i]', '[/i]',  false); return false;"	class="for2"><span class="view-desk">Курсив</span><span	class="view-mob">К</span></a></span>
+					<a href="" onclick="return doInsert('[i]', '[/i]',  false)" class="for2">
+					<span class="view-desk">Курсив</span><span class="view-mob">К</span></a></span>
+<!--
+					&nbsp;-&nbsp;
+					<a href="" onclick="return doInsert('[s]', '[/s]',  false)" class="for4">
+					<span class="view-desk">Зачерк</span><span class="view-mob">З</span></a></span>
+					&nbsp;-&nbsp;
+					<a href="" onclick="return doInsert('[u]', '[/u]',  false)" class="for5">
+					<span class="view-desk">Подчерк</span><span class="view-mob">П</span></a></span>
+-->
 				</div>
 				<input type="hidden" name="MAX_FILE_SIZE" value="6291456">
 				<div class="form_box_upload">

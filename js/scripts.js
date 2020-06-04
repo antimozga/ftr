@@ -2,7 +2,6 @@ var selField = 'mess_text';
 
 function doInsert(ibTag, ibClsTag, isSingle)
 {
-	let isClose = false;
 	let obj_ta = eval('fombj.' + selField);
 
 	if ( obj_ta.selectionEnd ) {
@@ -38,7 +37,7 @@ function doInsert(ibTag, ibClsTag, isSingle)
 	}
 
 	obj_ta.focus();
-	return isClose;
+	return false;
 }
 
 function selectElementText(el)
@@ -89,6 +88,10 @@ function reply_cite(creator, msg_id)
 			.replace(/<\/i>/g,	'[/i]' )
 			.replace(/<b>/g,	'[b]'  )
 			.replace(/<\/b>/g,	'[/b]' )
+			.replace(/<s>/g,	'[s]'  )
+			.replace(/<\/s>/g,	'[/s]' )
+			.replace(/<u>/g,	'[u]'  )
+			.replace(/<\/u>/g,	'[/u]' )
 			.replace(/<br>/g,	'\r\n' )
 			.replace(/<br\/>/g,	'\r\n' )
 			.replace(/<a.*>.*?<\/a>/ig,'')
@@ -134,6 +137,10 @@ function convert_text(text)
 	.replace(/\[\/i\]/g,	'</i>')
 	.replace(/\[b\]/g,	'<b>')
 	.replace(/\[\/b\]/g,	'</b>')
+	.replace(/\[s\]/g,	'<s>')
+	.replace(/\[\/s\]/g,	'</s>')
+	.replace(/\[u\]/g,	'<u>')
+	.replace(/\[\/u\]/g,	'</u>')
 	.replace(/\[re\]/g,	'<cite>')
 	.replace(/\[\/re\]/g,	'</cite>')
 	.replace(/\r\n/g,	'<br/>')

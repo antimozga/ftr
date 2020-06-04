@@ -80,8 +80,8 @@ function is_forum_admin()
 
 function convert_text($str)
 {
-    $search  = array('&',     '"',      '\'',     '<',    '>',    '[i]', '[/i]', '[b]', '[/b]', '[re]',   '[/re]'  );
-    $replace = array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;', '<i>', '</i>', '<b>', '</b>', '<cite>', '</cite>');
+    $search  = array('&',     '"',      '\'',     '<',    '>',    '[i]', '[/i]', '[b]', '[/b]', '[s]', '[/s]', '[u]', '[/u]', '[re]',   '[/re]'  );
+    $replace = array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;', '<i>', '</i>', '<b>', '</b>', '<s>', '</s>', '<u>', '</u>', '<cite>', '</cite>');
     $newstr  = str_replace($search, $replace, $str);
 
     $order   = array("\r\n", "\n", "\r");
@@ -91,8 +91,8 @@ function convert_text($str)
 
 function reconvert_text($str)
 {
-    $search  = array('<i>', '</i>', '<b>', '</b>', '<cite>', '</cite>');
-    $replace = array('[i]', '[/i]', '[b]', '[/b]', '[re]',   '[/re]'  );
+    $search  = array('<i>', '</i>', '<b>', '</b>', '<s>', '</s>', '<u>', '</u>', '<cite>', '</cite>');
+    $replace = array('[i]', '[/i]', '[b]', '[/b]', '[s]', '[/s]', '[u]', '[/u]', '[re]',   '[/re]'  );
     $newstr  = str_replace($search, $replace, $str);
 
     $order   = '<br/>';
