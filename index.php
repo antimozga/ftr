@@ -577,12 +577,12 @@ if (!$database) {
 
     $query = "CREATE TABLE IF NOT EXISTS ForumBlackLists ".
         "(id_user INTEGER NOT NULL, id_session NVARCHAR NOT NULL, UNIQUE(id_user, id_session));";
-    $database->exec($query);    
-    
+    $database->exec($query);
+
     $query = "CREATE TABLE IF NOT EXISTS ForumPostAttachment ".
-        "(id_post INTEGER NOT NULL, idx INTEGER NOT NULL, attachment NVARCHAR NOT NULL, censor INTEGER DEFAULT 0, UNIQUE(id_post, idx));";
-    $database->exec($query);    
-    
+        "(id_post INTEGER NOT NULL, idx INTEGER NOT NULL, attachment NVARCHAR NOT NULL, censor INTEGER DEFAULT 0, hash NVARCHAR, UNIQUE(id_post, idx));";
+    $database->exec($query);
+
     unset($_SESSION['reloadpage']);
 
     check_login();
@@ -723,8 +723,8 @@ if (!$database) {
             $dp = $_REQUEST["dp"];
             $dp = ($dp * 10) / 10;
             $dt = $database->query("SELECT id_topic FROM ForumPosts WHERE id=$dp")->fetchColumn();
-            $query = "DELETE FROM ForumPosts WHERE id=$dp";
-            $database->exec($query);
+            $database->exec("DELETE FROM ForumPosts WHERE id=$dp");
+            $database->exec("DELETE FROM ForumPostAttachment WHERE id_post=$dp");
             /* remove topic if last post was removed */
             $query = "DELETE FROM ForumTopics".
                 " WHERE id=$dt AND (SELECT COUNT(*) FROM ForumPosts WHERE id_topic=$dt) = 0;";
@@ -1062,8 +1062,10 @@ if (!$database) {
 
                                 move_uploaded_file($image_tmp, "$UPLOAD_DIR/$img_file");
 
+                                $image_hash = md5_file("$UPLOAD_DIR/$img_file");
+
                                 //$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
-                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment) VALUES($post_id, 0, '$img_file')");
+                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment, hash) VALUES($post_id, 0, '$img_file', '$image_hash')");
                             }
                         }
 
@@ -1981,7 +1983,7 @@ if (!$database) {
             if ($post_data !== FALSE) {
                 $attachment = $post_data['attachment'];
                 $censor = $post_data['censor'];
-                
+
                 if (file_exists($UPLOAD_DIR.'/'.$filename)) {
                     $image_ext = substr(strrchr($attachment, '.'), 1);
                     if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||

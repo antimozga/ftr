@@ -1,8 +1,12 @@
+- Uploads hash:
+
+ALTER TABLE ForumPostAttachment ADD COLUMN hash NVARCHAR;
+
+History:
+
 - User status:
 
 ALTER TABLE ForumUsers ADD COLUMN status  INTEGER DEFAULT 0;
-
-History:
 
 - Topics settings:
 
