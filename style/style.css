@@ -267,6 +267,25 @@ audio.postvideo {
 /*	background-color: black; */
 }
 
+.imagebox {
+	margin: 0;
+	border: 0;
+	position: relative;
+	overflow: hidden;
+	float: left;
+}
+
+.imagebox span {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	font-size: smaller;
+	font-weight: bold;
+	width: 100%;
+	color: #33CCFF;
+}
+
 label.cloned {
 	color: red;
 	text-decoration: underline;

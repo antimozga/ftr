@@ -653,7 +653,7 @@ if (!$database) {
 	    }
 	    redirect_without('hardcore');
 	}
-	
+
 	if (is_defined("logout")) {
 	    unset($_SESSION['myuser_name']);
 	    unset($_SESSION['myuser_password']);
@@ -675,6 +675,25 @@ if (!$database) {
 	}
 
 	if (is_forum_admin()) {
+	    if (is_defined('image_censor')) {
+		$image_censor = $_REQUEST['image_censor'];
+		if (is_defined('image_name')) {
+		    $image_name = addslashes($_REQUEST['image_name']);
+
+		    if (is_numeric($image_censor)) {
+			if ($image_censor == 0) {
+			    $image_censor = 1;
+			} else {
+			    $image_censor = -1;
+			}
+			$database->exec("UPDATE ForumPostAttachment SET censor=$image_censor WHERE attachment='$image_name'");
+			$database->exec("UPDATE ForumPostAttachment SET censor=$image_censor WHERE hash=(SELECT hash FROM ForumPostAttachment WHERE attachment='$image_name')");
+		    }
+
+		    redirect_without('image_censor');
+		}
+	    }
+
 	    if (is_defined('disableuser')) {
             $id_user = $_REQUEST['disableuser'];
             $id_user = ($id_user * 10) / 10;
@@ -1064,8 +1083,12 @@ if (!$database) {
 
                                 $image_hash = md5_file("$UPLOAD_DIR/$img_file");
 
-                                //$database->exec("UPDATE ForumPosts SET attachment = \"$img_file\" WHERE id = $post_id;");
-                                $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment, hash) VALUES($post_id, 0, '$img_file', '$image_hash')");
+                                $image_censor = $database->query("SELECT censor FROM ForumPostAttachment WHERE hash='$image_hash' ORDER BY censor ASC LIMIT 1")->fetchColumn();
+                                 if ($image_censor === FALSE) {
+                                     $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment, hash) VALUES($post_id, 0, '$img_file', '$image_hash')");
+                                 } else {
+                                     $database->exec("INSERT OR REPLACE INTO ForumPostAttachment (id_post, idx, attachment, censor, hash) VALUES($post_id, 0, '$img_file', $image_censor, '$image_hash')");
+                                 }
                             }
                         }
 
@@ -1988,7 +2011,15 @@ if (!$database) {
                     $image_ext = substr(strrchr($attachment, '.'), 1);
                     if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
                         $image_ext == 'webp') {
-?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>"/></a><?php
+?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><div class="imagebox"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>"/><?php
+    if (is_forum_admin()) {
+	if ($censor < 0) {
+	    ?><span onclick="window.location='<?php echo $_SERVER['REQUEST_URI']; ?>&image_censor=0&image_name=<?php echo $attachment; ?>'; return false;">Показать</span><?php
+	} else {
+	    ?><span onclick="window.location='<?php echo $_SERVER['REQUEST_URI']; ?>&image_censor=1&image_name=<?php echo $attachment; ?>'; return false;">Скрыть</span><?php
+	}
+    }
+?></div></a><?php
                     } else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 ?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
                     } else {
