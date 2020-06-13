@@ -210,6 +210,10 @@ img.censored {
 	filter: blur(30px);
 }
 
+video.censored {
+	filter: blur(30px);
+}
+
 .postyoutube {
 	width: 420px;
 	height: 315px;
@@ -234,6 +238,7 @@ img.censored {
 	border: 0;
 	position: relative;
 	overflow: hidden;
+	float: left;
 }
 
 .videobox a {

@@ -2023,7 +2023,7 @@ if (!$database) {
                     } else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
 ?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
                     } else {
-?><video class="postvideo" controls><?php
+?><div class="videobox"><video class="postvideo<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>" controls><?php
                         if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
 ?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
                         } else if ($image_ext == 'ogv') {
@@ -2032,6 +2032,13 @@ if (!$database) {
 ?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
                         }
 ?>Your browser does not support the video tag.</video><?php
+    if (is_forum_admin()) {
+	if ($censor < 0) {
+	    ?><a href="#" class="videolink" onclick="window.location='<?php echo $_SERVER['REQUEST_URI']; ?>&image_censor=0&image_name=<?php echo $attachment; ?>'; return false;">Показать</a><?php
+	} else {
+	    ?><a href="#" class="videolink" onclick="window.location='<?php echo $_SERVER['REQUEST_URI']; ?>&image_censor=1&image_name=<?php echo $attachment; ?>'; return false;">Скрыть</a><?php
+	}
+    }?></div><?php
                     }
                 }
             }
