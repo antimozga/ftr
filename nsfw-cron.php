@@ -135,6 +135,25 @@ foreach($results as $row) {
 		    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 		}
 	    }
+	} else if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4' || $image_ext == 'ogv' || $image_ext == 'webm') {
+	    if (file_exists($upload_path.'/'.$row->attachment)) {
+		printf("Processing %s\n", $row->attachment);
+		system("ffmpeg -y -loglevel warning -sseof -3 -i $upload_path/{$row->attachment} -vf scale=299:-1 -update 1 -q:v 1 /tmp/small-{$row->attachment}.jpg");
+		$ret = censor("/tmp/small-{$row->attachment}.jpg");
+		unlink("/tmp/small-{$row->attachment}.jpg");
+
+		if ($ret == 0) {
+		    system("ffmpeg -y -loglevel warning -i $upload_path/{$row->attachment} -vf scale=299:-1 -vframes 1 /tmp/small-{$row->attachment}.jpg");
+		    $ret = censor("/tmp/small-{$row->attachment}.jpg");
+		    unlink("/tmp/small-{$row->attachment}.jpg");
+		}
+
+		if ($ret > 0) {
+		    $database->exec("UPDATE ForumPostAttachment SET censor=-1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
+		} else if ($ret == 0) {
+		    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
+		}
+	    }
 	} else {
 	    $database->exec("UPDATE ForumPostAttachment SET censor=1 WHERE id_post={$row->id_post} AND idx={$row->idx}");
 	}
