@@ -994,6 +994,22 @@ if (!$database) {
                         $nick = "Анонимно";
                     }
 
+                    if ($id_user == 0 || $nick != $_SESSION['myuser_name']) {
+                        $is_registered_user = $database->query("SELECT id FROM ForumUsers WHERE login='$nick'")->fetchColumn();
+                        if (is_numeric($is_registered_user)) {
+                            if ($is_registered_user > 0) {
+                                $myObj = [
+                                    'error' => 'Выбранное вами имя имеет зарегистрированного владельца. Войдите, если оно ваше.',
+                                    'url' => "?t=$id_topic"
+                                ];
+
+                                echo json_encode($myObj);
+
+                                exit();
+                            }
+                        }
+                    }
+
                     $mymoder = new AutoModerator();
                     if ($mymoder->moderated($subj . ' ' . $nick)) {
                         $purgatory = 0;
@@ -2007,7 +2023,7 @@ if (!$database) {
                 $attachment = $post_data['attachment'];
                 $censor = $post_data['censor'];
 
-                if (file_exists($UPLOAD_DIR.'/'.$filename)) {
+                if (isset($attachment) && file_exists($UPLOAD_DIR.'/'.$attachment)) {
                     $image_ext = substr(strrchr($attachment, '.'), 1);
                     if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
                         $image_ext == 'webp') {
