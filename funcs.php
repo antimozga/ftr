@@ -286,15 +286,16 @@ function clon_detector($str)
 
 function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
 {
+    $clon = "";
+    if (clon_detector($post_nick)) {
+        $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
+    }
+
     if (($post_nick == $user_login) && ($post_nick_id == $user_id) && ($user_id != 0)) {
-        $clon = "";
-        if (clon_detector($post_nick)) {
-            $clon = '<label class="cloned" title="Осторожно! Возможно фальшивый ник, смесь разных символов.">?</label>';
-        }
         return '<a href="#" onclick="load_modal(\'userinfo.php?id=' . $user_id . '\'); return false;">' . $post_nick . '</a>' . $clon;
     }
 
-    return $post_nick;
+    return $post_nick . $clon;
 }
 
 function get_href()
