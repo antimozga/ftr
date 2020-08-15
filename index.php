@@ -818,8 +818,13 @@ if (!$database) {
         }
 
         $nav_path = "<a href=\"?g=" . $id_grp . "\">" . $topic . "</a>";
-	} else if (is_defined("topic")) {
-        $id_topic = $_REQUEST["topic"];
+	} else if (is_defined("topic") || is_defined("t")) {
+        if (is_defined("topic")) {
+            $id_topic = $_REQUEST["topic"];
+        } else {
+            $id_topic = $_REQUEST["t"];
+        }
+
         $id_topic = ($id_topic * 10) / 10;
 
         if ($id_user != 0 && is_defined("like")) {
