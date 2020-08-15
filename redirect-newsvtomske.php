@@ -27,7 +27,7 @@ if (strpos($link, '/news/') === false) {
 $id_topic = $database->query("SELECT id_topic FROM NewsVTomske WHERE link='$link'")->fetchColumn();
 
 if ($id_topic != "") {
-    header("Location: https://foruma.vtomske.net/?t=$id_topic");
+    header("Location: https://foruma.vtomske.net/?topic=$id_topic");
     exit();
 } else {
     ?>

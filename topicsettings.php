@@ -119,13 +119,13 @@ if (! $database) {
                     ?>		    
 Пользователь <?php echo format_user_nick($invite_login, $invite_id_user, $invite_login, $invite_id_user).$anon_session; ?>
  уже добавлен в список доступа темы <a
-		href="?t=<?php echo $id_topic; ?>" target="_blank"><?php echo $topic; ?></a>.
+		href="?topic=<?php echo $id_topic; ?>" target="_blank"><?php echo $topic; ?></a>.
  Удалить пользователя можно в настройках темы.
 <?php
                 } else {
                     ?>
 Пользователь <?php echo format_user_nick($invite_login, $invite_id_user, $invite_login, $invite_id_user).$anon_session; ?>
- просит доступ к теме <a href="?t=<?php echo $id_topic; ?>"
+ просит доступ к теме <a href="?topic=<?php echo $id_topic; ?>"
 		target="_blank"><?php echo $topic; ?></a><br>
 	<br>
 	<button type="button" id="add_submit"

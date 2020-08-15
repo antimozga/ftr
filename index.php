@@ -738,6 +738,21 @@ if (!$database) {
             exit();
         }
 
+        if (is_defined('shide')) {
+            $id_topic = addslashes($_REQUEST['topic']);
+            $session_id = addslashes($_REQUEST['shide']);
+            $time = addslashes($_REQUEST['time']);
+            $period = addslashes($_REQUEST['period']);
+
+            if ($session_id != "" && is_numeric($time) && is_numeric($period) && is_numeric($id_topic) && $id_topic > 0) {
+		$mintime = $time - $period * 60;
+                $database->exec("UPDATE ForumPosts ".
+                                "SET hidden=1 ".
+                                "WHERE id_session='$session_id' AND id_topic=$id_topic AND time <= $time AND time > $mintime");
+            }
+            redirect_without('shide');
+        }
+
         if (is_defined("dp")) {
             $dp = $_REQUEST["dp"];
             $dp = ($dp * 10) / 10;
@@ -803,8 +818,8 @@ if (!$database) {
         }
 
         $nav_path = "<a href=\"?g=" . $id_grp . "\">" . $topic . "</a>";
-	} else if (is_defined("t")) {
-        $id_topic = $_REQUEST["t"];
+	} else if (is_defined("topic")) {
+        $id_topic = $_REQUEST["topic"];
         $id_topic = ($id_topic * 10) / 10;
 
         if ($id_user != 0 && is_defined("like")) {
@@ -851,13 +866,13 @@ if (!$database) {
 
         if ($id_user != 0) {
             if ($database->query("SELECT id_user FROM ForumUserLike WHERE id_user=$id_user AND id_like=$id_topic AND type=0")->fetchColumn() == $id_user) {
-                $ctrlink = '<a style="float: right" href="?t=' . $id_topic . '&like=0">-</a>';
+                $ctrlink = '<a style="float: right" href="?topic=' . $id_topic . '&like=0">-</a>';
             } else {
-                $ctrlink = '<a style="float: right" href="?t=' . $id_topic . '&like=1">+</a>';
+                $ctrlink = '<a style="float: right" href="?topic=' . $id_topic . '&like=1">+</a>';
             }
         }
 
-        $nav_path = "<a href=\"?g=$id_group\">$group</a> &nbsp;/&nbsp; <a href=\"?t=$id_topic\">$topic</a>";
+        $nav_path = "<a href=\"?g=$id_group\">$group</a> &nbsp;/&nbsp; <a href=\"?topic=$id_topic\">$topic</a>";
         if ($purgatory != 0 && is_hardcore_on() == 0) {
             $nav_path = $nav_path . "&nbsp[<a href=\"?g=$FORUM_PURGATORIUM_GID\">Чистилище</a>]";
         }
@@ -916,7 +931,7 @@ if (!$database) {
             if ($id_topic != 0 && $topic_readonly && $id_topic_owner != $id_user) {
                 $myObj = [
                     'error' => "Тема закрыта для сообщений...",
-                    'url' => "?t=$id_topic"
+                    'url' => "?topic=$id_topic"
                 ];
 
                 echo json_encode($myObj);
@@ -935,12 +950,12 @@ if (!$database) {
                     if ($id_user != 0 || ($id_user == 0 and $row['id_session'] != '')) {
                         $myObj = [
                             'error' => "Тема закрыта для ваших сообщений.",
-                            'url' => "?t=$id_topic"
+                            'url' => "?topic=$id_topic"
                         ];
                     } else {
                         $myObj = [
                             'error' => "Тема закрыта для анонимных сообщений.",
-                            'url' => "?t=$id_topic"
+                            'url' => "?topic=$id_topic"
                         ];
                     }
 
@@ -1000,7 +1015,7 @@ if (!$database) {
                             if ($is_registered_user > 0) {
                                 $myObj = [
                                     'error' => 'Выбранное вами имя имеет зарегистрированного владельца. Войдите, если оно ваше.',
-                                    'url' => "?t=$id_topic"
+                                    'url' => "?topic=$id_topic"
                                 ];
 
                                 echo json_encode($myObj);
@@ -1111,7 +1126,7 @@ if (!$database) {
                         if ($id_topic != 0) {
                             $uri = $_SERVER['REQUEST_URI'];
                         } else {
-                            $uri = "?t=$topic_id";
+                            $uri = "?topic=$topic_id";
                         }
                         // header("Location: $uri", true, 301);
                         // exit();
@@ -1726,7 +1741,7 @@ if (!$database) {
 	<tr>
 		<td class="tdw1 <?php echo $topic_owner; ?>"><?php echo $timestamp; ?></td>
 		<td class="tdw3 <?php echo $topic_owner; ?>">
-			<a href="?t=<?php echo $row['id_topic']; ?>" title="<?php echo $row['grp']; ?>"><?php echo $row['topic']; ?></a>
+			<a href="?topic=<?php echo $row['id_topic']; ?>" title="<?php echo $row['grp']; ?>"><?php echo $row['topic']; ?></a>
 			&nbsp;[<?php echo $row['view']; ?>/<?php echo $row['posts']; ?> - <?php echo $row['last_nick']; ?>]
 			<div class="topic_control_panel">
 <?php
@@ -1884,10 +1899,10 @@ if (!$database) {
 
 	    $numentry = ($page - 1) * $MAX_PAGE_ENTRIES;
         if ($numentry + $MAX_PAGE_ENTRIES < $posts) {
-            $pnext = "?t=" . $id_topic . "&p=" . ($page + 1);
+            $pnext = "?topic=" . $id_topic . "&p=" . ($page + 1);
         }
         if ($page > 1) {
-            $pprev = "?t=" . $id_topic . "&p=" . ($page - 1);
+            $pprev = "?topic=" . $id_topic . "&p=" . ($page - 1);
         }
         
 	    show_page_control('down', $page, ceil($posts / $MAX_PAGE_ENTRIES), $pprev, $pnext, $id_topic);
@@ -2006,8 +2021,9 @@ if (!$database) {
 
             if (is_forum_admin()) {
 ?>
-		<a href="?t=<?php echo $id_topic; ?>&dp=<?php echo $row['id_post']; ?>" class="remove">Удалить</a>
+		<a href="?topic=<?php echo $id_topic; ?>&dp=<?php echo $row['id_post']; ?>" class="remove">Удалить</a>
 		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&sdel=<?php echo $post_id_session; ?>" class="remove">Удалить сессию</a>
+		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&shide=<?php echo $post_id_session; ?>&time=<?php echo $row['time']; ?>&period=30" class="remove">Скрыть за последние 30 мин.</a>
 <?php
             }
 ?>
@@ -2073,8 +2089,8 @@ if (!$database) {
 				<path d="m 12,6 h 3 V 5.99 C 15.0055,8.2030432 13.21305,10.000007 11,10 H 8 V 5 l -6,6 6,6 v -5 h 3 c 3.313708,0 6,-2.6862915 6,-6 v 0 h 3 V 3 H 18 V 4 H 14 V 3 h -2 z"/>
 			</svg>
 		</a>
-		<a href="/?t=<?php echo $id_topic; ?>&post=<?php echo $row['id_post']; ?>#post<?php echo $row['id_post']; ?>"
-			onclick="copyStringToClipboard('https://<?php echo $_SERVER['HTTP_HOST'].'/?t='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post']; ?>'); popup_copy('pop<?php echo $row['id_post']; ?>'); return false;" class="reply">
+		<a href="/?topic=<?php echo $id_topic; ?>&post=<?php echo $row['id_post']; ?>#post<?php echo $row['id_post']; ?>"
+			onclick="copyStringToClipboard('https://<?php echo $_SERVER['HTTP_HOST'].'/?topic='.$id_topic.'&post='.$row['id_post'].'#post'.$row['id_post']; ?>'); popup_copy('pop<?php echo $row['id_post']; ?>'); return false;" class="reply">
 			<svg viewBox="0 0 20 20" width="16px" class="svg_button">
 				<title>Ссылка на это сообщение</title>
 				<path d="M11 12h6v-1l-3-1V2l3-1V0H3v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"/>

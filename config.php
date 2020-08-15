@@ -12,7 +12,7 @@ $FORUM_TITLE = "ТОМСКИЙ ФОРУМ";
 
 $FORUM_NAME = "Томский форум";
 
-$FORUM_RULES_LINK="?t=1";
+$FORUM_RULES_LINK="?topic=1";
 
 $MAX_PAGE_ENTRIES = 30;		// максимальное число тем на странице
 
