@@ -2044,11 +2044,15 @@ if (!$database) {
                 $attachment = $post_data['attachment'];
                 $censor = $post_data['censor'];
 
-                if (isset($attachment) && file_exists($UPLOAD_DIR.'/'.$attachment)) {
+                if (isset($attachment)) {
+                    $media_url=$UPLOAD_DIR;
+                    if (!file_exists($UPLOAD_DIR.'/'.$attachment)) {
+                        $media_url="https://video.vtomske.net/uploads";
+                    }
                     $image_ext = substr(strrchr($attachment, '.'), 1);
                     if ($image_ext == 'jpg'  || $image_ext == 'jpeg'  || $image_ext == 'gif' || $image_ext == 'png' ||
                         $image_ext == 'webp') {
-?><a href="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><div class="imagebox"><img src="<?php echo $UPLOAD_DIR.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>"/><?php
+?><a href="<?php echo $media_url.'/'.$attachment; ?>" class="highslide" onclick="return hs.expand(this)"><div class="imagebox"><img src="<?php echo $media_url.'/small-'.$attachment; ?>" alt="" class="postimage<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>"/><?php
     if (is_forum_admin()) {
 	if ($censor < 0) {
 	    ?><span onclick="window.location='<?php echo $_SERVER['REQUEST_URI']; ?>&image_censor=0&image_name=<?php echo $attachment; ?>'; return false;">Показать</span><?php
@@ -2058,15 +2062,15 @@ if (!$database) {
     }
 ?></div></a><?php
                     } else if ($image_ext == 'oga' || $image_ext == 'mp4a' || $image_ext == 'm4a') {
-?><audio class="postvideo" controls><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>"></audio><?php
+?><audio class="postvideo" controls><source src="<?php echo $media_url.'/'.$attachment; ?>"></audio><?php
                     } else {
 ?><div class="videobox"><video class="postvideo<?php echo ($censor < 0 && !is_hardcore_on())?' censored':''; ?>" controls><?php
                         if ($image_ext == 'mp4' || $image_ext == 'mpg4' || $image_ext == 'mpeg4') {
-?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/mp4"><?php
+?><source src="<?php echo $media_url.'/'.$attachment; ?>" type="video/mp4"><?php
                         } else if ($image_ext == 'ogv') {
-?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/ogg"><?php
+?><source src="<?php echo $media_url.'/'.$attachment; ?>" type="video/ogg"><?php
                         } else if ($image_ext == 'webm') {
-?><source src="<?php echo $UPLOAD_DIR.'/'.$attachment; ?>" type="video/webm"><?php
+?><source src="<?php echo $media_url.'/'.$attachment; ?>" type="video/webm"><?php
                         }
 ?>Your browser does not support the video tag.</video><?php
     if (is_forum_admin()) {
