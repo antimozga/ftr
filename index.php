@@ -1184,8 +1184,11 @@ if (!$database) {
                 $reg_mode = 4;
             } else {
                 $user_password = md5($user_password);
-                $login = $database->query("SELECT login FROM ForumUsers WHERE login LIKE '$user_name'")->fetchColumn();
-                if ($login != $user_name) {
+                $user_name_fake_lat = convert_fake_string($user_name, 0);
+                $user_name_fake_cyr = convert_fake_string($user_name, 1);
+
+                $login = $database->query("SELECT login FROM ForumUsers WHERE login LIKE '$user_name' OR login LIKE '$user_name_fake_lat' OR login LIKE '$user_name_fake_cyr' LIMIT 1")->fetchColumn();
+                if ($login == "") {
                     $tim = time();
                     $query = "REPLACE INTO ForumUsers (id, login, password, email, fio, gender, description, time, last_login)".
                         " VALUES (NULL, '$user_name', '$user_password', '$user_email', '$user_fio', '$user_gender', '$user_description', $tim, 0)";

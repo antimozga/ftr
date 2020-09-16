@@ -45,6 +45,7 @@ hs.graphicsDir = 'graphics/';
 hs.wrapperClassName = 'borderless';
 
 	</script>
+	<script data-ad-client="ca-pub-3983273189392987" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
 	<div class="modal">

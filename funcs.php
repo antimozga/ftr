@@ -298,6 +298,19 @@ function format_user_nick($post_nick, $post_nick_id, $user_login, $user_id)
     return $post_nick . $clon;
 }
 
+function convert_fake_string($str, $cyrlat)
+{
+    $search  = array('0', 'К', 'Е', 'Н', 'З', 'Х', 'у', 'к', 'е', 'х', 'В', 'А', 'Р', 'О', 'а', 'р', 'о', 'С', 'М', 'Т', 'с', 'м', 'б');
+    $replace = array('O', 'K', 'E', 'H', '3', 'X', 'y', 'k', 'e', 'x', 'B', 'A', 'P', 'O', 'a', 'p', 'o', 'C', 'M', 'T', 'c', 'm', '6');
+
+    if ($cyrlat === 1) {
+	$search   = array('0', 'K', 'E', 'H', '3', 'X', 'y', 'k', 'e', 'x', 'B', 'A', 'P', 'O', 'a', 'p', 'o', 'C', 'M', 'T', 'c', 'm', '6');
+	$replace  = array('О', 'К', 'Е', 'Н', 'З', 'Х', 'у', 'к', 'е', 'х', 'В', 'А', 'Р', 'О', 'а', 'р', 'о', 'С', 'М', 'Т', 'с', 'м', 'б');
+    }
+
+    return str_replace($search, $replace, $str);
+}
+
 function get_href()
 {
     $uri = $_SERVER['REQUEST_URI'];
