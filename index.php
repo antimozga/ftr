@@ -753,6 +753,21 @@ if (!$database) {
             redirect_without('shide');
         }
 
+        if (is_defined('shideall')) {
+            $id_topic = addslashes($_REQUEST['topic']);
+            $session_id = addslashes($_REQUEST['shideall']);
+            $time = addslashes($_REQUEST['time']);
+            $period = addslashes($_REQUEST['period']);
+
+            if ($session_id != "" && is_numeric($time) && is_numeric($period) && is_numeric($id_topic) && $id_topic > 0) {
+		$mintime = $time - $period * 60;
+                $database->exec("UPDATE ForumPosts ".
+                                "SET hidden=1 ".
+                                "WHERE id_session='$session_id' AND time <= $time AND time > $mintime");
+            }
+            redirect_without('shideall');
+        }
+
         if (is_defined("dp")) {
             $dp = $_REQUEST["dp"];
             $dp = ($dp * 10) / 10;
@@ -2032,6 +2047,7 @@ if (!$database) {
 		<a href="?topic=<?php echo $id_topic; ?>&dp=<?php echo $row['id_post']; ?>" class="remove">Удалить</a>
 		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&sdel=<?php echo $post_id_session; ?>" class="remove">Удалить сессию</a>
 		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&shide=<?php echo $post_id_session; ?>&time=<?php echo $row['time']; ?>&period=30" class="remove">Скрыть за последние 30 мин.</a>
+		<a href="<?php echo $_SERVER['REQUEST_URI']; ?>&shideall=<?php echo $post_id_session; ?>&time=<?php echo $row['time']; ?>&period=30" class="remove">Скрыть все за последние 30 мин.</a>
 <?php
             }
 ?>
