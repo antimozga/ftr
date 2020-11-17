@@ -164,6 +164,22 @@ function convert_tiktok2($string) {
     );
 }
 
+function convert_google_form($string) {
+    return preg_replace(
+	"/\s*https\:\/\/forms.gle\/([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
+	"<div class=\"resp-container\"><iframe class=\"resp-iframe\" src=\"https://forms.gle/$1\">Загрузка...</iframe></div>",
+	$string
+    );
+}
+
+function convert_google_form2($string) {
+    return preg_replace(
+	"/\s*https\:\/\/docs.google.com\/forms\/([a-zA-Z0-9\/\-_]+)\/viewform\?usp\=sf_link/i",
+	"<div class=\"resp-container\"><iframe class=\"resp-iframe\" src=\"https://docs.google.com/forms/$1/viewform?embedded=true\">Загрузка...</iframe></div>",
+	$string
+    );
+}
+
 /**
  * Turn all URLs in clickable links.
  *
