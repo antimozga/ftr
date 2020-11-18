@@ -1994,7 +1994,20 @@ if (!$database) {
                 $post_id_session = $row['id_session'];
             }
 
-            $post = linkify(convert_tiktok2(convert_tiktok(convert_vkv(convert_youtube(convert_google_form2(convert_google_form($tmp_post)))))), array(
+            $post = linkify(convert_tiktok2(
+				convert_tiktok(
+				    convert_vkv(
+					convert_youtube(
+					    convert_google_form2(
+						convert_telegram(
+						    convert_google_form($tmp_post)
+						)
+					    )
+					)
+				    )
+				)
+			    ),
+	    array(
                 "http",
                 "https"
             ), array(

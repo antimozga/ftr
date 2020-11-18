@@ -180,6 +180,14 @@ function convert_google_form2($string) {
     );
 }
 
+function convert_telegram($string) {
+    return preg_replace(
+	"/\s*https\:\/\/t.me\/([a-zA-Z0-9\/\-\_\.\%]*)/i",
+	"<script async src=\"https://telegram.org/js/telegram-widget.js?14\" data-telegram-post=\"$1\" data-width=\"100%\"></script>",
+	$string
+    );
+}
+
 /**
  * Turn all URLs in clickable links.
  *
